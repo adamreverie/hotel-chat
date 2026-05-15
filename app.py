@@ -132,7 +132,7 @@ def chat():
         
         resend.Emails.send({
             "from": "onboarding@resend.dev",
-            "to": "your-email@gmail.com",
+            "to": "vinsadam11@gmail.com",
             "subject": "🛎️ New Guest Request",
             "html": f"<h2>New Guest Request</h2><p>{alert_details}</p>"
         })
@@ -176,7 +176,7 @@ def submit_feedback():
     # Email manager
     resend.Emails.send({
         "from": "onboarding@resend.dev",
-        "to": "your-email@gmail.com",
+        "to": "vinsadam11@gmail.com",
         "subject": f"⭐ New Feedback from Room {room_number}",
         "html": f"""
         <h2>New Guest Feedback</h2>
