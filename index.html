@@ -173,6 +173,25 @@
     color: #1a1a2e;
     text-decoration: underline;
 }
+ @media (max-width: 768px) {
+            body {
+                align-items: flex-start;
+                padding: 0;
+            }
+            .chat-container {
+                width: 100%;
+                height: 100vh;
+                height: 100dvh;
+                border-radius: 0;
+            }
+            .messages {
+                flex: 1;
+                overflow-y: auto;
+            }
+            input {
+                font-size: 16px;
+            }
+        }
     </style>
 </head>
 <body>
