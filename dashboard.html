@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manager Dashboard | Park Regis Kris Kin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+        .header {
+            background: #1a1a2e;
+            color: white;
+            padding: 20px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h2 { font-size: 18px; }
+        .header p { font-size: 12px; opacity: 0.7; }
+        .logout {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .body { padding: 20px; max-width: 800px; margin: 0 auto; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .stat-card .emoji { font-size: 28px; margin-bottom: 8px; }
+        .stat-card .score {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1a1a2e;
+        }
+        .stat-card .label {
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
+        }
+        .total-card {
+            background: #1a1a2e;
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+        .total-card .number {
+            font-size: 48px;
+            font-weight: bold;
+        }
+        .total-card .label {
+            font-size: 13px;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .feedback-card {
+            background: white;
+            border-radius: 15px;
+            padding: 18px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .feedback-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .guest-info { font-size: 14px; font-weight: bold; color: #1a1a2e; }
+        .guest-room { font-size: 12px; color: #999; margin-top: 2px; }
+        .feedback-date { font-size: 11px; color: #999; }
+        .scores-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .score-badge {
+            background: #f5f5f5;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+        .comment {
+            font-size: 13px;
+            color: #555;
+            font-style: italic;
+            border-left: 3px solid #1a1a2e;
+            padding-left: 10px;
+            margin-top: 8px;
+        }
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-size: 14px;
+        }
+
+        /* Login overlay */
+        .login-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .login-box {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            width: 320px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        .login-box h2 {
+            font-size: 20px;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+        }
+        .login-box p {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 25px;
+        }
+        .login-box input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            margin-bottom: 15px;
+            text-align: center;
+            letter-spacing: 4px;
+        }
+        .login-box input:focus { border-color: #1a1a2e; }
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: #1a1a2e;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+        .login-error {
+            color: red;
+            font-size: 12px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Login Overlay -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-box">
+            <div style="font-size: 40px; margin-bottom: 15px;">🏨</div>
+            <h2>Manager Dashboard</h2>
+            <p>Park Regis Kris Kin</p>
+            <input 
+                type="password" 
+                id="passwordInput" 
+                placeholder="Enter password"
+                onkeypress="if(event.key==='Enter') login()"
+            />
+            <button class="login-btn" onclick="login()">Access Dashboard</button>
+            <p class="login-error" id="loginError">Incorrect password. Try again.</p>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" style="display:none;">
+        <div class="header">
+            <div>
+                <h2>🏨 Manager Dashboard</h2>
+                <p>Park Regis Kris Kin — Guest Feedback</p>
+            </div>
+            <button class="logout" onclick="logout()">Logout</button>
+        </div>
+
+        <div class="body">
+
+            <div class="total-card">
+                <div class="number" id="totalResponses">—</div>
+                <div class="label">Total Feedback Responses</div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="emoji">⭐</div>
+                    <div class="score" id="avgOverall">—</div>
+                    <div class="label">Overall Experience</div>
+                </div>
+                <div class="stat-card">
+                    <div class="emoji">🛏️</div>
+                    <div class="score" id="avgCleanliness">—</div>
+                    <div class="label">Room Cleanliness</div>
+                </div>
+                <div class="stat-card">
+                    <div class="emoji">👋</div>
+                    <div class="score" id="avgStaff">—</div>
+                    <div class="label">Staff Friendliness</div>
+                </div>
+                <div class="stat-card">
+                    <div class="emoji">🍽️</div>
+                    <div class="score" id="avgDining">—</div>
+                    <div class="label">Dining Experience</div>
+                </div>
+                <div class="stat-card">
+                    <div class="emoji">📶</div>
+                    <div class="score" id="avgWifi">—</div>
+                    <div class="label">WiFi Quality</div>
+                </div>
+            </div>
+
+            <p class="section-title">📋 Recent Feedback</p>
+            <div id="feedbackList"></div>
+
+        </div>
+    </div>
+
+    <script>
+        const DASHBOARD_PASSWORD = "milujualexie";
+
+        function login() {
+            const input = document.getElementById('passwordInput').value;
+            if (input === DASHBOARD_PASSWORD) {
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                loadData();
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+            }
+        }
+
+        function logout() {
+            document.getElementById('loginOverlay').style.display = 'flex';
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('passwordInput').value = '';
+        }
+
+        function scoreEmoji(score) {
+            const emojis = {1: '😞', 2: '😐', 3: '🙂', 4: '😊', 5: '🤩'};
+            return emojis[score] || '—';
+        }
+
+        async function loadData() {
+            const response = await fetch('/feedback-stats');
+            const data = await response.json();
+            const avg = data.averages;
+
+            document.getElementById('totalResponses').textContent = avg.total_responses;
+            document.getElementById('avgOverall').textContent = avg.overall + '/5';
+            document.getElementById('avgCleanliness').textContent = avg.cleanliness + '/5';
+            document.getElementById('avgStaff').textContent = avg.staff + '/5';
+            document.getElementById('avgDining').textContent = avg.dining + '/5';
+            document.getElementById('avgWifi').textContent = avg.wifi + '/5';
+
+            const list = document.getElementById('feedbackList');
+
+            if (data.recent.length === 0) {
+                list.innerHTML = '<div class="no-data">No feedback yet. Share the feedback link with guests! 🙏</div>';
+                return;
+            }
+
+            list.innerHTML = data.recent.map(f => `
+                <div class="feedback-card">
+                    <div class="feedback-top">
+                        <div>
+                            <div class="guest-info">${f[1] || 'Guest'}</div>
+                            <div class="guest-room">Room ${f[2] || 'N/A'}</div>
+                        </div>
+                        <div class="feedback-date">${f[9]}</div>
+                    </div>
+                    <div class="scores-row">
+                        <span class="score-badge">⭐ ${scoreEmoji(f[3])} ${f[3]}/5</span>
+                        <span class="score-badge">🛏️ ${scoreEmoji(f[4])} ${f[4]}/5</span>
+                        <span class="score-badge">👋 ${scoreEmoji(f[5])} ${f[5]}/5</span>
+                        <span class="score-badge">🍽️ ${scoreEmoji(f[6])} ${f[6]}/5</span>
+                        <span class="score-badge">📶 ${scoreEmoji(f[7])} ${f[7]}/5</span>
+                    </div>
+                    ${f[8] ? `<div class="comment">"${f[8]}"</div>` : ''}
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>

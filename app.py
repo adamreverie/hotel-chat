@@ -103,6 +103,10 @@ def home():
 def feedback():
     return send_from_directory('.', 'feedback.html')
 
+@app.route('/dashboard')
+def dashboard():
+    return send_from_directory('.', 'dashboard.html')
+
 @app.route('/chat', methods=['POST'])
 def chat():
     user_message = request.json.get('message')
