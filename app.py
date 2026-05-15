@@ -1,5 +1,7 @@
 import os
 import resend
+import sqlite3
+from datetime import datetime
 from flask import Flask, request, jsonify, send_from_directory
 import anthropic
 
@@ -8,6 +10,26 @@ client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 resend.api_key = os.environ.get("RESEND_API_KEY")
 
 conversation_history = []
+
+# Database setup
+def init_db():
+    conn = sqlite3.connect('feedback.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS feedback
+                (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                 guest_name TEXT,
+                 room_number TEXT,
+                 overall INTEGER,
+                 cleanliness INTEGER,
+                 staff INTEGER,
+                 dining INTEGER,
+                 wifi INTEGER,
+                 comment TEXT,
+                 date TEXT)''')
+    conn.commit()
+    conn.close()
+
+init_db()
 
 system_prompt = """You are the AI guest assistant for Park Regis Kris Kin Hotel, 
 located in the heart of Bur Dubai, opposite BurJuman Shopping Centre.
@@ -70,11 +92,16 @@ maintenance, housekeeping, spa booking):
 For simple questions answer directly and helpfully.
 Always be warm, professional and friendly. Use occasional emojis.
 Reply in the same language the guest uses.
-Space everything out so it is easy to read."""
+Never use markdown formatting like #, ##, **, or ---.
+Use plain text only with line breaks for spacing."""
 
 @app.route('/')
 def home():
     return send_from_directory('.', 'index.html')
+
+@app.route('/feedback')
+def feedback():
+    return send_from_directory('.', 'feedback.html')
 
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -99,23 +126,136 @@ def chat():
         "content": assistant_message
     })
     
-    # Check if staff needs to be notified
     if "STAFF_ALERT:" in assistant_message:
         alert_line = [line for line in assistant_message.split('\n') if 'STAFF_ALERT:' in line][0]
         alert_details = alert_line.replace('STAFF_ALERT:', '').strip()
         
         resend.Emails.send({
             "from": "onboarding@resend.dev",
-            "to": "vinsadam11@gmail.com",
+            "to": "your-email@gmail.com",
             "subject": "🛎️ New Guest Request",
             "html": f"<h2>New Guest Request</h2><p>{alert_details}</p>"
         })
         
-        # Clean message shown to guest
         clean_message = assistant_message.replace(alert_line, '').strip()
         return jsonify({"response": clean_message})
     
     return jsonify({"response": assistant_message})
+
+@app.route('/submit-feedback', methods=['POST'])
+def submit_feedback():
+    data = request.json
+    
+    guest_name = data.get('guest_name', 'Guest')
+    room_number = data.get('room_number', 'N/A')
+    overall = data.get('overall', 0)
+    cleanliness = data.get('cleanliness', 0)
+    staff = data.get('staff', 0)
+    dining = data.get('dining', 0)
+    wifi = data.get('wifi', 0)
+    comment = data.get('comment', '')
+    date = datetime.now().strftime("%Y-%m-%d %H:%M")
+    
+    # Save to database
+    conn = sqlite3.connect('feedback.db')
+    c = conn.cursor()
+    c.execute('''INSERT INTO feedback 
+                (guest_name, room_number, overall, cleanliness, 
+                 staff, dining, wifi, comment, date)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+              (guest_name, room_number, overall, cleanliness,
+               staff, dining, wifi, comment, date))
+    conn.commit()
+    conn.close()
+    
+    # Emoji helper
+    def score_emoji(score):
+        emojis = {1: "😞", 2: "😐", 3: "🙂", 4: "😊", 5: "🤩"}
+        return emojis.get(score, "N/A")
+    
+    # Email manager
+    resend.Emails.send({
+        "from": "onboarding@resend.dev",
+        "to": "your-email@gmail.com",
+        "subject": f"⭐ New Feedback from Room {room_number}",
+        "html": f"""
+        <h2>New Guest Feedback</h2>
+        <p><strong>Guest:</strong> {guest_name}</p>
+        <p><strong>Room:</strong> {room_number}</p>
+        <p><strong>Date:</strong> {date}</p>
+        <hr>
+        <p>Overall Experience: {score_emoji(overall)} {overall}/5</p>
+        <p>Room Cleanliness: {score_emoji(cleanliness)} {cleanliness}/5</p>
+        <p>Staff Friendliness: {score_emoji(staff)} {staff}/5</p>
+        <p>Dining Experience: {score_emoji(dining)} {dining}/5</p>
+        <p>WiFi Quality: {score_emoji(wifi)} {wifi}/5</p>
+        <hr>
+        <p><strong>Comment:</strong> {comment or 'No comment left'}</p>
+        """
+    })
+    
+    return jsonify({"success": True})
+
+@app.route('/send-feedback-email', methods=['POST'])
+def send_feedback_email():
+    data = request.json
+    guest_email = data.get('email')
+    guest_name = data.get('name', 'Guest')
+    room_number = data.get('room', '')
+    
+    feedback_link = f"{request.host_url}feedback?room={room_number}&name={guest_name}"
+    
+    resend.Emails.send({
+        "from": "onboarding@resend.dev",
+        "to": guest_email,
+        "subject": "How was your stay at Park Regis Kris Kin? 🏨",
+        "html": f"""
+        <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto;">
+            <h2 style="color: #1a1a2e;">Thank you for staying with us!</h2>
+            <p>Dear {guest_name},</p>
+            <p>We hope you had a wonderful stay at Park Regis Kris Kin Dubai.</p>
+            <p>We'd love to hear about your experience. It takes less than 30 seconds:</p>
+            <a href="{feedback_link}" 
+               style="background: #1a1a2e; color: white; padding: 12px 24px; 
+                      text-decoration: none; border-radius: 25px; display: inline-block;
+                      margin: 20px 0;">
+                Share Your Feedback →
+            </a>
+            <p style="color: #999; font-size: 12px;">
+                Park Regis Kris Kin Dubai<br>
+                Sheikh Khalifah Bin Zayed St, Bur Dubai
+            </p>
+        </div>
+        """
+    })
+    
+    return jsonify({"success": True})
+
+@app.route('/feedback-stats')
+def feedback_stats():
+    conn = sqlite3.connect('feedback.db')
+    c = conn.cursor()
+    c.execute('''SELECT 
+                AVG(overall), AVG(cleanliness), 
+                AVG(staff), AVG(dining), AVG(wifi),
+                COUNT(*) FROM feedback''')
+    row = c.fetchone()
+    
+    c.execute('SELECT * FROM feedback ORDER BY date DESC LIMIT 10')
+    recent = c.fetchall()
+    conn.close()
+    
+    return jsonify({
+        "averages": {
+            "overall": round(row[0] or 0, 1),
+            "cleanliness": round(row[1] or 0, 1),
+            "staff": round(row[2] or 0, 1),
+            "dining": round(row[3] or 0, 1),
+            "wifi": round(row[4] or 0, 1),
+            "total_responses": row[5]
+        },
+        "recent": recent
+    })
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)

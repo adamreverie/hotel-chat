@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Share Your Feedback | Park Regis Kris Kin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 420px;
+            overflow: hidden;
+        }
+        .header {
+            background: #1a1a2e;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h2 { font-size: 20px; margin-bottom: 6px; }
+        .header p { font-size: 13px; opacity: 0.7; }
+        .form-body { padding: 25px 20px; }
+        .guest-info {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .guest-info input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+        }
+        .guest-info input:focus { border-color: #1a1a2e; }
+        .category {
+            margin-bottom: 20px;
+        }
+        .category-label {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            display: block;
+        }
+        .emojis {
+            display: flex;
+            justify-content: space-between;
+            gap: 6px;
+        }
+        .emoji-btn {
+            flex: 1;
+            font-size: 24px;
+            padding: 8px;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .emoji-btn:hover { border-color: #1a1a2e; transform: scale(1.1); }
+        .emoji-btn.selected {
+            border-color: #1a1a2e;
+            background: #f0f0f8;
+            transform: scale(1.1);
+        }
+        .comment-section { margin-bottom: 20px; }
+        .comment-section label {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            display: block;
+            margin-bottom: 8px;
+        }
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            resize: none;
+            height: 80px;
+            outline: none;
+            font-family: Arial, sans-serif;
+        }
+        textarea:focus { border-color: #1a1a2e; }
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: #1a1a2e;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .submit-btn:hover { opacity: 0.85; }
+        .success {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .success h3 { font-size: 24px; margin-bottom: 10px; }
+        .success p { color: #666; font-size: 14px; }
+        .divider {
+            height: 1px;
+            background: #eee;
+            margin: 5px 0 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>🏨 Park Regis Kris Kin</h2>
+            <p>How was your stay? Takes 30 seconds 🙏</p>
+        </div>
+
+        <div class="form-body" id="formBody">
+            <div class="guest-info">
+                <input type="text" id="guestName" placeholder="Your name" />
+                <input type="text" id="roomNumber" placeholder="Room no." />
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="category">
+                <span class="category-label">⭐ Overall Experience</span>
+                <div class="emojis" data-category="overall">
+                    <button class="emoji-btn" data-score="1">😞</button>
+                    <button class="emoji-btn" data-score="2">😐</button>
+                    <button class="emoji-btn" data-score="3">🙂</button>
+                    <button class="emoji-btn" data-score="4">😊</button>
+                    <button class="emoji-btn" data-score="5">🤩</button>
+                </div>
+            </div>
+
+            <div class="category">
+                <span class="category-label">🛏️ Room Cleanliness</span>
+                <div class="emojis" data-category="cleanliness">
+                    <button class="emoji-btn" data-score="1">😞</button>
+                    <button class="emoji-btn" data-score="2">😐</button>
+                    <button class="emoji-btn" data-score="3">🙂</button>
+                    <button class="emoji-btn" data-score="4">😊</button>
+                    <button class="emoji-btn" data-score="5">🤩</button>
+                </div>
+            </div>
+
+            <div class="category">
+                <span class="category-label">👋 Staff Friendliness</span>
+                <div class="emojis" data-category="staff">
+                    <button class="emoji-btn" data-score="1">😞</button>
+                    <button class="emoji-btn" data-score="2">😐</button>
+                    <button class="emoji-btn" data-score="3">🙂</button>
+                    <button class="emoji-btn" data-score="4">😊</button>
+                    <button class="emoji-btn" data-score="5">🤩</button>
+                </div>
+            </div>
+
+            <div class="category">
+                <span class="category-label">🍽️ Dining Experience</span>
+                <div class="emojis" data-category="dining">
+                    <button class="emoji-btn" data-score="1">😞</button>
+                    <button class="emoji-btn" data-score="2">😐</button>
+                    <button class="emoji-btn" data-score="3">🙂</button>
+                    <button class="emoji-btn" data-score="4">😊</button>
+                    <button class="emoji-btn" data-score="5">🤩</button>
+                </div>
+            </div>
+
+            <div class="category">
+                <span class="category-label">📶 WiFi Quality</span>
+                <div class="emojis" data-category="wifi">
+                    <button class="emoji-btn" data-score="1">😞</button>
+                    <button class="emoji-btn" data-score="2">😐</button>
+                    <button class="emoji-btn" data-score="3">🙂</button>
+                    <button class="emoji-btn" data-score="4">😊</button>
+                    <button class="emoji-btn" data-score="5">🤩</button>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="comment-section">
+                <label>💬 Any comments? (optional)</label>
+                <textarea id="comment" placeholder="Tell us about your experience..."></textarea>
+            </div>
+
+            <button class="submit-btn" onclick="submitFeedback()">
+                Submit Feedback 🙏
+            </button>
+        </div>
+
+        <div class="success" id="successMsg">
+            <div style="font-size: 60px;">🤩</div>
+            <h3>Thank you!</h3>
+            <p>Your feedback means the world to us.<br>
+            We hope to welcome you back soon!</p>
+            <p style="margin-top: 20px; font-size: 12px; color: #999;">
+                Park Regis Kris Kin Dubai
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const scores = {
+            overall: 0,
+            cleanliness: 0,
+            staff: 0,
+            dining: 0,
+            wifi: 0
+        };
+
+        // Get room and name from URL if sent via email link
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('name')) document.getElementById('guestName').value = params.get('name');
+        if (params.get('room')) document.getElementById('roomNumber').value = params.get('room');
+
+        // Emoji selection
+        document.querySelectorAll('.emojis').forEach(group => {
+            group.querySelectorAll('.emoji-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    group.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    scores[group.dataset.category] = parseInt(btn.dataset.score);
+                });
+            });
+        });
+
+        async function submitFeedback() {
+            if (Object.values(scores).some(s => s === 0)) {
+                alert('Please rate all categories before submitting 🙏');
+                return;
+            }
+
+            const data = {
+                guest_name: document.getElementById('guestName').value || 'Guest',
+                room_number: document.getElementById('roomNumber').value || 'N/A',
+                overall: scores.overall,
+                cleanliness: scores.cleanliness,
+                staff: scores.staff,
+                dining: scores.dining,
+                wifi: scores.wifi,
+                comment: document.getElementById('comment').value
+            };
+
+            await fetch('/submit-feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            document.getElementById('formBody').style.display = 'none';
+            document.getElementById('successMsg').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
