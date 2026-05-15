@@ -133,7 +133,7 @@
             color: #1a1a2e;
             padding: 4px 12px;
             border-radius: 18px;
-            font-size: 8px;
+            font-size: 10px;
             cursor: pointer;
         }
         .quick-reply:hover {
@@ -194,7 +194,7 @@
             <button class="quick-reply" onclick="sendQuick('🍳 Breakfast times')">🍳 Breakfast</button>
             <button class="quick-reply" onclick="sendQuick('🛎️ Room service')">🛎️ Room Service</button>
             <button class="quick-reply" onclick="sendQuick('🏊 Pool hours')">🏊 Pool</button>
-            <button class="quick-reply" onclick="sendQuick('🧹 I need towels')">🧹 Housekeeping</button>
+            <button class="quick-reply" onclick="sendQuick('🧹 Make up my room, please')">🧹 Cleanliness</button>
         </div>
 
         <div class="input-area">
@@ -227,7 +227,6 @@
             const message = input.value.trim();
             if (!message) return;
 
-            document.getElementById('quickReplies').style.display = 'none';
             addMessage(message, 'user');
             input.value = '';
 
