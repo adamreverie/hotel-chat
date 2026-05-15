@@ -69,7 +69,8 @@ maintenance, housekeeping, spa booking):
 
 For simple questions answer directly and helpfully.
 Always be warm, professional and friendly. Use occasional emojis.
-Reply in the same language the guest uses."""
+Reply in the same language the guest uses.
+Space everything out so it is easy to read."""
 
 @app.route('/')
 def home():
