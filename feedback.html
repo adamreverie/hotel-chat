@@ -36,15 +36,25 @@
             gap: 10px;
             margin-bottom: 20px;
         }
-        .guest-info input {
-            flex: 1;
+        #guestName {
+            flex: 2;
             padding: 10px 14px;
             border: 1px solid #ddd;
             border-radius: 10px;
             font-size: 14px;
             outline: none;
         }
-        .guest-info input:focus { border-color: #1a1a2e; }
+        #guestName:focus { border-color: #1a1a2e; }
+        #roomNumber {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            max-width: 90px;
+        }
+        #roomNumber:focus { border-color: #1a1a2e; }
         .category {
             margin-bottom: 20px;
         }
@@ -140,55 +150,55 @@
             <div class="category">
                 <span class="category-label">⭐ Overall Experience</span>
                 <div class="emojis" data-category="overall">
-                    <button class="emoji-btn" data-score="1">😞</button>
-                    <button class="emoji-btn" data-score="2">😐</button>
-                    <button class="emoji-btn" data-score="3">🙂</button>
-                    <button class="emoji-btn" data-score="4">😊</button>
                     <button class="emoji-btn" data-score="5">🤩</button>
+                    <button class="emoji-btn" data-score="4">😊</button>
+                    <button class="emoji-btn" data-score="3">🙂</button>
+                    <button class="emoji-btn" data-score="2">😐</button>
+                    <button class="emoji-btn" data-score="1">😞</button>
                 </div>
             </div>
 
             <div class="category">
                 <span class="category-label">🛏️ Room Cleanliness</span>
                 <div class="emojis" data-category="cleanliness">
-                    <button class="emoji-btn" data-score="1">😞</button>
-                    <button class="emoji-btn" data-score="2">😐</button>
-                    <button class="emoji-btn" data-score="3">🙂</button>
-                    <button class="emoji-btn" data-score="4">😊</button>
                     <button class="emoji-btn" data-score="5">🤩</button>
+                    <button class="emoji-btn" data-score="4">😊</button>
+                    <button class="emoji-btn" data-score="3">🙂</button>
+                    <button class="emoji-btn" data-score="2">😐</button>
+                    <button class="emoji-btn" data-score="1">😞</button>
                 </div>
             </div>
 
             <div class="category">
                 <span class="category-label">👋 Staff Friendliness</span>
                 <div class="emojis" data-category="staff">
-                    <button class="emoji-btn" data-score="1">😞</button>
-                    <button class="emoji-btn" data-score="2">😐</button>
-                    <button class="emoji-btn" data-score="3">🙂</button>
-                    <button class="emoji-btn" data-score="4">😊</button>
                     <button class="emoji-btn" data-score="5">🤩</button>
+                    <button class="emoji-btn" data-score="4">😊</button>
+                    <button class="emoji-btn" data-score="3">🙂</button>
+                    <button class="emoji-btn" data-score="2">😐</button>
+                    <button class="emoji-btn" data-score="1">😞</button>
                 </div>
             </div>
 
             <div class="category">
                 <span class="category-label">🍽️ Dining Experience</span>
                 <div class="emojis" data-category="dining">
-                    <button class="emoji-btn" data-score="1">😞</button>
-                    <button class="emoji-btn" data-score="2">😐</button>
-                    <button class="emoji-btn" data-score="3">🙂</button>
-                    <button class="emoji-btn" data-score="4">😊</button>
                     <button class="emoji-btn" data-score="5">🤩</button>
+                    <button class="emoji-btn" data-score="4">😊</button>
+                    <button class="emoji-btn" data-score="3">🙂</button>
+                    <button class="emoji-btn" data-score="2">😐</button>
+                    <button class="emoji-btn" data-score="1">😞</button>
                 </div>
             </div>
 
             <div class="category">
                 <span class="category-label">📶 WiFi Quality</span>
                 <div class="emojis" data-category="wifi">
-                    <button class="emoji-btn" data-score="1">😞</button>
-                    <button class="emoji-btn" data-score="2">😐</button>
-                    <button class="emoji-btn" data-score="3">🙂</button>
-                    <button class="emoji-btn" data-score="4">😊</button>
                     <button class="emoji-btn" data-score="5">🤩</button>
+                    <button class="emoji-btn" data-score="4">😊</button>
+                    <button class="emoji-btn" data-score="3">🙂</button>
+                    <button class="emoji-btn" data-score="2">😐</button>
+                    <button class="emoji-btn" data-score="1">😞</button>
                 </div>
             </div>
 
@@ -224,12 +234,10 @@
             wifi: 0
         };
 
-        // Get room and name from URL if sent via email link
         const params = new URLSearchParams(window.location.search);
         if (params.get('name')) document.getElementById('guestName').value = params.get('name');
         if (params.get('room')) document.getElementById('roomNumber').value = params.get('room');
 
-        // Emoji selection
         document.querySelectorAll('.emojis').forEach(group => {
             group.querySelectorAll('.emoji-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
