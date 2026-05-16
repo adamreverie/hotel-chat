@@ -15,6 +15,8 @@ conversation_history = []
 def init_db():
     conn = sqlite3.connect('feedback.db')
     c = conn.cursor()
+    
+    # Feedback table
     c.execute('''CREATE TABLE IF NOT EXISTS feedback
                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
                  guest_name TEXT,
@@ -26,6 +28,17 @@ def init_db():
                  wifi INTEGER,
                  comment TEXT,
                  date TEXT)''')
+    
+    # Requests table
+    c.execute('''CREATE TABLE IF NOT EXISTS requests
+                (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                 room_number TEXT,
+                 department TEXT,
+                 details TEXT,
+                 status TEXT DEFAULT 'new',
+                 claimed_by TEXT,
+                 date TEXT)''')
+    
     conn.commit()
     conn.close()
 
@@ -133,14 +146,44 @@ def chat():
     if "STAFF_ALERT:" in assistant_message:
         alert_line = [line for line in assistant_message.split('\n') if 'STAFF_ALERT:' in line][0]
         alert_details = alert_line.replace('STAFF_ALERT:', '').strip()
-        
+
+        # Detect department
+        department = "general"
+        if any(word in alert_details.lower() for word in ["towel", "sheet", "clean", "housekeeping", "linen"]):
+            department = "housekeeping"
+        elif any(word in alert_details.lower() for word in ["food", "drink", "room service", "sandwich", "breakfast", "dinner", "lunch", "water"]):
+            department = "roomservice"
+        elif any(word in alert_details.lower() for word in ["ac", "air", "light", "tv", "broken", "leak", "maintenance", "wifi", "internet"]):
+            department = "maintenance"
+        elif any(word in alert_details.lower() for word in ["taxi", "transfer", "transport", "tour", "concierge", "recommend"]):
+            department = "concierge"
+
+        # Extract room number
+        room = "N/A"
+        for word in alert_details.split():
+            if word.isdigit():
+                room = word
+                break
+
+        # Save to database
+        conn = sqlite3.connect('feedback.db')
+        c = conn.cursor()
+        c.execute('''INSERT INTO requests 
+                    (room_number, department, details, status, date)
+                    VALUES (?, ?, ?, ?, ?)''',
+                  (room, department, alert_details, 'new',
+                   datetime.now().strftime("%Y-%m-%d %H:%M")))
+        conn.commit()
+        conn.close()
+
+        # Send email
         resend.Emails.send({
             "from": "onboarding@resend.dev",
             "to": "vinsadam11@gmail.com",
-            "subject": "🛎️ New Guest Request",
-            "html": f"<h2>New Guest Request</h2><p>{alert_details}</p>"
+            "subject": f"🛎️ New Request — Room {room}",
+            "html": f"<h2>New Guest Request</h2><p><strong>Department:</strong> {department.title()}</p><p><strong>Details:</strong> {alert_details}</p>"
         })
-        
+
         clean_message = assistant_message.replace(alert_line, '').strip()
         return jsonify({"response": clean_message})
     
@@ -260,6 +303,49 @@ def feedback_stats():
         },
         "recent": recent
     })
+@app.route('/staff')
+def staff():
+    return send_from_directory('.', 'staff.html')
+
+@app.route('/get-requests')
+def get_requests():
+    conn = sqlite3.connect('feedback.db')
+    c = conn.cursor()
+    c.execute('SELECT * FROM requests ORDER BY date DESC')
+    rows = c.fetchall()
+    conn.close()
+    
+    requests_list = []
+    for row in rows:
+        requests_list.append({
+            'id': row[0],
+            'room': row[1],
+            'department': row[2],
+            'details': row[3],
+            'status': row[4],
+            'claimed_by': row[5],
+            'date': row[6]
+        })
+    
+    return jsonify(requests_list)
+
+@app.route('/update-request', methods=['POST'])
+def update_request():
+    data = request.json
+    request_id = data.get('id')
+    status = data.get('status')
+    claimed_by = data.get('claimed_by', '')
+    
+    conn = sqlite3.connect('feedback.db')
+    c = conn.cursor()
+    c.execute('''UPDATE requests 
+                SET status = ?, claimed_by = ?
+                WHERE id = ?''',
+              (status, claimed_by, request_id))
+    conn.commit()
+    conn.close()
+    
+    return jsonify({"success": True})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
