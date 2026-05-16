@@ -2,7 +2,7 @@
 <html>
 <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
-    <title>Hotel Assistant</title>
+    <title>Hotel Assistant | {HOTEL_NAME}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -197,7 +197,7 @@
 <body>
     <div class="chat-container">
         <div class="header">
-            <h2>🏨 Park Regis Kris Kin Hotel</h2>
+            <h2>🏨 <span class="hotel-name">Loading...</span></h2>
             <p>Your Personal Room Assistant</p>
             <div class="online">
                 <div class="dot"></div>
@@ -228,9 +228,19 @@
     </div>
 
     <script>
-        window.onload = function() {
-            addMessage("Welcome to Park Regis Kris Kin Hotel! 🌟 I'm your personal room assistant. How can I help you today?", 'agent');
+        async function loadConfig() {
+    const response = await fetch('/hotel-config');
+    const config = await response.json();
+    document.querySelectorAll('.hotel-name').forEach(el => {
+        el.textContent = config.name;
+    });
+    return config;
         }
+
+        window.onload = async function() {
+        const config = await loadConfig();
+        addMessage(`Welcome to ${config.name}! 🌟 I'm your personal room assistant. How can I help you today?`, 'agent');
+}
 
         function handleKey(event) {
             if (event.key === 'Enter') sendMessage();

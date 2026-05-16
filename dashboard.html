@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Manager Dashboard | Park Regis Kris Kin</title>
+    <title>Manager Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -120,8 +120,6 @@
             color: #999;
             font-size: 14px;
         }
-
-        /* Login overlay */
         .login-overlay {
             position: fixed;
             top: 0; left: 0;
@@ -178,7 +176,6 @@
             margin-top: 10px;
             display: none;
         }
-
         @media (max-width: 600px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
         }
@@ -186,15 +183,14 @@
 </head>
 <body>
 
-    <!-- Login Overlay -->
     <div class="login-overlay" id="loginOverlay">
         <div class="login-box">
             <div style="font-size: 40px; margin-bottom: 15px;">🏨</div>
             <h2>Manager Dashboard</h2>
-            <p>Park Regis Kris Kin</p>
-            <input 
-                type="password" 
-                id="passwordInput" 
+            <p><span class="hotel-name">Loading...</span></p>
+            <input
+                type="password"
+                id="passwordInput"
                 placeholder="Enter password"
                 onkeypress="if(event.key==='Enter') login()"
             />
@@ -203,18 +199,16 @@
         </div>
     </div>
 
-    <!-- Dashboard -->
     <div id="dashboard" style="display:none;">
         <div class="header">
             <div>
                 <h2>🏨 Manager Dashboard</h2>
-                <p>Park Regis Kris Kin — Guest Feedback</p>
+                <p><span class="hotel-name">Loading...</span> — Guest Feedback</p>
             </div>
             <button class="logout" onclick="logout()">Logout</button>
         </div>
 
         <div class="body">
-
             <div class="total-card">
                 <div class="number" id="totalResponses">—</div>
                 <div class="label">Total Feedback Responses</div>
@@ -250,16 +244,27 @@
 
             <p class="section-title">📋 Recent Feedback</p>
             <div id="feedbackList"></div>
-
         </div>
     </div>
 
     <script>
-        const DASHBOARD_PASSWORD = "milujualexie";
+        // Load hotel name on page load
+        async function loadHotelName() {
+            const response = await fetch('/hotel-config');
+            const config = await response.json();
+            document.querySelectorAll('.hotel-name').forEach(el => {
+                el.textContent = config.name;
+            });
+        }
 
-        function login() {
+        loadHotelName();
+
+        async function login() {
+            const response = await fetch('/hotel-config');
+            const config = await response.json();
+
             const input = document.getElementById('passwordInput').value;
-            if (input === DASHBOARD_PASSWORD) {
+            if (input === config.manager_password) {
                 document.getElementById('loginOverlay').style.display = 'none';
                 document.getElementById('dashboard').style.display = 'block';
                 loadData();

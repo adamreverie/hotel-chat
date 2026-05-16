@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Share Your Feedback | Park Regis Kris Kin</title>
+    <title>Share Your Feedback | {HOTEL_NAME}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -135,7 +135,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h2>🏨 Park Regis Kris Kin</h2>
+            <h2>🏨 <span class="hotel-name">Loading...</span></h2>
             <p>How was your stay? Takes 30 seconds 🙏</p>
         </div>
 
@@ -220,12 +220,22 @@
             <p>Your feedback means the world to us.<br>
             We hope to welcome you back soon!</p>
             <p style="margin-top: 20px; font-size: 12px; color: #999;">
-                Park Regis Kris Kin Dubai
+            <span class="hotel-name">Loading...</span>
             </p>
         </div>
     </div>
 
     <script>
+        async function loadHotelName() {
+    const response = await fetch('/hotel-config');
+    const config = await response.json();
+    document.querySelectorAll('.hotel-name').forEach(el => {
+        el.textContent = config.name;
+    });
+        }
+
+        loadHotelName();
+
         const scores = {
             overall: 0,
             cleanliness: 0,

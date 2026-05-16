@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Staff Dashboard | Park Regis Kris Kin</title>
+    <title>Staff Dashboard | {HOTEL_NAME}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -146,8 +146,6 @@
             background: white;
             border-radius: 12px;
         }
-
-        /* Login */
         .login-overlay {
             position: fixed;
             top: 0; left: 0;
@@ -195,7 +193,6 @@
             margin-top: 8px;
             display: none;
         }
-
         @media (max-width: 600px) {
             .body { padding: 10px; }
         }
@@ -203,23 +200,22 @@
 </head>
 <body>
 
-    <!-- Login -->
     <div class="login-overlay" id="loginOverlay">
         <div class="login-box">
             <div style="font-size: 36px; margin-bottom: 12px;">👥</div>
             <h2>Staff Dashboard</h2>
-            <p>Park Regis Kris Kin</p>
-            <input 
-                type="text" 
-                class="name-input" 
-                id="staffName" 
+            <p><span class="hotel-name">Loading...</span></p>
+            <input
+                type="text"
+                class="name-input"
+                id="staffName"
                 placeholder="Your name"
                 onkeypress="if(event.key==='Enter') checkPassword()"
             />
-            <input 
-                type="password" 
-                class="name-input" 
-                id="staffPassword" 
+            <input
+                type="password"
+                class="name-input"
+                id="staffPassword"
                 placeholder="Password"
                 onkeypress="if(event.key==='Enter') checkPassword()"
             />
@@ -228,12 +224,11 @@
         </div>
     </div>
 
-    <!-- Dashboard -->
     <div id="dashboard" style="display:none;">
         <div class="header">
             <div>
                 <h2>🏨 Staff Dashboard</h2>
-                <p id="staffGreeting">Park Regis Kris Kin</p>
+                <p id="staffGreeting"><span class="hotel-name">Loading...</span></p>
             </div>
             <div class="live-dot">
                 <div class="dot"></div>
@@ -254,10 +249,23 @@
     </div>
 
     <script>
-        const STAFF_PASSWORD = "staff2024";
         let staffName = "";
 
-        function checkPassword() {
+        // Load hotel name on page load
+        async function loadHotelName() {
+            const response = await fetch('/hotel-config');
+            const config = await response.json();
+            document.querySelectorAll('.hotel-name').forEach(el => {
+                el.textContent = config.name;
+            });
+        }
+
+        loadHotelName();
+
+        async function checkPassword() {
+            const response = await fetch('/hotel-config');
+            const config = await response.json();
+
             const name = document.getElementById('staffName').value.trim();
             const password = document.getElementById('staffPassword').value;
 
@@ -267,7 +275,7 @@
                 return;
             }
 
-            if (password === STAFF_PASSWORD) {
+            if (password === config.staff_password) {
                 staffName = name;
                 document.getElementById('loginOverlay').style.display = 'none';
                 document.getElementById('dashboard').style.display = 'block';
