@@ -3,11 +3,11 @@
 # Change only this file per hotel
 # ================================
 
-HOTEL_NAME = "Park Regis Kris Kin"
-HOTEL_LOCATION = "Bur Dubai, Dubai"
-MANAGER_EMAIL = "manager@parkregis.com"
-STAFF_PASSWORD = "staff2024"
-MANAGER_PASSWORD = "manager2024"
+HOTEL_NAME = "Alexie's Hotel"
+HOTEL_LOCATION = "Liwan, Dubai"
+MANAGER_EMAIL = "vinsadam11@gmail.com"
+STAFF_PASSWORD = "alexie"
+MANAGER_PASSWORD = "alexie"
 
 HOTEL_INFO = """
 HOTEL CONTACT:
