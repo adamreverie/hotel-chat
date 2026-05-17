@@ -413,5 +413,21 @@ def add_hotel():
     
     return jsonify({"success": True})
 
+@app.route('/portal/<slug>/chat')
+def portal_chat(slug):
+    return send_from_directory('.', 'index.html')
+
+@app.route('/portal/<slug>/staff')
+def portal_staff(slug):
+    return send_from_directory('.', 'staff.html')
+
+@app.route('/portal/<slug>/feedback')
+def portal_feedback(slug):
+    return send_from_directory('.', 'feedback.html')
+
+@app.route('/portal/<slug>/dashboard')
+def portal_dashboard(slug):
+    return send_from_directory('.', 'dashboard.html')
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)    
