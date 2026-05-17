@@ -1,642 +1,1078 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Favvi — AI Operating System for Hospitality</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        :root {
-            --navy: #1a1a2e;
-            --gold: #c9a84c;
-            --light: #f5f5f5;
-            --white: #ffffff;
-            --grey: #666666;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Favvi — The AI Guest Experience Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1a1a2e;
+    --navy-mid: #16213e;
+    --navy-light: #0f3460;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --cream: #f8f4ee;
+    --warm-white: #fdfaf6;
+    --text-muted: #8a8a9a;
+    --card-bg: rgba(255,255,255,0.04);
+    --border: rgba(201,168,76,0.2);
+  }
 
-        body {
-            font-family: 'Arial', sans-serif;
-            background: var(--white);
-            color: var(--navy);
-            overflow-x: hidden;
-        }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-        /* NAV */
-        nav {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            padding: 20px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            border-bottom: 1px solid #eee;
-        }
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--navy);
-            letter-spacing: -1px;
-        }
-        .logo span { color: var(--gold); }
-        .nav-links {
-            display: flex;
-            gap: 30px;
-            align-items: center;
-        }
-        .nav-links a {
-            text-decoration: none;
-            color: var(--grey);
-            font-size: 14px;
-        }
-        .nav-links a:hover { color: var(--navy); }
-        .nav-cta {
-            background: var(--navy);
-            color: white !important;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-size: 13px !important;
-        }
-        .nav-cta:hover { opacity: 0.85; }
+  html { scroll-behavior: smooth; }
 
-        /* HERO */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 120px 20px 80px;
-            background: linear-gradient(135deg, #1a1a2e 0%, #2d2d4e 100%);
-            color: white;
-        }
-        .hero-badge {
-            background: rgba(201,168,76,0.2);
-            border: 1px solid var(--gold);
-            color: var(--gold);
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            margin-bottom: 30px;
-            letter-spacing: 1px;
-        }
-        .hero h1 {
-            font-size: 52px;
-            line-height: 1.1;
-            margin-bottom: 20px;
-            max-width: 700px;
-        }
-        .hero h1 span { color: var(--gold); }
-        .hero p {
-            font-size: 18px;
-            opacity: 0.7;
-            max-width: 500px;
-            line-height: 1.6;
-            margin-bottom: 40px;
-        }
-        .hero-buttons {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        .btn-primary {
-            background: var(--gold);
-            color: var(--navy);
-            padding: 14px 30px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 15px;
-        }
-        .btn-secondary {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            padding: 14px 30px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-size: 15px;
-            border: 1px solid rgba(255,255,255,0.3);
-        }
-        .hero-stats {
-            display: flex;
-            gap: 40px;
-            margin-top: 60px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        .stat {
-            text-align: center;
-        }
-        .stat .number {
-            font-size: 32px;
-            font-weight: bold;
-            color: var(--gold);
-        }
-        .stat .label {
-            font-size: 12px;
-            opacity: 0.6;
-            margin-top: 4px;
-        }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--navy);
+    color: var(--cream);
+    overflow-x: hidden;
+  }
 
-        /* SECTIONS */
-        section {
-            padding: 80px 20px;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        .section-tag {
-            font-size: 12px;
-            font-weight: bold;
-            color: var(--gold);
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-bottom: 12px;
-        }
-        .section-title {
-            font-size: 36px;
-            color: var(--navy);
-            margin-bottom: 15px;
-            line-height: 1.2;
-        }
-        .section-subtitle {
-            font-size: 16px;
-            color: var(--grey);
-            max-width: 500px;
-            line-height: 1.6;
-            margin-bottom: 50px;
-        }
+  /* ─── NOISE TEXTURE OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
 
-        /* PROBLEM */
-        .problem {
-            background: var(--light);
-            padding: 80px 20px;
-        }
-        .problem-inner {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        .problem-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-top: 40px;
-        }
-        .problem-card {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            border-left: 4px solid #ff4444;
-        }
-        .problem-card .icon { font-size: 24px; margin-bottom: 12px; }
-        .problem-card h3 { font-size: 16px; margin-bottom: 8px; }
-        .problem-card p { font-size: 13px; color: var(--grey); line-height: 1.5; }
+  /* ─── NAV ─── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 60px;
+    background: linear-gradient(to bottom, rgba(26,26,46,0.95), transparent);
+    backdrop-filter: blur(2px);
+  }
 
-        /* FEATURES */
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 25px;
-        }
-        .feature-card {
-            background: var(--light);
-            padding: 30px;
-            border-radius: 20px;
-            transition: transform 0.2s;
-        }
-        .feature-card:hover { transform: translateY(-4px); }
-        .feature-icon {
-            font-size: 36px;
-            margin-bottom: 15px;
-        }
-        .feature-card h3 {
-            font-size: 18px;
-            margin-bottom: 10px;
-            color: var(--navy);
-        }
-        .feature-card p {
-            font-size: 14px;
-            color: var(--grey);
-            line-height: 1.6;
-        }
-        .feature-tag {
-            display: inline-block;
-            background: var(--navy);
-            color: white;
-            padding: 3px 10px;
-            border-radius: 10px;
-            font-size: 11px;
-            margin-top: 12px;
-        }
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 300;
+    color: var(--cream);
+    letter-spacing: 2px;
+  }
+  .logo em { color: var(--gold); font-style: normal; }
 
-        /* HOW IT WORKS */
-        .how {
-            background: var(--navy);
-            padding: 80px 20px;
-            color: white;
-        }
-        .how-inner {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        .how .section-title { color: white; }
-        .how .section-subtitle { color: rgba(255,255,255,0.6); }
-        .steps {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
-            margin-top: 40px;
-        }
-        .step {
-            text-align: center;
-            padding: 20px;
-        }
-        .step-number {
-            width: 50px;
-            height: 50px;
-            background: var(--gold);
-            color: var(--navy);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            font-weight: bold;
-            margin: 0 auto 20px;
-        }
-        .step h3 { font-size: 16px; margin-bottom: 8px; }
-        .step p { font-size: 13px; opacity: 0.6; line-height: 1.5; }
+  .nav-links {
+    display: flex;
+    gap: 40px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-size: 13px;
+    font-weight: 300;
+    color: rgba(248,244,238,0.7);
+    text-decoration: none;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: color 0.3s;
+  }
+  .nav-links a:hover { color: var(--gold); }
 
-        /* PRICING */
-        .pricing-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-top: 40px;
-        }
-        .pricing-card {
-            border: 1px solid #eee;
-            border-radius: 20px;
-            padding: 30px;
-            text-align: center;
-            position: relative;
-        }
-        .pricing-card.featured {
-            background: var(--navy);
-            color: white;
-            border-color: var(--navy);
-            transform: scale(1.05);
-        }
-        .pricing-badge {
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--gold);
-            color: var(--navy);
-            padding: 4px 14px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: bold;
-        }
-        .pricing-name {
-            font-size: 14px;
-            font-weight: bold;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin-bottom: 15px;
-            color: var(--gold);
-        }
-        .pricing-price {
-            font-size: 42px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        .pricing-period {
-            font-size: 13px;
-            opacity: 0.5;
-            margin-bottom: 25px;
-        }
-        .pricing-features {
-            list-style: none;
-            margin-bottom: 25px;
-            text-align: left;
-        }
-        .pricing-features li {
-            font-size: 13px;
-            padding: 6px 0;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .pricing-card.featured .pricing-features li {
-            border-bottom-color: rgba(255,255,255,0.1);
-        }
-        .pricing-btn {
-            width: 100%;
-            padding: 12px;
-            border-radius: 25px;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        .pricing-btn-light {
-            background: var(--light);
-            color: var(--navy);
-        }
-        .pricing-btn-gold {
-            background: var(--gold);
-            color: var(--navy);
-        }
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
 
-        /* CTA */
-        .cta {
-            background: linear-gradient(135deg, #1a1a2e 0%, #2d2d4e 100%);
-            padding: 80px 20px;
-            text-align: center;
-            color: white;
-        }
-        .cta h2 {
-            font-size: 36px;
-            margin-bottom: 15px;
-        }
-        .cta h2 span { color: var(--gold); }
-        .cta p {
-            font-size: 16px;
-            opacity: 0.6;
-            margin-bottom: 35px;
-        }
+  .nav-login {
+    background: transparent;
+    color: rgba(248,244,238,0.7);
+    border: 1px solid rgba(201,168,76,0.35);
+    padding: 9px 22px;
+    border-radius: 2px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 300;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .nav-login:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
 
-        /* FOOTER */
-        footer {
-            background: var(--navy);
-            color: white;
-            padding: 30px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 1px solid rgba(255,255,255,0.1);
-        }
-        footer p { font-size: 13px; opacity: 0.5; }
-        .footer-links {
-            display: flex;
-            gap: 20px;
-        }
-        .footer-links a {
-            color: white;
-            opacity: 0.5;
-            text-decoration: none;
-            font-size: 13px;
-        }
+  .nav-cta {
+    background: var(--gold);
+    color: var(--navy);
+    border: none;
+    padding: 10px 26px;
+    border-radius: 2px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: background 0.3s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .nav-cta:hover { background: var(--gold-light); }
 
-        /* ANIMATIONS */
-        .fade-in {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
-        }
-        .fade-in.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
+  /* ─── HERO ─── */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 0 60px;
+    position: relative;
+    overflow: hidden;
+  }
 
-        /* MOBILE */
-        @media (max-width: 768px) {
-            nav { padding: 15px 20px; }
-            .nav-links { display: none; }
-            .hero h1 { font-size: 32px; }
-            .hero p { font-size: 15px; }
-            .problem-grid { grid-template-columns: 1fr; }
-            .features-grid { grid-template-columns: 1fr; }
-            .steps { grid-template-columns: 1fr; }
-            .pricing-grid { grid-template-columns: 1fr; }
-            .pricing-card.featured { transform: scale(1); }
-            footer { flex-direction: column; gap: 15px; text-align: center; }
-        }
-    </style>
+  /* Decorative orb */
+  .hero::after {
+    content: '';
+    position: absolute;
+    right: -100px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 700px;
+    height: 700px;
+    background: radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-left {
+    padding-top: 80px;
+    animation: fadeUp 1s ease both;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 32px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 30px;
+    height: 1px;
+    background: var(--gold);
+  }
+
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(52px, 6vw, 86px);
+    font-weight: 300;
+    line-height: 1.05;
+    color: var(--cream);
+    margin-bottom: 30px;
+  }
+  h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero-sub {
+    font-size: 16px;
+    font-weight: 300;
+    color: rgba(248,244,238,0.65);
+    line-height: 1.7;
+    max-width: 420px;
+    margin-bottom: 48px;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .btn-primary {
+    background: var(--gold);
+    color: var(--navy);
+    border: none;
+    padding: 15px 36px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 2px;
+    letter-spacing: 0.5px;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-primary:hover {
+    background: var(--gold-light);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 30px rgba(201,168,76,0.3);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--cream);
+    border: 1px solid rgba(248,244,238,0.3);
+    padding: 15px 36px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-ghost:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  /* ─── HERO RIGHT: MOCKUP ─── */
+  .hero-right {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 80px;
+    animation: fadeUp 1s 0.2s ease both;
+  }
+
+  .phone-mockup {
+    width: 280px;
+    height: 560px;
+    background: #0d1117;
+    border-radius: 36px;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow:
+      0 0 0 8px rgba(255,255,255,0.03),
+      0 40px 80px rgba(0,0,0,0.6),
+      0 0 60px rgba(201,168,76,0.08);
+    overflow: hidden;
+    position: relative;
+    transform: rotate(-3deg) translateY(20px);
+    transition: transform 0.5s ease;
+  }
+  .phone-mockup:hover {
+    transform: rotate(0deg) translateY(0px);
+  }
+
+  .phone-header {
+    background: var(--navy);
+    padding: 20px 18px 16px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .phone-header-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    color: var(--cream);
+    font-weight: 400;
+  }
+  .phone-header-sub {
+    font-size: 10px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 2px;
+  }
+  .online-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(76,175,80,0.15);
+    color: #4CAF50;
+    font-size: 9px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    margin-top: 6px;
+  }
+  .online-dot {
+    width: 5px; height: 5px;
+    background: #4CAF50;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .phone-messages {
+    padding: 16px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .msg {
+    padding: 10px 12px;
+    border-radius: 14px;
+    font-size: 11px;
+    line-height: 1.5;
+    max-width: 85%;
+  }
+  .msg-ai {
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.85);
+    align-self: flex-start;
+    border-radius: 4px 14px 14px 14px;
+  }
+  .msg-user {
+    background: var(--gold);
+    color: var(--navy);
+    align-self: flex-end;
+    border-radius: 14px 4px 14px 14px;
+    font-weight: 500;
+  }
+
+  .typing-anim {
+    display: flex;
+    gap: 3px;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px 14px 14px 14px;
+    width: fit-content;
+  }
+  .typing-anim span {
+    width: 4px; height: 4px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+  .typing-anim span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-anim span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-5px)} }
+
+  /* ─── STAT BAR ─── */
+  .stat-bar {
+    background: rgba(201,168,76,0.06);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 36px 60px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .stat-item {
+    padding: 0 20px;
+    border-right: 1px solid var(--border);
+    animation: fadeUp 0.8s ease both;
+  }
+  .stat-item:last-child { border-right: none; }
+
+  .stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 48px;
+    font-weight: 300;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-size: 12px;
+    font-weight: 300;
+    color: rgba(248,244,238,0.5);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ─── SECTIONS ─── */
+  section {
+    position: relative;
+    z-index: 1;
+  }
+
+  .section-pad { padding: 120px 60px; }
+
+  .section-eyebrow {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-eyebrow::before {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: var(--gold);
+  }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(38px, 4vw, 58px);
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--cream);
+    margin-bottom: 20px;
+  }
+  .section-title em { font-style: italic; color: var(--gold); }
+
+  .section-sub {
+    font-size: 15px;
+    font-weight: 300;
+    color: rgba(248,244,238,0.55);
+    line-height: 1.7;
+    max-width: 500px;
+  }
+
+  /* ─── FEATURES ─── */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-top: 70px;
+  }
+
+  .feature-card {
+    background: var(--navy);
+    padding: 50px 40px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.4s;
+  }
+  .feature-card:hover {
+    background: rgba(201,168,76,0.04);
+  }
+  .feature-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 0; height: 2px;
+    background: var(--gold);
+    transition: width 0.4s ease;
+  }
+  .feature-card:hover::after { width: 100%; }
+
+  .feature-icon {
+    font-size: 32px;
+    margin-bottom: 24px;
+    display: block;
+  }
+  .feature-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 400;
+    color: var(--cream);
+    margin-bottom: 12px;
+  }
+  .feature-desc {
+    font-size: 14px;
+    font-weight: 300;
+    color: rgba(248,244,238,0.5);
+    line-height: 1.7;
+  }
+
+  /* ─── HOW IT WORKS ─── */
+  .how-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+    margin-top: 70px;
+  }
+
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .step {
+    display: flex;
+    gap: 28px;
+    padding: 32px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .step:first-child { border-top: 1px solid var(--border); }
+  .step:hover .step-num { color: var(--gold); }
+
+  .step-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 42px;
+    font-weight: 300;
+    color: rgba(201,168,76,0.25);
+    line-height: 1;
+    min-width: 50px;
+    transition: color 0.3s;
+  }
+  .step-content {}
+  .step-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--cream);
+    margin-bottom: 8px;
+  }
+  .step-desc {
+    font-size: 14px;
+    font-weight: 300;
+    color: rgba(248,244,238,0.5);
+    line-height: 1.6;
+  }
+
+  /* Dashboard mockup */
+  .dashboard-mockup {
+    background: #0d1117;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+  }
+  .dash-header {
+    background: var(--navy);
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .dash-title { font-size: 13px; color: var(--cream); font-weight: 400; }
+  .dash-dots { display: flex; gap: 6px; }
+  .dash-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  .dash-body { padding: 20px; }
+  .dash-stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .dash-stat {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+  .dash-stat-val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 300;
+    color: var(--gold);
+  }
+  .dash-stat-lbl { font-size: 9px; color: rgba(255,255,255,0.35); margin-top: 3px; }
+
+  .request-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-left: 3px solid;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .req-left { font-size: 11px; color: rgba(255,255,255,0.7); }
+  .req-room { font-size: 9px; color: rgba(255,255,255,0.35); margin-top: 2px; }
+  .req-badge {
+    font-size: 9px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+
+  /* ─── PRICING ─── */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 70px;
+  }
+
+  .price-card {
+    border: 1px solid var(--border);
+    padding: 48px 36px;
+    border-radius: 4px;
+    position: relative;
+    transition: all 0.3s;
+  }
+  .price-card:hover {
+    border-color: var(--gold);
+    transform: translateY(-4px);
+  }
+  .price-card.featured {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.05);
+  }
+
+  .featured-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gold);
+    color: var(--navy);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 4px 16px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .price-tier {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+  .price-amount {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 56px;
+    font-weight: 300;
+    color: var(--cream);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .price-period {
+    font-size: 12px;
+    color: rgba(248,244,238,0.4);
+    margin-bottom: 30px;
+  }
+  .price-features {
+    list-style: none;
+    margin-bottom: 36px;
+  }
+  .price-features li {
+    font-size: 14px;
+    font-weight: 300;
+    color: rgba(248,244,238,0.7);
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .price-features li::before {
+    content: '✦';
+    color: var(--gold);
+    font-size: 8px;
+    flex-shrink: 0;
+  }
+
+  /* ─── CTA SECTION ─── */
+  .cta-section {
+    text-align: center;
+    padding: 140px 60px;
+    background: linear-gradient(135deg, rgba(201,168,76,0.05) 0%, transparent 60%);
+    border-top: 1px solid var(--border);
+  }
+
+  .cta-section h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(44px, 5vw, 72px);
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--cream);
+    max-width: 700px;
+    margin: 0 auto 24px;
+  }
+  .cta-section h2 em { font-style: italic; color: var(--gold); }
+  .cta-section p {
+    font-size: 15px;
+    font-weight: 300;
+    color: rgba(248,244,238,0.55);
+    max-width: 400px;
+    margin: 0 auto 48px;
+    line-height: 1.7;
+  }
+
+  .cta-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .footer-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 300;
+    letter-spacing: 2px;
+    color: var(--cream);
+  }
+  .footer-logo em { color: var(--gold); font-style: normal; }
+
+  .footer-copy {
+    font-size: 12px;
+    color: rgba(248,244,238,0.3);
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 30px;
+    list-style: none;
+  }
+  .footer-links a {
+    font-size: 12px;
+    color: rgba(248,244,238,0.4);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .footer-links a:hover { color: var(--gold); }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    nav { padding: 20px 24px; }
+    .nav-links { display: none; }
+    .hero { grid-template-columns: 1fr; padding: 0 24px; min-height: auto; padding-top: 100px; padding-bottom: 60px; }
+    .hero-right { display: none; }
+    .stat-bar { grid-template-columns: repeat(2,1fr); padding: 36px 24px; gap: 24px; }
+    .stat-item { border-right: none; border-bottom: 1px solid var(--border); padding: 0 0 24px; }
+    .stat-item:nth-child(even) { border-right: none; }
+    .section-pad { padding: 80px 24px; }
+    .features-grid { grid-template-columns: 1fr; }
+    .how-grid { grid-template-columns: 1fr; gap: 40px; }
+    .testimonials-inner { padding: 80px 24px; }
+    .testimonials-grid { grid-template-columns: 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .cta-section { padding: 80px 24px; }
+    footer { flex-direction: column; gap: 20px; padding: 30px 24px; text-align: center; }
+    .footer-links { flex-wrap: wrap; justify-content: center; }
+  }
+</style>
 </head>
 <body>
 
-    <!-- NAV -->
-    <nav>
-        <div class="logo">fav<span>vi</span></div>
-        <div class="nav-links">
-            <a href="#features">Features</a>
-            <a href="#pricing">Pricing</a>
-            <a href="#contact">Contact</a>
-            <a href="mailto:hello@favvi.net" class="nav-cta">Book a Demo</a>
-        </div>
-    </nav>
+<!-- NAV -->
+<nav>
+  <div class="logo">fav<em>vi</em></div>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="/login" class="nav-login">Hotel Login</a>
+    <a href="#contact" class="nav-cta">Book a Demo</a>
+  </div>
+</nav>
 
-    <!-- HERO -->
-    <div class="hero">
-        <div class="hero-badge">✨ AI-POWERED HOSPITALITY</div>
-        <h1>The smarter way to run <span>hotel operations</span></h1>
-        <p>One AI system for your guests, staff, and managers. No missed requests. No unhappy guests. Just exceptional hospitality.</p>
-        <div class="hero-buttons">
-            <a href="mailto:hello@favvi.net" class="btn-primary">Book a Free Demo →</a>
-            <a href="#features" class="btn-secondary">See How It Works</a>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">AI Guest Experience</div>
+    <h1>Your hotel,<br><em>always</em><br>available.</h1>
+    <p class="hero-sub">
+      Favvi gives every guest a personal AI concierge — handling requests, collecting feedback, and alerting your team in real time. In any language, at any hour.
+    </p>
+    <div class="hero-actions">
+      <a href="#" class="btn-primary">Book a Demo</a>
+      <a href="#features" class="btn-ghost">See Features</a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="phone-mockup">
+      <div class="phone-header">
+        <div class="phone-header-title">🏨 Grand Palace Hotel</div>
+        <div class="phone-header-sub">Your Personal Room Assistant</div>
+        <div class="online-pill"><div class="online-dot"></div> Available 24/7</div>
+      </div>
+      <div class="phone-messages">
+        <div class="msg msg-ai">Welcome to Grand Palace! 🌟 How can I help you today?</div>
+        <div class="msg msg-user">Can I get extra towels for room 412?</div>
+        <div class="msg msg-ai">Of course! I've notified our housekeeping team right away. Fresh towels will be with you shortly. 🛎️</div>
+        <div class="msg msg-user">What time does the pool close?</div>
+        <div class="typing-anim"><span></span><span></span><span></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STAT BAR -->
+<div class="stat-bar">
+  <div class="stat-item reveal">
+    <div class="stat-num">24/7</div>
+    <div class="stat-label">Guest Support</div>
+  </div>
+  <div class="stat-item reveal">
+    <div class="stat-num">40+</div>
+    <div class="stat-label">Languages</div>
+  </div>
+  <div class="stat-item reveal">
+    <div class="stat-num">< 2s</div>
+    <div class="stat-label">Response Time</div>
+  </div>
+  <div class="stat-item reveal">
+    <div class="stat-num">∞</div>
+    <div class="stat-label">Requests Handled</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features" class="section-pad" style="max-width:1100px; margin: 0 auto;">
+  <div class="section-eyebrow reveal">Everything You Need</div>
+  <h2 class="section-title reveal">Built for the <em>modern</em><br>hotel operation.</h2>
+  <p class="section-sub reveal">One platform that handles guest communication, team coordination, and performance analytics.</p>
+
+  <div class="features-grid reveal">
+    <div class="feature-card">
+      <span class="feature-icon">🤖</span>
+      <div class="feature-title">AI Guest Assistant</div>
+      <p class="feature-desc">A smart concierge that answers questions, handles real requests, and escalates to the right department — all in the guest's language.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">👥</span>
+      <div class="feature-title">Live Staff Dashboard</div>
+      <p class="feature-desc">Requests arrive colour-coded by department in real time. Staff claim, track, and complete tasks from any device with sound alerts.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">⭐</span>
+      <div class="feature-title">Feedback Collection</div>
+      <p class="feature-desc">Send personalised feedback links at checkout. Emoji-rated responses are captured instantly and feed your manager analytics.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">📊</span>
+      <div class="feature-title">Manager Analytics</div>
+      <p class="feature-desc">Track satisfaction scores across cleanliness, staff, dining, and WiFi. Spot trends before they become problems.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">📧</span>
+      <div class="feature-title">Instant Alerts</div>
+      <p class="feature-desc">Every guest request triggers an email alert to management. No request goes unnoticed, even when the lobby is quiet.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🌍</span>
+      <div class="feature-title">Multilingual</div>
+      <p class="feature-desc">The AI automatically detects and replies in the guest's language. No setup required — Arabic, French, Mandarin, and 40+ more.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" style="border-top: 1px solid var(--border);">
+  <div class="section-pad" style="max-width:1100px; margin: 0 auto;">
+    <div class="section-eyebrow reveal">Simple Setup</div>
+    <h2 class="section-title reveal">Live in <em>minutes,</em><br>not months.</h2>
+
+    <div class="how-grid">
+      <div class="steps reveal">
+        <div class="step">
+          <div class="step-num">01</div>
+          <div class="step-content">
+            <div class="step-title">Configure your hotel</div>
+            <p class="step-desc">Add your hotel name, location, room info, dining hours, and current offers. Takes five minutes.</p>
+          </div>
         </div>
-        <div class="hero-stats">
-            <div class="stat">
-                <div class="number">24/7</div>
-                <div class="label">Guest Support</div>
-            </div>
-            <div class="stat">
-                <div class="number">10+</div>
-                <div class="label">Languages</div>
-            </div>
-            <div class="stat">
-                <div class="number">60s</div>
-                <div class="label">Setup Per Hotel</div>
-            </div>
-            <div class="stat">
-                <div class="number">0</div>
-                <div class="label">Missed Requests</div>
-            </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <div class="step-content">
+            <div class="step-title">Share the chat link</div>
+            <p class="step-desc">Place a QR code in every room. Guests tap it and instantly have a personal AI assistant in their pocket.</p>
+          </div>
         </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <div class="step-content">
+            <div class="step-title">Your team responds</div>
+            <p class="step-desc">Requests arrive on the staff dashboard, colour-coded and sorted. Staff claim tasks and guests get served faster.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">04</div>
+          <div class="step-content">
+            <div class="step-title">Collect & improve</div>
+            <p class="step-desc">Post-stay feedback lands automatically in your analytics dashboard. Track scores and act on insights.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-mockup reveal">
+        <div class="dash-header">
+          <div class="dash-title">🏨 Staff Dashboard</div>
+          <div class="dash-dots">
+            <div class="dash-dot" style="background:#ff5f57"></div>
+            <div class="dash-dot" style="background:#febc2e"></div>
+            <div class="dash-dot" style="background:#28c840"></div>
+          </div>
+        </div>
+        <div class="dash-body">
+          <div class="dash-stat-row">
+            <div class="dash-stat">
+              <div class="dash-stat-val">4.8</div>
+              <div class="dash-stat-lbl">Overall</div>
+            </div>
+            <div class="dash-stat">
+              <div class="dash-stat-val">12</div>
+              <div class="dash-stat-lbl">Requests</div>
+            </div>
+            <div class="dash-stat">
+              <div class="dash-stat-val">4.9</div>
+              <div class="dash-stat-lbl">Staff Score</div>
+            </div>
+          </div>
+          <div style="font-size:10px; color:rgba(255,255,255,0.35); margin-bottom:10px; letter-spacing:1px; text-transform:uppercase;">🔴 New Requests</div>
+          <div class="request-item" style="border-color:#ff4444;">
+            <div>
+              <div class="req-left">Extra towels requested</div>
+              <div class="req-room">Room 412 · Housekeeping</div>
+            </div>
+            <span class="req-badge" style="background:rgba(255,68,68,0.15); color:#ff6666;">New</span>
+          </div>
+          <div class="request-item" style="border-color:#FFA500;">
+            <div>
+              <div class="req-left">Room service — burger & fries</div>
+              <div class="req-room">Room 208 · Room Service</div>
+            </div>
+            <span class="req-badge" style="background:rgba(255,165,0,0.15); color:#FFA500;">In Progress</span>
+          </div>
+          <div class="request-item" style="border-color:#4CAF50; opacity:0.6;">
+            <div>
+              <div class="req-left">AC not cooling properly</div>
+              <div class="req-room">Room 315 · Maintenance</div>
+            </div>
+            <span class="req-badge" style="background:rgba(76,175,80,0.15); color:#4CAF50;">Done ✓</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" class="section-pad" style="max-width:1100px; margin: 0 auto;">
+  <div class="section-eyebrow reveal">Simple Pricing</div>
+  <h2 class="section-title reveal">One price. <em>All features.</em><br>No surprises.</h2>
+
+  <div class="pricing-grid">
+    <div class="price-card reveal">
+      <div class="price-tier">Starter</div>
+      <div class="price-amount">$99</div>
+      <div class="price-period">per month</div>
+      <ul class="price-features">
+        <li>AI Guest Assistant</li>
+        <li>Staff Dashboard</li>
+        <li>Up to 50 rooms</li>
+        <li>Email alerts</li>
+        <li>Basic analytics</li>
+      </ul>
+      <a href="#" class="btn-ghost" style="display:block; text-align:center;">Get Started</a>
     </div>
 
-    <!-- PROBLEM -->
-    <div class="problem">
-        <div class="problem-inner">
-            <div class="section-tag">THE PROBLEM</div>
-            <h2 class="section-title">Hotels are losing guests to poor communication</h2>
-            <div class="problem-grid fade-in">
-                <div class="problem-card">
-                    <div class="icon">📞</div>
-                    <h3>Overwhelmed Reception</h3>
-                    <p>Staff waste hours answering the same questions about WiFi, breakfast, and pool hours.</p>
-                </div>
-                <div class="problem-card">
-                    <div class="icon">😤</div>
-                    <h3>Missed Guest Requests</h3>
-                    <p>Towel requests, room service orders, and maintenance issues get lost in the chaos.</p>
-                </div>
-                <div class="problem-card">
-                    <div class="icon">📊</div>
-                    <h3>No Guest Insights</h3>
-                    <p>Managers have no visibility into guest satisfaction until it's too late to act.</p>
-                </div>
-            </div>
-        </div>
+    <div class="price-card featured reveal">
+      <div class="featured-badge">Most Popular</div>
+      <div class="price-tier">Professional</div>
+      <div class="price-amount">$249</div>
+      <div class="price-period">per month</div>
+      <ul class="price-features">
+        <li>Everything in Starter</li>
+        <li>Feedback collection</li>
+        <li>Up to 200 rooms</li>
+        <li>Manager analytics dashboard</li>
+        <li>Multilingual AI (40+ languages)</li>
+        <li>Priority support</li>
+      </ul>
+      <a href="#" class="btn-primary" style="display:block; text-align:center;">Get Started</a>
     </div>
 
-    <!-- FEATURES -->
-    <section id="features">
-        <div class="section-tag">THE SOLUTION</div>
-        <h2 class="section-title">Everything your hotel needs in one system</h2>
-        <p class="section-subtitle">Favvi connects your guests, staff, and managers in one beautifully simple platform.</p>
-        <div class="features-grid">
-            <div class="feature-card fade-in">
-                <div class="feature-icon">🤖</div>
-                <h3>AI Guest Assistant</h3>
-                <p>Guests scan a QR code in their room and instantly chat with an AI that knows everything about your hotel. Available 24/7 in any language.</p>
-                <span class="feature-tag">Guest Facing</span>
-            </div>
-            <div class="feature-card fade-in">
-                <div class="feature-icon">👥</div>
-                <h3>Live Staff Dashboard</h3>
-                <p>Every guest request appears instantly on a colour-coded dashboard. Staff claim tasks, mark them done, and nothing gets missed.</p>
-                <span class="feature-tag">Staff Facing</span>
-            </div>
-            <div class="feature-card fade-in">
-                <div class="feature-icon">⭐</div>
-                <h3>Smart Feedback System</h3>
-                <p>Guests rate their stay with a simple emoji form. Feedback is collected automatically and sent to management instantly.</p>
-                <span class="feature-tag">Guest Facing</span>
-            </div>
-            <div class="feature-card fade-in">
-                <div class="feature-icon">📊</div>
-                <h3>Manager Analytics</h3>
-                <p>A beautiful dashboard showing average ratings, recent feedback, and trends. Everything a manager needs to improve the guest experience.</p>
-                <span class="feature-tag">Manager Facing</span>
-            </div>
-        </div>
-    </section>
-
-    <!-- HOW IT WORKS -->
-    <div class="how">
-        <div class="how-inner">
-            <div class="section-tag">HOW IT WORKS</div>
-            <h2 class="section-title">Up and running in minutes</h2>
-            <p class="section-subtitle">No complicated setup. No IT department needed. Just simple, powerful hospitality technology.</p>
-            <div class="steps">
-                <div class="step fade-in">
-                    <div class="step-number">1</div>
-                    <h3>We set up your hotel</h3>
-                    <p>We configure the AI with your hotel's information, policies, and services. Takes less than an hour.</p>
-                </div>
-                <div class="step fade-in">
-                    <div class="step-number">2</div>
-                    <h3>Print your QR codes</h3>
-                    <p>Place a QR code in every room. Guests scan and instantly connect to your AI assistant.</p>
-                </div>
-                <div class="step fade-in">
-                    <div class="step-number">3</div>
-                    <h3>Watch it work</h3>
-                    <p>Guests get instant answers. Staff get organised requests. Managers get real insights. You get happy guests.</p>
-                </div>
-            </div>
-        </div>
+    <div class="price-card reveal">
+      <div class="price-tier">Enterprise</div>
+      <div class="price-amount">Custom</div>
+      <div class="price-period">tailored to your group</div>
+      <ul class="price-features">
+        <li>Everything in Professional</li>
+        <li>Multi-property management</li>
+        <li>Custom AI persona & branding</li>
+        <li>White-label option</li>
+        <li>Dedicated account manager</li>
+      </ul>
+      <a href="#" class="btn-ghost" style="display:block; text-align:center;">Contact Sales</a>
     </div>
+  </div>
+</section>
 
-    <!-- PRICING -->
-    <section id="pricing">
-        <div class="section-tag">PRICING</div>
-        <h2 class="section-title">Simple, transparent pricing</h2>
-        <p class="section-subtitle">No setup fees. No long term contracts. Cancel anytime.</p>
-        <div class="pricing-grid">
-            <div class="pricing-card fade-in">
-                <div class="pricing-name">Starter</div>
-                <div class="pricing-price">$199</div>
-                <div class="pricing-period">per month</div>
-                <ul class="pricing-features">
-                    <li>✅ AI Guest Assistant</li>
-                    <li>✅ QR Code Per Room</li>
-                    <li>✅ 10+ Languages</li>
-                    <li>✅ Email Notifications</li>
-                    <li>✅ Basic FAQ Handling</li>
-                </ul>
-                <button class="pricing-btn pricing-btn-light" onclick="window.location='mailto:hello@favvi.net'">Get Started</button>
-            </div>
-            <div class="pricing-card featured fade-in">
-                <div class="pricing-badge">MOST POPULAR</div>
-                <div class="pricing-name">Pro</div>
-                <div class="pricing-price">$399</div>
-                <div class="pricing-period">per month</div>
-                <ul class="pricing-features">
-                    <li>✅ Everything in Starter</li>
-                    <li>✅ Live Staff Dashboard</li>
-                    <li>✅ Department Routing</li>
-                    <li>✅ Feedback Form</li>
-                    <li>✅ Manager Analytics</li>
-                    <li>✅ Custom Branding</li>
-                </ul>
-                <button class="pricing-btn pricing-btn-gold" onclick="window.location='mailto:hello@favvi.net'">Get Started</button>
-            </div>
-            <div class="pricing-card fade-in">
-                <div class="pricing-name">Enterprise</div>
-                <div class="pricing-price">$799</div>
-                <div class="pricing-period">per month</div>
-                <ul class="pricing-features">
-                    <li>✅ Everything in Pro</li>
-                    <li>✅ Website Integration</li>
-                    <li>✅ Multi-Property Support</li>
-                    <li>✅ Weekly Reports</li>
-                    <li>✅ Priority Support</li>
-                    <li>✅ Custom Features</li>
-                </ul>
-                <button class="pricing-btn pricing-btn-light" onclick="window.location='mailto:hello@favvi.net'">Contact Us</button>
-            </div>
-        </div>
-    </section>
+<!-- CTA -->
+<section class="cta-section" id="contact">
+  <h2 class="reveal">Ready to <em>transform</em><br>your guest experience?</h2>
+  <p class="reveal">Join hotels already using Favvi to delight guests and empower their teams.</p>
+  <div class="cta-actions reveal">
+    <a href="#" class="btn-primary">Book a Free Demo</a>
+    <a href="#" class="btn-ghost">Talk to Sales</a>
+  </div>
+</section>
 
-    <!-- CTA -->
-    <div class="cta" id="contact">
-        <h2>Ready to transform your <span>guest experience?</span></h2>
-        <p>Book a free demo and see Favvi working in your hotel within 24 hours.</p>
-        <a href="mailto:hello@favvi.net" class="btn-primary">Book a Free Demo →</a>
-    </div>
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">fav<em>vi</em></div>
+  <p class="footer-copy">© 2025 Favvi. AI-powered hotel guest experience.</p>
+  <ul class="footer-links">
+    <li><a href="#">Privacy</a></li>
+    <li><a href="#">Terms</a></li>
+    <li><a href="#">Contact</a></li>
+  </ul>
+</footer>
 
-    <!-- FOOTER -->
-    <footer>
-        <p>© 2026 Favvi. All rights reserved.</p>
-        <div class="footer-links">
-            <a href="mailto:hello@favvi.net">hello@favvi.net</a>
-            <a href="#pricing">Pricing</a>
-            <a href="#features">Features</a>
-        </div>
-    </footer>
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => {
+          entry.target.classList.add('visible');
+        }, 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => observer.observe(el));
 
-    <script>
-        // Fade in animations
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, { threshold: 0.1 });
-
-        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
-
-        // Smooth scroll
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
-            });
-        });
-    </script>
+  // Stagger sibling reveals
+  document.querySelectorAll('.features-grid, .testimonials-grid, .pricing-grid, .stat-bar').forEach(parent => {
+    parent.querySelectorAll('.reveal, .feature-card, .testimonial-card, .price-card, .stat-item').forEach((child, i) => {
+      child.style.transitionDelay = `${i * 0.1}s`;
+    });
+  });
+</script>
 </body>
 </html>
