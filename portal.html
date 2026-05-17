@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Favvi Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+        .header {
+            background: #1a1a2e;
+            color: white;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .logo span { color: #c9a84c; }
+        .hotel-name {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+        .logout {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .body {
+            padding: 30px 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .welcome {
+            font-size: 22px;
+            font-weight: bold;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 30px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .card:hover { transform: translateY(-4px); }
+        .card-icon { font-size: 40px; margin-bottom: 15px; }
+        .card h3 {
+            font-size: 16px;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+        }
+        .card p {
+            font-size: 13px;
+            color: #999;
+            line-height: 1.5;
+        }
+        .card-badge {
+            display: inline-block;
+            background: #1a1a2e;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            margin-top: 12px;
+        }
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <div class="logo">fav<span>vi</span></div>
+            <div class="hotel-name" id="hotelName">Loading...</div>
+        </div>
+        <button class="logout" onclick="window.location.href='/login'">Logout</button>
+    </div>
+
+    <div class="body">
+        <div class="welcome">Welcome back! 👋</div>
+        <p class="subtitle" id="hotelSubtitle">Loading your hotel dashboard...</p>
+
+        <div class="grid">
+            <a class="card" id="chatLink" href="#">
+                <div class="card-icon">🤖</div>
+                <h3>Guest AI Assistant</h3>
+                <p>Your AI concierge that handles guest requests 24/7 in any language.</p>
+                <span class="card-badge">Live</span>
+            </a>
+            <a class="card" id="staffLink" href="#">
+                <div class="card-icon">👥</div>
+                <h3>Staff Dashboard</h3>
+                <p>Live requests, colour coded by department. Staff claim and complete tasks.</p>
+                <span class="card-badge">Live</span>
+            </a>
+            <a class="card" id="feedbackLink" href="#">
+                <div class="card-icon">⭐</div>
+                <h3>Feedback Form</h3>
+                <p>Send this link to guests after checkout to collect emoji ratings.</p>
+                <span class="card-badge">Live</span>
+            </a>
+            <a class="card" id="dashboardLink" href="#">
+                <div class="card-icon">📊</div>
+                <h3>Manager Analytics</h3>
+                <p>Average ratings, recent feedback, and guest satisfaction trends.</p>
+                <span class="card-badge">Live</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const slug = window.location.pathname.split('/')[2];
+
+        async function loadHotel() {
+            const response = await fetch(`/get-hotel/${slug}`);
+            const hotel = await response.json();
+
+            document.getElementById('hotelName').textContent = hotel.name;
+            document.getElementById('hotelSubtitle').textContent = `${hotel.name} — Favvi Portal`;
+            document.title = `${hotel.name} — Favvi`;
+
+            document.getElementById('chatLink').href = `/portal/${slug}/chat`;
+            document.getElementById('staffLink').href = `/portal/${slug}/staff`;
+            document.getElementById('feedbackLink').href = `/portal/${slug}/feedback`;
+            document.getElementById('dashboardLink').href = `/portal/${slug}/dashboard`;
+        }
+
+        loadHotel();
+    </script>
+</body>
+</html>

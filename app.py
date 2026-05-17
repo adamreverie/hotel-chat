@@ -42,6 +42,18 @@ def init_db():
                  claimed_by TEXT,
                  date TEXT)''')
     
+    # Hotels table
+    c.execute('''CREATE TABLE IF NOT EXISTS hotels
+            (id INTEGER PRIMARY KEY AUTOINCREMENT,
+             name TEXT,
+             slug TEXT UNIQUE,
+             email TEXT,
+             password TEXT,
+             system_prompt TEXT,
+             staff_password TEXT,
+             manager_password TEXT,
+             date_created TEXT)''')
+    
     conn.commit()
     conn.close()
 
@@ -319,5 +331,87 @@ def hotel_config():
         "manager_password": MANAGER_PASSWORD
     })
 
+@app.route('/login')
+def login_page():
+    return send_from_directory('.', 'login.html')
+
+@app.route('/hotel-login', methods=['POST'])
+def hotel_login():
+    data = request.json
+    email = data.get('email')
+    password = data.get('password')
+    
+    conn = sqlite3.connect('feedback.db')
+    c = conn.cursor()
+    c.execute('SELECT * FROM hotels WHERE email = ? AND password = ?', 
+              (email, password))
+    hotel = c.fetchone()
+    conn.close()
+    
+    if hotel:
+        return jsonify({
+            "success": True,
+            "slug": hotel[2],
+            "name": hotel[1]
+        })
+    else:
+        return jsonify({"success": False})
+
+@app.route('/portal/<slug>')
+def portal(slug):
+    conn = sqlite3.connect('feedback.db')
+    c = conn.cursor()
+    c.execute('SELECT * FROM hotels WHERE slug = ?', (slug,))
+    hotel = c.fetchone()
+    conn.close()
+    
+    if not hotel:
+        return "Hotel not found", 404
+    
+    return send_from_directory('.', 'portal.html')
+
+@app.route('/get-hotel/<slug>')
+def get_hotel(slug):
+    conn = sqlite3.connect('feedback.db')
+    c = conn.cursor()
+    c.execute('SELECT * FROM hotels WHERE slug = ?', (slug,))
+    hotel = c.fetchone()
+    conn.close()
+    
+    if not hotel:
+        return jsonify({"error": "Not found"}), 404
+    
+    return jsonify({
+        "id": hotel[0],
+        "name": hotel[1],
+        "slug": hotel[2],
+        "email": hotel[3],
+        "staff_password": hotel[6],
+        "manager_password": hotel[7]
+    })
+
+@app.route('/add-hotel', methods=['POST'])
+
+def add_hotel():
+    data = request.json
+    conn = sqlite3.connect('feedback.db')
+    c = conn.cursor()
+    c.execute('''INSERT INTO hotels 
+                (name, slug, email, password, system_prompt,
+                 staff_password, manager_password, date_created)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
+              (data.get('name'),
+               data.get('slug'),
+               data.get('email'),
+               data.get('password'),
+               data.get('system_prompt', ''),
+               data.get('staff_password', 'staff2024'),
+               data.get('manager_password', 'manager2024'),
+               datetime.now().strftime("%Y-%m-%d %H:%M")))
+    conn.commit()
+    conn.close()
+    
+    return jsonify({"success": True})
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)    

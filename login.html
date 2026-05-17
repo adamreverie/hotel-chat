@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Favvi — Hotel Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a2e;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-box {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 35px;
+            width: 340px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1a1a2e;
+            margin-bottom: 6px;
+        }
+        .logo span { color: #c9a84c; }
+        .subtitle {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .input-group label {
+            font-size: 12px;
+            color: #666;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+        }
+        .input-group input:focus { border-color: #1a1a2e; }
+        .login-btn {
+            width: 100%;
+            padding: 13px;
+            background: #1a1a2e;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 15px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .login-btn:hover { opacity: 0.85; }
+        .error {
+            color: red;
+            font-size: 12px;
+            margin-top: 10px;
+            display: none;
+        }
+        .footer-text {
+            font-size: 11px;
+            color: #ccc;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <div class="logo">fav<span>vi</span></div>
+        <p class="subtitle">Hotel Management Portal</p>
+
+        <div class="input-group">
+            <label>Email Address</label>
+            <input 
+                type="email" 
+                id="email" 
+                placeholder="manager@yourhotel.com"
+                onkeypress="if(event.key==='Enter') login()"
+            />
+        </div>
+        <div class="input-group">
+            <label>Password</label>
+            <input 
+                type="password" 
+                id="password" 
+                placeholder="Enter your password"
+                onkeypress="if(event.key==='Enter') login()"
+            />
+        </div>
+
+        <button class="login-btn" onclick="login()">Login to Portal</button>
+        <p class="error" id="error">Incorrect email or password.</p>
+    </div>
+
+    <script>
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                document.getElementById('error').textContent = 'Please fill in all fields.';
+                document.getElementById('error').style.display = 'block';
+                return;
+            }
+
+            const response = await fetch('/hotel-login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                window.location.href = `/portal/${data.slug}`;
+            } else {
+                document.getElementById('error').style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
