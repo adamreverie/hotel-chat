@@ -69,6 +69,10 @@ Use plain text only with line breaks for spacing."""
 
 @app.route('/')
 def home():
+    return send_from_directory('.', 'landing.html')
+
+@app.route('/chat')
+def chat_page():
     return send_from_directory('.', 'index.html')
 
 @app.route('/feedback')
