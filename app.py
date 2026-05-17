@@ -394,6 +394,7 @@ def get_hotel(slug):
 
 def add_hotel():
     data = request.json
+    
     conn = sqlite3.connect('feedback.db')
     c = conn.cursor()
     c.execute('''INSERT INTO hotels 
@@ -412,6 +413,7 @@ def add_hotel():
     conn.close()
     
     return jsonify({"success": True})
+
 @app.route('/portal/<slug>/chat')
 def portal_chat(slug):
     return send_from_directory('.', 'index.html')
@@ -429,4 +431,4 @@ def portal_dashboard(slug):
     return send_from_directory('.', 'dashboard.html')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)    
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)  
