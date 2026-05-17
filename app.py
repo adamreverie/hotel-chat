@@ -412,7 +412,6 @@ def add_hotel():
     conn.close()
     
     return jsonify({"success": True})
-
 @app.route('/portal/<slug>/chat')
 def portal_chat(slug):
     return send_from_directory('.', 'index.html')
