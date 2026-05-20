@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Settings | Favvi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #f0efe9;
+            min-height: 100vh;
+            color: #1a1a2e;
+        }
+
+        /* ── HEADER ── */
+        .header {
+            background: #1a1a2e;
+            color: white;
+            padding: 16px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        .header-left { display: flex; align-items: center; gap: 14px; }
+        .back-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            text-decoration: none;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.2); }
+        .header h2 { font-size: 16px; font-weight: 500; }
+        .header-sub { font-size: 11px; opacity: 0.5; margin-top: 1px; }
+        .role-pill {
+            font-size: 11px;
+            font-weight: 500;
+            padding: 4px 12px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+        }
+        .role-manager { background: rgba(201,168,76,0.25); color: #c9a84c; }
+        .role-staff   { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.7); }
+
+        /* ── LOGIN OVERLAY ── */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: #f0efe9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            padding: 44px 36px;
+            width: 360px;
+            text-align: center;
+            box-shadow: 0 8px 40px rgba(26,26,46,0.12);
+        }
+        .login-icon { font-size: 44px; margin-bottom: 16px; }
+        .login-card h2 { font-size: 20px; font-weight: 500; color: #1a1a2e; margin-bottom: 6px; }
+        .login-card p { font-size: 13px; color: #999; margin-bottom: 28px; }
+
+        .role-tabs {
+            display: flex;
+            background: #f0efe9;
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 20px;
+            gap: 4px;
+        }
+        .role-tab {
+            flex: 1;
+            padding: 9px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 400;
+            cursor: pointer;
+            background: transparent;
+            color: #999;
+            transition: all 0.2s;
+        }
+        .role-tab.active {
+            background: #1a1a2e;
+            color: white;
+            font-weight: 500;
+        }
+
+        .field {
+            margin-bottom: 12px;
+            text-align: left;
+        }
+        .field label {
+            display: block;
+            font-size: 11px;
+            font-weight: 500;
+            color: #888;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .field input {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1.5px solid #e8e8e8;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            outline: none;
+            background: #fafafa;
+            transition: border-color 0.2s;
+        }
+        .field input:focus { border-color: #1a1a2e; background: white; }
+
+        .login-btn {
+            width: 100%;
+            padding: 13px;
+            background: #1a1a2e;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 6px;
+            transition: opacity 0.2s;
+        }
+        .login-btn:hover { opacity: 0.85; }
+        .login-error {
+            color: #e55;
+            font-size: 12px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* ── MAIN BODY ── */
+        .body {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 32px 20px 60px;
+        }
+
+        /* ── SECTION ── */
+        .section {
+            background: white;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(26,26,46,0.06);
+            margin-bottom: 20px;
+        }
+        .section-header {
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid #f0efe9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-icon { font-size: 20px; }
+        .section-title { font-size: 15px; font-weight: 500; color: #1a1a2e; }
+        .section-desc { font-size: 12px; color: #aaa; margin-top: 1px; }
+        .section-body { padding: 22px 24px; }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+        .form-row.single { grid-template-columns: 1fr; }
+
+        .form-field { margin-bottom: 16px; }
+        .form-field:last-child { margin-bottom: 0; }
+        .form-field label {
+            display: block;
+            font-size: 11px;
+            font-weight: 500;
+            color: #999;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 7px;
+        }
+        .form-field input,
+        .form-field textarea {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1.5px solid #e8e8e8;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            outline: none;
+            background: #fafafa;
+            color: #1a1a2e;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .form-field input:focus,
+        .form-field textarea:focus {
+            border-color: #1a1a2e;
+            background: white;
+        }
+        .form-field textarea {
+            resize: vertical;
+            min-height: 120px;
+            line-height: 1.6;
+        }
+
+        /* Password field with show/hide */
+        .pw-wrap { position: relative; }
+        .pw-wrap input { padding-right: 44px; }
+        .pw-eye {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #bbb;
+            padding: 4px;
+        }
+        .pw-eye:hover { color: #666; }
+
+        /* Section save button */
+        .section-footer {
+            padding: 0 24px 22px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+        }
+        .save-btn {
+            background: #1a1a2e;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 20px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.15s;
+        }
+        .save-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+        .save-btn:active { transform: translateY(0); }
+
+        .save-status {
+            font-size: 13px;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .save-status.success { color: #4CAF50; opacity: 1; }
+        .save-status.error   { color: #e55;    opacity: 1; }
+        .save-status.fading  { opacity: 0; }
+
+        /* Locked field (staff can't edit) */
+        .form-field.locked label::after {
+            content: '  🔒';
+            font-size: 10px;
+        }
+        .form-field.locked input,
+        .form-field.locked textarea {
+            background: #f5f5f5;
+            color: #bbb;
+            cursor: not-allowed;
+        }
+
+        /* Staff notice banner */
+        .staff-notice {
+            background: rgba(201,168,76,0.1);
+            border: 1px solid rgba(201,168,76,0.3);
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 13px;
+            color: #8a6f2e;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        @media (max-width: 600px) {
+            .form-row { grid-template-columns: 1fr; }
+            .body { padding: 20px 14px 60px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- LOGIN OVERLAY -->
+<div class="overlay" id="overlay">
+    <div class="login-card">
+        <div class="login-icon">⚙️</div>
+        <h2>Settings</h2>
+        <p id="loginDesc">Choose your role to continue</p>
+
+        <div class="role-tabs">
+            <button class="role-tab active" onclick="setRole('manager')" id="tab-manager">Manager</button>
+            <button class="role-tab" onclick="setRole('staff')" id="tab-staff">Staff</button>
+        </div>
+
+        <div class="field" id="nameFieldWrap" style="display:none;">
+            <label>Your Name</label>
+            <input type="text" id="staffNameInput" placeholder="e.g. Ahmed" />
+        </div>
+
+        <div class="field">
+            <label>Password</label>
+            <input type="password" id="passwordInput" placeholder="Enter password"
+                   onkeypress="if(event.key==='Enter') attemptLogin()" />
+        </div>
+
+        <button class="login-btn" onclick="attemptLogin()">Access Settings</button>
+        <p class="login-error" id="loginError">Incorrect password. Try again.</p>
+    </div>
+</div>
+
+<!-- HEADER -->
+<div class="header" id="mainHeader" style="display:none;">
+    <div class="header-left">
+        <a class="back-btn" id="portalBackBtn" href="#" title="Back to Portal">←</a>
+        <div>
+            <h2>Settings</h2>
+            <div class="header-sub" id="hotelNameHeader">Loading...</div>
+        </div>
+    </div>
+    <span class="role-pill" id="rolePill">Manager</span>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="body" id="mainBody" style="display:none;">
+
+    <!-- Staff notice -->
+    <div class="staff-notice" id="staffNotice" style="display:none;">
+        ℹ️ As a staff member you can only update the shared staff password. Contact your manager to change hotel information or offers.
+    </div>
+
+    <!-- HOTEL INFORMATION -->
+    <div class="section" id="sectionHotelInfo">
+        <div class="section-header">
+            <span class="section-icon">🏨</span>
+            <div>
+                <div class="section-title">Hotel Information</div>
+                <div class="section-desc">Name, location, contact details and room info</div>
+            </div>
+        </div>
+        <div class="section-body">
+            <div class="form-row">
+                <div class="form-field" id="ff-name">
+                    <label>Hotel Name</label>
+                    <input type="text" id="hotelName" placeholder="e.g. Grand Palace Hotel" />
+                </div>
+                <div class="form-field" id="ff-location">
+                    <label>Location</label>
+                    <input type="text" id="hotelLocation" placeholder="e.g. Downtown Dubai" />
+                </div>
+            </div>
+            <div class="form-row single">
+                <div class="form-field" id="ff-email">
+                    <label>Manager Email (for alerts)</label>
+                    <input type="email" id="managerEmail" placeholder="manager@hotel.com" />
+                </div>
+            </div>
+            <div class="form-row single">
+                <div class="form-field" id="ff-info">
+                    <label>Hotel Info (rooms, facilities, contacts, dining hours…)</label>
+                    <textarea id="hotelInfo" placeholder="Paste your full hotel info here…"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="section-footer">
+            <span class="save-status" id="status-info"></span>
+            <button class="save-btn" onclick="saveSection('info')">Save Changes</button>
+        </div>
+    </div>
+
+    <!-- CURRENT OFFERS -->
+    <div class="section" id="sectionOffers">
+        <div class="section-header">
+            <span class="section-icon">🎁</span>
+            <div>
+                <div class="section-title">Current Offers</div>
+                <div class="section-desc">Promotions and packages the AI will mention to guests</div>
+            </div>
+        </div>
+        <div class="section-body">
+            <div class="form-row single">
+                <div class="form-field" id="ff-offers">
+                    <label>Offers &amp; Packages</label>
+                    <textarea id="currentOffers" style="min-height:140px;"
+                        placeholder="e.g. Early Bird: 20% off when booked 20 days ahead…"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="section-footer">
+            <span class="save-status" id="status-offers"></span>
+            <button class="save-btn" onclick="saveSection('offers')">Save Changes</button>
+        </div>
+    </div>
+
+    <!-- PASSWORDS -->
+    <div class="section" id="sectionPasswords">
+        <div class="section-header">
+            <span class="section-icon">🔐</span>
+            <div>
+                <div class="section-title">Passwords</div>
+                <div class="section-desc" id="pwSectionDesc">Update access passwords</div>
+            </div>
+        </div>
+        <div class="section-body">
+
+            <!-- Staff password row (both roles see this) -->
+            <div class="form-row" id="pwStaffRow">
+                <div class="form-field">
+                    <label>New Staff Password</label>
+                    <div class="pw-wrap">
+                        <input type="password" id="newStaffPw" placeholder="Enter new password" />
+                        <button class="pw-eye" onclick="togglePw('newStaffPw', this)">👁</button>
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label>Confirm Staff Password</label>
+                    <div class="pw-wrap">
+                        <input type="password" id="confirmStaffPw" placeholder="Repeat password" />
+                        <button class="pw-eye" onclick="togglePw('confirmStaffPw', this)">👁</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manager password (manager only) -->
+            <div class="form-row" id="pwManagerRow" style="display:none;">
+                <div class="form-field">
+                    <label>New Manager Password</label>
+                    <div class="pw-wrap">
+                        <input type="password" id="newManagerPw" placeholder="Enter new password" />
+                        <button class="pw-eye" onclick="togglePw('newManagerPw', this)">👁</button>
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label>Confirm Manager Password</label>
+                    <div class="pw-wrap">
+                        <input type="password" id="confirmManagerPw" placeholder="Repeat password" />
+                        <button class="pw-eye" onclick="togglePw('confirmManagerPw', this)">👁</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="section-footer">
+            <span class="save-status" id="status-passwords"></span>
+            <button class="save-btn" onclick="saveSection('passwords')">Save Passwords</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let currentRole = 'manager';
+    let slug = '';
+    let hotelConfig = null;
+
+    // ── Read slug from URL (/portal/SLUG/settings) ──
+    const pathParts = window.location.pathname.split('/');
+    const portalIdx = pathParts.indexOf('portal');
+    if (portalIdx !== -1) slug = pathParts[portalIdx + 1];
+
+    // ── Role tab toggle ──
+    function setRole(role) {
+        currentRole = role;
+        document.getElementById('tab-manager').classList.toggle('active', role === 'manager');
+        document.getElementById('tab-staff').classList.toggle('active', role === 'staff');
+        document.getElementById('nameFieldWrap').style.display = role === 'staff' ? 'block' : 'none';
+        document.getElementById('loginDesc').textContent =
+            role === 'manager' ? 'Enter your manager password' : 'Enter your name and staff password';
+    }
+
+    // ── Load hotel config for login check ──
+    async function loadConfig() {
+        try {
+            const url = slug ? `/get-hotel/${slug}` : '/hotel-config';
+            const r = await fetch(url);
+            hotelConfig = await r.json();
+        } catch(e) {
+            console.error('Config load failed', e);
+        }
+    }
+    loadConfig();
+
+    // ── Login ──
+    async function attemptLogin() {
+        if (!hotelConfig) await loadConfig();
+        const pw = document.getElementById('passwordInput').value;
+        const errEl = document.getElementById('loginError');
+
+        const correctPw = currentRole === 'manager'
+            ? hotelConfig.manager_password
+            : hotelConfig.staff_password;
+
+        if (pw !== correctPw) {
+            errEl.style.display = 'block';
+            return;
+        }
+
+        if (currentRole === 'staff') {
+            const name = document.getElementById('staffNameInput').value.trim();
+            if (!name) {
+                errEl.textContent = 'Please enter your name.';
+                errEl.style.display = 'block';
+                return;
+            }
+        }
+
+        errEl.style.display = 'none';
+        enterDashboard();
+    }
+
+    function enterDashboard() {
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('mainHeader').style.display = 'flex';
+        document.getElementById('mainBody').style.display = 'block';
+
+        // Set role pill
+        const pill = document.getElementById('rolePill');
+        pill.textContent = currentRole === 'manager' ? '👔 Manager' : '👤 Staff';
+        pill.className = 'role-pill ' + (currentRole === 'manager' ? 'role-manager' : 'role-staff');
+
+        // Back link
+        const backBtn = document.getElementById('portalBackBtn');
+        backBtn.href = slug ? `/portal/${slug}` : '/';
+
+        // Apply permissions
+        applyPermissions();
+        // Load current values
+        loadCurrentValues();
+    }
+
+    function applyPermissions() {
+        const isManager = currentRole === 'manager';
+
+        // Show staff notice
+        document.getElementById('staffNotice').style.display = isManager ? 'none' : 'flex';
+
+        // Hotel info & offers sections — locked for staff
+        ['ff-name','ff-location','ff-email','ff-info'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.toggle('locked', !isManager);
+                const input = el.querySelector('input,textarea');
+                if (input) input.disabled = !isManager;
+            }
+        });
+        document.getElementById('ff-offers').classList.toggle('locked', !isManager);
+        const offersTA = document.getElementById('currentOffers');
+        if (offersTA) offersTA.disabled = !isManager;
+
+        // Save buttons for info/offers
+        document.querySelectorAll('#sectionHotelInfo .save-btn, #sectionOffers .save-btn').forEach(btn => {
+            btn.style.display = isManager ? 'inline-block' : 'none';
+        });
+
+        // Manager password row only for manager
+        document.getElementById('pwManagerRow').style.display = isManager ? 'grid' : 'none';
+        document.getElementById('pwSectionDesc').textContent = isManager
+            ? 'Update staff and manager passwords'
+            : 'Update the shared staff password';
+    }
+
+    async function loadCurrentValues() {
+        try {
+            const url = slug ? `/get-hotel/${slug}` : '/hotel-config';
+            const r = await fetch(url);
+            const cfg = await r.json();
+
+            document.getElementById('hotelNameHeader').textContent = cfg.name || '';
+            document.getElementById('hotelName').value = cfg.name || '';
+            document.getElementById('hotelLocation').value = cfg.location || '';
+            document.getElementById('managerEmail').value = cfg.email || cfg.manager_email || '';
+            document.getElementById('hotelInfo').value = cfg.hotel_info || '';
+            document.getElementById('currentOffers').value = cfg.current_offers || '';
+        } catch(e) {
+            console.error('Failed to load values', e);
+        }
+    }
+
+    // ── Save sections ──
+    async function saveSection(section) {
+        const statusEl = document.getElementById('status-' + section);
+
+        try {
+            let payload = { slug };
+
+            if (section === 'info') {
+                payload.name           = document.getElementById('hotelName').value.trim();
+                payload.location       = document.getElementById('hotelLocation').value.trim();
+                payload.manager_email  = document.getElementById('managerEmail').value.trim();
+                payload.hotel_info     = document.getElementById('hotelInfo').value.trim();
+                if (!payload.name) { showStatus(statusEl, 'Hotel name is required', false); return; }
+
+            } else if (section === 'offers') {
+                payload.current_offers = document.getElementById('currentOffers').value.trim();
+
+            } else if (section === 'passwords') {
+                const newStaff    = document.getElementById('newStaffPw').value;
+                const confStaff   = document.getElementById('confirmStaffPw').value;
+
+                if (newStaff || confStaff) {
+                    if (newStaff !== confStaff) { showStatus(statusEl, 'Staff passwords don\'t match', false); return; }
+                    if (newStaff.length < 4)    { showStatus(statusEl, 'Password must be at least 4 characters', false); return; }
+                    payload.staff_password = newStaff;
+                }
+
+                if (currentRole === 'manager') {
+                    const newMgr  = document.getElementById('newManagerPw').value;
+                    const confMgr = document.getElementById('confirmManagerPw').value;
+                    if (newMgr || confMgr) {
+                        if (newMgr !== confMgr) { showStatus(statusEl, 'Manager passwords don\'t match', false); return; }
+                        if (newMgr.length < 4)  { showStatus(statusEl, 'Password must be at least 4 characters', false); return; }
+                        payload.manager_password = newMgr;
+                    }
+                }
+
+                if (!payload.staff_password && !payload.manager_password) {
+                    showStatus(statusEl, 'Enter a new password first', false); return;
+                }
+            }
+
+            const r = await fetch('/update-hotel-settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await r.json();
+
+            if (data.success) {
+                // Clear password fields on success
+                if (section === 'passwords') {
+                    ['newStaffPw','confirmStaffPw','newManagerPw','confirmManagerPw'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.value = '';
+                    });
+                    // Refresh local config so re-login works
+                    await loadConfig();
+                }
+                showStatus(statusEl, '✓ Saved', true);
+            } else {
+                showStatus(statusEl, data.error || 'Save failed', false);
+            }
+
+        } catch(e) {
+            showStatus(statusEl, 'Network error', false);
+        }
+    }
+
+    function showStatus(el, msg, success) {
+        el.textContent = msg;
+        el.className = 'save-status ' + (success ? 'success' : 'error');
+        setTimeout(() => { el.classList.add('fading'); }, 2400);
+        setTimeout(() => { el.className = 'save-status'; el.textContent = ''; }, 2800);
+    }
+
+    function togglePw(inputId, btn) {
+        const input = document.getElementById(inputId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            btn.textContent = '🙈';
+        } else {
+            input.type = 'password';
+            btn.textContent = '👁';
+        }
+    }
+</script>
+</body>
+</html>

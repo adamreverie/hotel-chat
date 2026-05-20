@@ -133,6 +133,12 @@
                 <p>Average ratings, recent feedback, and guest satisfaction trends.</p>
                 <span class="card-badge">Live</span>
             </a>
+            <a class="card" id="settingsLink" href="#">
+                <div class="card-icon">⚙️</div>
+                <h3>Settings</h3>
+                <p>Update hotel info, current offers, and staff or manager passwords.</p>
+                <span class="card-badge">Live</span>
+            </a>
         </div>
     </div>
 
@@ -151,6 +157,7 @@
             document.getElementById('staffLink').href = `/portal/${slug}/staff`;
             document.getElementById('feedbackLink').href = `/portal/${slug}/feedback`;
             document.getElementById('dashboardLink').href = `/portal/${slug}/dashboard`;
+            document.getElementById('settingsLink').href = `/portal/${slug}/settings`;
         }
 
         loadHotel();

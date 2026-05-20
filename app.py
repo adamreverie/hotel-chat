@@ -54,6 +54,16 @@ def init_db():
              manager_password TEXT,
              date_created TEXT)''')
     
+    for col_sql in [
+        "ALTER TABLE hotels ADD COLUMN hotel_info TEXT",
+        "ALTER TABLE hotels ADD COLUMN current_offers TEXT",
+        "ALTER TABLE hotels ADD COLUMN manager_email TEXT",
+    ]:
+        try:
+            c.execute(col_sql)
+        except Exception:
+            pass
+
     conn.commit()
     conn.close()
 
@@ -382,13 +392,17 @@ def get_hotel(slug):
         return jsonify({"error": "Not found"}), 404
     
     return jsonify({
-        "id": hotel[0],
-        "name": hotel[1],
-        "slug": hotel[2],
-        "email": hotel[3],
-        "staff_password": hotel[6],
-        "manager_password": hotel[7]
-    })
+    "id": hotel[0],
+    "name": hotel[1],
+    "slug": hotel[2],
+    "email": hotel[3],
+    "staff_password": hotel[6],
+    "manager_password": hotel[7],
+    "hotel_info": hotel[8] if len(hotel) > 8 else "",
+    "current_offers": hotel[9] if len(hotel) > 9 else "",
+    "manager_email": hotel[10] if len(hotel) > 10 else hotel[3],
+    "location": HOTEL_LOCATION,
+})
 
 @app.route('/add-hotel', methods=['POST'])
 
@@ -429,6 +443,63 @@ def portal_feedback(slug):
 @app.route('/portal/<slug>/dashboard')
 def portal_dashboard(slug):
     return send_from_directory('.', 'dashboard.html')
+
+@app.route('/portal/<slug>/settings')
+def portal_settings(slug):
+    return send_from_directory('.', 'settings.html')
+
+
+@app.route('/update-hotel-settings', methods=['POST'])
+def update_hotel_settings():
+    data = request.json
+    slug = data.get('slug')
+
+    if not slug:
+        return jsonify({"success": False, "error": "No slug provided"})
+
+    conn = sqlite3.connect('feedback.db')
+    c = conn.cursor()
+
+    fields = []
+    values = []
+
+    if 'name' in data:
+        fields.append('name = ?')
+        values.append(data['name'])
+
+    if 'manager_email' in data:
+        fields.append('manager_email = ?')
+        values.append(data['manager_email'])
+
+    if 'hotel_info' in data:
+        fields.append('hotel_info = ?')
+        values.append(data['hotel_info'])
+
+    if 'current_offers' in data:
+        fields.append('current_offers = ?')
+        values.append(data['current_offers'])
+
+    if 'staff_password' in data:
+        fields.append('staff_password = ?')
+        values.append(data['staff_password'])
+
+    if 'manager_password' in data:
+        fields.append('manager_password = ?')
+        values.append(data['manager_password'])
+
+    if not fields:
+        conn.close()
+        return jsonify({"success": False, "error": "Nothing to update"})
+
+    values.append(slug)
+    try:
+        c.execute(f"UPDATE hotels SET {', '.join(fields)} WHERE slug = ?", values)
+        conn.commit()
+        conn.close()
+        return jsonify({"success": True})
+    except Exception as e:
+        conn.close()
+        return jsonify({"success": False, "error": str(e)})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)  
