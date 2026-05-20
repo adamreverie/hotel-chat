@@ -69,14 +69,31 @@ def init_db():
 
 init_db()
 
-system_prompt = f"""You are the AI guest assistant for {HOTEL_NAME}, 
+def get_system_prompt(slug=None):
+    if slug:
+        conn = sqlite3.connect('feedback.db')
+        c = conn.cursor()
+        c.execute('SELECT * FROM hotels WHERE slug = ?', (slug,))
+        hotel = c.fetchone()
+        conn.close()
+        if hotel:
+            name = hotel[1]
+            hotel_info = hotel[8] if len(hotel) > 8 and hotel[8] else HOTEL_INFO
+            current_offers = hotel[9] if len(hotel) > 9 and hotel[9] else CURRENT_OFFERS
+            manager_email = hotel[10] if len(hotel) > 10 and hotel[10] else MANAGER_EMAIL
+        else:
+            name, hotel_info, current_offers, manager_email = HOTEL_NAME, HOTEL_INFO, CURRENT_OFFERS, MANAGER_EMAIL
+    else:
+        name, hotel_info, current_offers, manager_email = HOTEL_NAME, HOTEL_INFO, CURRENT_OFFERS, MANAGER_EMAIL
+
+    return f"""You are the AI guest assistant for {name},
 located in {HOTEL_LOCATION}.
 
-{HOTEL_INFO}
+{hotel_info}
 
-{CURRENT_OFFERS}
+{current_offers}
 
-When a guest makes a REAL REQUEST (towels, room service, 
+When a guest makes a REAL REQUEST (towels, room service,
 maintenance, housekeeping, spa booking):
 1. Ask for their room number if you don't have it
 2. Confirm their request warmly
@@ -108,6 +125,79 @@ def dashboard():
 @app.route('/chat', methods=['POST'])
 def chat():
     user_message = request.json.get('message')
+    slug = request.json.get('slug')
+
+    conversation_history.append({
+        "role": "user",
+        "content": user_message
+    })
+
+    response = client.messages.create(
+        model="claude-sonnet-4-5",
+        max_tokens=1000,
+        system=get_system_prompt(slug),
+        messages=conversation_history
+    )
+
+    assistant_message = response.content[0].text
+
+    conversation_history.append({
+        "role": "assistant",
+        "content": assistant_message
+    })
+
+    if "STAFF_ALERT:" in assistant_message:
+        alert_line = [line for line in assistant_message.split('\n') if 'STAFF_ALERT:' in line][0]
+        alert_details = alert_line.replace('STAFF_ALERT:', '').strip()
+
+        department = "general"
+        if any(word in alert_details.lower() for word in ["towel", "sheet", "clean", "housekeeping", "linen"]):
+            department = "housekeeping"
+        elif any(word in alert_details.lower() for word in ["food", "drink", "room service", "sandwich", "breakfast", "dinner", "lunch", "water"]):
+            department = "roomservice"
+        elif any(word in alert_details.lower() for word in ["ac", "air", "light", "tv", "broken", "leak", "maintenance", "wifi", "internet"]):
+            department = "maintenance"
+        elif any(word in alert_details.lower() for word in ["taxi", "transfer", "transport", "tour", "concierge", "recommend"]):
+            department = "concierge"
+
+        room = "N/A"
+        for word in alert_details.split():
+            if word.isdigit():
+                room = word
+                break
+
+        conn = sqlite3.connect('feedback.db')
+        c = conn.cursor()
+        c.execute('''INSERT INTO requests
+                    (room_number, department, details, status, date)
+                    VALUES (?, ?, ?, ?, ?)''',
+                  (room, department, alert_details, 'new',
+                   datetime.now().strftime("%Y-%m-%d %H:%M")))
+        conn.commit()
+        conn.close()
+
+        # Get manager email from DB
+        if slug:
+            conn = sqlite3.connect('feedback.db')
+            c = conn.cursor()
+            c.execute('SELECT manager_email FROM hotels WHERE slug = ?', (slug,))
+            row = c.fetchone()
+            conn.close()
+            email_to = row[0] if row and row[0] else MANAGER_EMAIL
+        else:
+            email_to = MANAGER_EMAIL
+
+        resend.Emails.send({
+            "from": "onboarding@resend.dev",
+            "to": email_to,
+            "subject": f"🛎️ New Request — Room {room}",
+            "html": f"<h2>New Guest Request</h2><p><strong>Department:</strong> {department.title()}</p><p><strong>Details:</strong> {alert_details}</p>"
+        })
+
+        clean_message = assistant_message.replace(alert_line, '').strip()
+        return jsonify({"response": clean_message})
+
+    return jsonify({"response": assistant_message})
     
     conversation_history.append({
         "role": "user",
