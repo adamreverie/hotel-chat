@@ -39,7 +39,6 @@
 
         .body { max-width: 720px; margin: 0 auto; padding: 40px 32px 60px; }
 
-        /* Page title — dominant */
         .page-title { font-family: 'Cormorant Garamond', serif; font-size: 42px; font-weight: 600; color: #6b4d8a; line-height: 1.1; margin-bottom: 4px; }
         .page-title em { font-style: italic; font-weight: 400; color: #1a1a2e; }
         .page-sub { font-size: 12px; font-weight: 300; color: rgba(26,26,46,0.35); margin-bottom: 32px; }
@@ -48,8 +47,6 @@
 
         .section { background: white; border-radius: 3px; box-shadow: 0 1px 4px rgba(26,26,46,0.06); margin-bottom: 14px; overflow: hidden; }
         .section-header { padding: 20px 24px 16px; border-bottom: 1px solid #f0efe9; }
-
-        /* Section title — second level hierarchy */
         .section-eyebrow { font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: rgba(26,26,46,0.35); margin-bottom: 4px; }
         .section-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; color: #1a1a2e; }
         .section-desc { font-size: 12px; font-weight: 300; color: rgba(26,26,46,0.35); margin-top: 3px; }
@@ -65,10 +62,16 @@
         .form-field textarea { resize: vertical; min-height: 130px; line-height: 1.6; }
         .form-field.locked input, .form-field.locked textarea { background: #f5f5f5; color: #ccc; cursor: not-allowed; }
 
+        /* Password toggle — no emojis, clean SVG icon */
         .pw-wrap { position: relative; }
         .pw-wrap input { padding-right: 44px; }
-        .pw-eye { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 15px; color: #ccc; padding: 4px; }
+        .pw-eye {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; cursor: pointer; padding: 4px;
+            color: #ccc; transition: color 0.2s; line-height: 1;
+        }
         .pw-eye:hover { color: #888; }
+        .pw-eye svg { width: 16px; height: 16px; display: block; }
 
         .section-footer { padding: 0 24px 20px; display: flex; justify-content: flex-end; align-items: center; gap: 14px; }
         .save-btn { background: #1a1a2e; color: white; border: none; padding: 10px 24px; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: opacity 0.2s, transform 0.15s; }
@@ -82,6 +85,8 @@
     </style>
 </head>
 <body>
+
+    <!-- LOGIN -->
     <div class="overlay" id="overlay">
         <div class="login-card">
             <div class="login-logo">fav<span>vi</span></div>
@@ -97,13 +102,15 @@
             </div>
             <div class="field">
                 <label>Password</label>
-                <input type="password" id="passwordInput" placeholder="Enter password" onkeypress="if(event.key==='Enter') attemptLogin()" />
+                <input type="password" id="passwordInput" placeholder="Enter password"
+                       onkeypress="if(event.key==='Enter') attemptLogin()" />
             </div>
             <button class="login-btn" onclick="attemptLogin()">Access Settings</button>
             <p class="login-error" id="loginError">Incorrect password. Try again.</p>
         </div>
     </div>
 
+    <!-- HEADER -->
     <div class="header" id="mainHeader" style="display:none;">
         <div class="header-left">
             <a class="logo" id="backLink" href="#">fav<span>vi</span></a>
@@ -113,6 +120,7 @@
         <span class="role-pill" id="rolePill"></span>
     </div>
 
+    <!-- BODY -->
     <div class="body" id="mainBody" style="display:none;">
         <div class="page-title"><em>Hotel</em> Settings</div>
         <p class="page-sub" id="pageSub">Loading...</p>
@@ -121,20 +129,67 @@
             As a staff member you can only update the shared staff password. Contact your manager to change hotel information or offers.
         </div>
 
-            <div class="section-footer">
-                <span class="save-status" id="status-knowledge"></span>
-                <button class="save-btn" id="saveKnowledgeBtn" onclick="saveSection('knowledge')">Save Knowledge Base</button>
-            </div>
-        </div>
-
+        <!-- 1. HOTEL INFORMATION -->
         <div class="section">
             <div class="section-header">
                 <div class="section-eyebrow">Configuration</div>
                 <div class="section-title">Hotel Information</div>
                 <div class="section-desc">Name, location, contact details and room info</div>
             </div>
+            <div class="section-body">
+                <div class="form-row">
+                    <div class="form-field" id="ff-name">
+                        <label>Hotel Name</label>
+                        <input type="text" id="hotelName" placeholder="e.g. Grand Palace Hotel" />
+                    </div>
+                    <div class="form-field" id="ff-location">
+                        <label>Location</label>
+                        <input type="text" id="hotelLocation" placeholder="e.g. Downtown Dubai" />
+                    </div>
+                </div>
+                <div class="form-row single">
+                    <div class="form-field" id="ff-email">
+                        <label>Manager Email (for alerts)</label>
+                        <input type="email" id="managerEmail" placeholder="manager@hotel.com" />
+                    </div>
+                </div>
+                <div class="form-row single">
+                    <div class="form-field" id="ff-info">
+                        <label>Hotel Info</label>
+                        <textarea id="hotelInfo" placeholder="Rooms, facilities, dining hours, contacts, WiFi password..."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="section-footer">
+                <span class="save-status" id="status-info"></span>
+                <button class="save-btn" id="saveInfoBtn" onclick="saveSection('info')">Save Changes</button>
+            </div>
+        </div>
 
-    <div class="section" id="sectionKnowledge">
+        <!-- 2. CURRENT OFFERS -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-eyebrow">Promotions</div>
+                <div class="section-title">Current Offers</div>
+                <div class="section-desc">Packages and deals the AI will mention to guests</div>
+            </div>
+            <div class="section-body">
+                <div class="form-row single">
+                    <div class="form-field" id="ff-offers">
+                        <label>Offers and Packages</label>
+                        <textarea id="currentOffers" style="min-height:110px;"
+                            placeholder="e.g. Early Bird: 20% off when booked 20 days ahead..."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="section-footer">
+                <span class="save-status" id="status-offers"></span>
+                <button class="save-btn" id="saveOffersBtn" onclick="saveSection('offers')">Save Changes</button>
+            </div>
+        </div>
+
+        <!-- 3. STAFF KNOWLEDGE BASE -->
+        <div class="section" id="sectionKnowledge">
             <div class="section-header">
                 <div class="section-eyebrow">Staff AI</div>
                 <div class="section-title">Staff Knowledge Base</div>
@@ -146,58 +201,29 @@
                         <label>Knowledge Base</label>
                         <textarea id="staffKnowledge" style="min-height:200px;"
                             placeholder="e.g.
-                            COMPLAINT HANDLING:
-                            1. Listen without interrupting
-                            2. Apologise sincerely
-                            3. Offer a solution immediately
-                            4. Escalate to manager if unresolved
+COMPLAINT HANDLING:
+1. Listen without interrupting
+2. Apologise sincerely
+3. Offer a solution immediately
+4. Escalate to manager if unresolved
 
-                            UPGRADE POLICY:
-                            - Complimentary upgrades need manager approval
-                            - Staff can offer room change if same category is unavailable
+UPGRADE POLICY:
+- Complimentary upgrades need manager approval
+- Staff can offer room change if same category is unavailable
 
-                            EMERGENCY CONTACTS:
-                            - Security: ext. 100
-                            - Manager on duty: ext. 101"></textarea>
+EMERGENCY CONTACTS:
+- Security: ext. 100
+- Manager on duty: ext. 101"></textarea>
                     </div>
                 </div>
             </div>
-
-            <div class="section-body">
-                <div class="form-row">
-                    <div class="form-field" id="ff-name"><label>Hotel Name</label><input type="text" id="hotelName" placeholder="e.g. Grand Palace Hotel" /></div>
-                    <div class="form-field" id="ff-location"><label>Location</label><input type="text" id="hotelLocation" placeholder="e.g. Downtown Dubai" /></div>
-                </div>
-                <div class="form-row single">
-                    <div class="form-field" id="ff-email"><label>Manager Email (for alerts)</label><input type="email" id="managerEmail" placeholder="manager@hotel.com" /></div>
-                </div>
-                <div class="form-row single">
-                    <div class="form-field" id="ff-info"><label>Hotel Info</label><textarea id="hotelInfo" placeholder="Rooms, facilities, dining hours, contacts, WiFi password..."></textarea></div>
-                </div>
-            </div>
             <div class="section-footer">
-                <span class="save-status" id="status-info"></span>
-                <button class="save-btn" id="saveInfoBtn" onclick="saveSection('info')">Save Changes</button>
+                <span class="save-status" id="status-knowledge"></span>
+                <button class="save-btn" id="saveKnowledgeBtn" onclick="saveSection('knowledge')">Save Knowledge Base</button>
             </div>
         </div>
 
-        <div class="section">
-            <div class="section-header">
-                <div class="section-eyebrow">Promotions</div>
-                <div class="section-title">Current Offers</div>
-                <div class="section-desc">Packages and deals the AI will mention to guests</div>
-            </div>
-            <div class="section-body">
-                <div class="form-row single">
-                    <div class="form-field" id="ff-offers"><label>Offers and Packages</label><textarea id="currentOffers" style="min-height:110px;" placeholder="e.g. Early Bird: 20% off when booked 20 days ahead..."></textarea></div>
-                </div>
-            </div>
-            <div class="section-footer">
-                <span class="save-status" id="status-offers"></span>
-                <button class="save-btn" id="saveOffersBtn" onclick="saveSection('offers')">Save Changes</button>
-            </div>
-        </div>
-
+        <!-- 4. PASSWORDS -->
         <div class="section">
             <div class="section-header">
                 <div class="section-eyebrow">Access</div>
@@ -206,12 +232,56 @@
             </div>
             <div class="section-body">
                 <div class="form-row" id="pwStaffRow">
-                    <div class="form-field"><label>New Staff Password</label><div class="pw-wrap"><input type="password" id="newStaffPw" placeholder="Enter new password" /><button class="pw-eye" onclick="togglePw('newStaffPw',this)">👁</button></div></div>
-                    <div class="form-field"><label>Confirm Staff Password</label><div class="pw-wrap"><input type="password" id="confirmStaffPw" placeholder="Repeat password" /><button class="pw-eye" onclick="togglePw('confirmStaffPw',this)">👁</button></div></div>
+                    <div class="form-field">
+                        <label>New Staff Password</label>
+                        <div class="pw-wrap">
+                            <input type="password" id="newStaffPw" placeholder="Enter new password" />
+                            <button class="pw-eye" onclick="togglePw('newStaffPw', this)" aria-label="Show password">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-field">
+                        <label>Confirm Staff Password</label>
+                        <div class="pw-wrap">
+                            <input type="password" id="confirmStaffPw" placeholder="Repeat password" />
+                            <button class="pw-eye" onclick="togglePw('confirmStaffPw', this)" aria-label="Show password">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <div class="form-row" id="pwManagerRow" style="display:none;">
-                    <div class="form-field"><label>New Manager Password</label><div class="pw-wrap"><input type="password" id="newManagerPw" placeholder="Enter new password" /><button class="pw-eye" onclick="togglePw('newManagerPw',this)">👁</button></div></div>
-                    <div class="form-field"><label>Confirm Manager Password</label><div class="pw-wrap"><input type="password" id="confirmManagerPw" placeholder="Repeat password" /><button class="pw-eye" onclick="togglePw('confirmManagerPw',this)">👁</button></div></div>
+                    <div class="form-field">
+                        <label>New Manager Password</label>
+                        <div class="pw-wrap">
+                            <input type="password" id="newManagerPw" placeholder="Enter new password" />
+                            <button class="pw-eye" onclick="togglePw('newManagerPw', this)" aria-label="Show password">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-field">
+                        <label>Confirm Manager Password</label>
+                        <div class="pw-wrap">
+                            <input type="password" id="confirmManagerPw" placeholder="Repeat password" />
+                            <button class="pw-eye" onclick="togglePw('confirmManagerPw', this)" aria-label="Show password">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="section-footer">
@@ -219,6 +289,7 @@
                 <button class="save-btn" onclick="saveSection('passwords')">Save Passwords</button>
             </div>
         </div>
+
     </div>
 
     <script>
@@ -232,11 +303,17 @@
             document.getElementById('tab-manager').classList.toggle('active', role === 'manager');
             document.getElementById('tab-staff').classList.toggle('active', role === 'staff');
             document.getElementById('nameFieldWrap').style.display = role === 'staff' ? 'block' : 'none';
-            document.getElementById('loginDesc').textContent = role === 'manager' ? 'Enter your manager password' : 'Enter your name and staff password';
+            document.getElementById('loginDesc').textContent = role === 'manager'
+                ? 'Enter your manager password'
+                : 'Enter your name and staff password';
         }
 
         async function loadConfig() {
-            try { const url = slug ? `/get-hotel/${slug}` : '/hotel-config'; const r = await fetch(url); hotelConfig = await r.json(); } catch(e) {}
+            try {
+                const url = slug ? `/get-hotel/${slug}` : '/hotel-config';
+                const r = await fetch(url);
+                hotelConfig = await r.json();
+            } catch(e) {}
         }
         loadConfig();
 
@@ -274,24 +351,27 @@
                 el.classList.toggle('locked', !isManager);
                 const input = el.querySelector('input,textarea'); if (input) input.disabled = !isManager;
             });
-            document.getElementById('saveInfoBtn').style.display   = isManager ? 'inline-block' : 'none';
-            document.getElementById('saveOffersBtn').style.display = isManager ? 'inline-block' : 'none';
+            document.getElementById('saveInfoBtn').style.display      = isManager ? 'inline-block' : 'none';
+            document.getElementById('saveOffersBtn').style.display    = isManager ? 'inline-block' : 'none';
             document.getElementById('saveKnowledgeBtn').style.display = isManager ? 'inline-block' : 'none';
-            document.getElementById('pwManagerRow').style.display  = isManager ? 'grid' : 'none';
-            document.getElementById('pwDesc').textContent = isManager ? 'Update staff and manager passwords' : 'Update the shared staff password';
+            document.getElementById('pwManagerRow').style.display     = isManager ? 'grid' : 'none';
+            document.getElementById('pwDesc').textContent = isManager
+                ? 'Update staff and manager passwords'
+                : 'Update the shared staff password';
         }
 
         async function loadCurrentValues() {
             try {
                 const url = slug ? `/get-hotel/${slug}` : '/hotel-config';
-                const r = await fetch(url); const cfg = await r.json();
-                document.getElementById('pageSub').textContent     = (cfg.name||'') + ' — Settings';
-                document.getElementById('hotelName').value         = cfg.name || '';
-                document.getElementById('hotelLocation').value     = cfg.location || '';
-                document.getElementById('managerEmail').value      = cfg.manager_email || cfg.email || '';
-                document.getElementById('hotelInfo').value         = cfg.hotel_info || '';
-                document.getElementById('currentOffers').value     = cfg.current_offers || '';
-                document.getElementById('staffKnowledge').value    = cfg.staff_knowledge || '';
+                const r = await fetch(url);
+                const cfg = await r.json();
+                document.getElementById('pageSub').textContent      = (cfg.name || '') + ' — Settings';
+                document.getElementById('hotelName').value          = cfg.name || '';
+                document.getElementById('hotelLocation').value      = cfg.location || '';
+                document.getElementById('managerEmail').value       = cfg.manager_email || cfg.email || '';
+                document.getElementById('hotelInfo').value          = cfg.hotel_info || '';
+                document.getElementById('currentOffers').value      = cfg.current_offers || '';
+                document.getElementById('staffKnowledge').value     = cfg.staff_knowledge || '';
             } catch(e) {}
         }
 
@@ -300,50 +380,78 @@
             try {
                 let payload = { slug };
                 if (section === 'info') {
-                    payload.name = document.getElementById('hotelName').value.trim();
+                    payload.name          = document.getElementById('hotelName').value.trim();
                     payload.manager_email = document.getElementById('managerEmail').value.trim();
-                    payload.hotel_info = document.getElementById('hotelInfo').value.trim();
+                    payload.hotel_info    = document.getElementById('hotelInfo').value.trim();
                     if (!payload.name) { showStatus(statusEl, 'Hotel name is required', false); return; }
                 } else if (section === 'offers') {
                     payload.current_offers = document.getElementById('currentOffers').value.trim();
                 } else if (section === 'knowledge') {
                     payload.staff_knowledge = document.getElementById('staffKnowledge').value.trim();
                 } else if (section === 'passwords') {
-                    const newStaff = document.getElementById('newStaffPw').value, confStaff = document.getElementById('confirmStaffPw').value;
+                    const newStaff  = document.getElementById('newStaffPw').value;
+                    const confStaff = document.getElementById('confirmStaffPw').value;
                     if (newStaff || confStaff) {
                         if (newStaff !== confStaff) { showStatus(statusEl, 'Staff passwords do not match', false); return; }
-                        if (newStaff.length < 4) { showStatus(statusEl, 'Minimum 4 characters', false); return; }
+                        if (newStaff.length < 4)    { showStatus(statusEl, 'Minimum 4 characters', false); return; }
                         payload.staff_password = newStaff;
                     }
                     if (currentRole === 'manager') {
-                        const newMgr = document.getElementById('newManagerPw').value, confMgr = document.getElementById('confirmManagerPw').value;
+                        const newMgr  = document.getElementById('newManagerPw').value;
+                        const confMgr = document.getElementById('confirmManagerPw').value;
                         if (newMgr || confMgr) {
                             if (newMgr !== confMgr) { showStatus(statusEl, 'Manager passwords do not match', false); return; }
-                            if (newMgr.length < 4) { showStatus(statusEl, 'Minimum 4 characters', false); return; }
+                            if (newMgr.length < 4)  { showStatus(statusEl, 'Minimum 4 characters', false); return; }
                             payload.manager_password = newMgr;
                         }
                     }
-                    if (!payload.staff_password && !payload.manager_password) { showStatus(statusEl, 'Enter a new password first', false); return; }
+                    if (!payload.staff_password && !payload.manager_password) {
+                        showStatus(statusEl, 'Enter a new password first', false); return;
+                    }
                 }
-                const r = await fetch('/update-hotel-settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+
+                const r = await fetch('/update-hotel-settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
                 const data = await r.json();
                 if (data.success) {
-                    if (section === 'passwords') { ['newStaffPw','confirmStaffPw','newManagerPw','confirmManagerPw'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; }); await loadConfig(); }
+                    if (section === 'passwords') {
+                        ['newStaffPw','confirmStaffPw','newManagerPw','confirmManagerPw'].forEach(id => {
+                            const el = document.getElementById(id); if (el) el.value = '';
+                        });
+                        await loadConfig();
+                    }
                     showStatus(statusEl, 'Saved', true);
-                } else { showStatus(statusEl, data.error || 'Save failed', false); }
+                } else {
+                    showStatus(statusEl, data.error || 'Save failed', false);
+                }
             } catch(e) { showStatus(statusEl, 'Network error', false); }
         }
 
         function showStatus(el, msg, success) {
-            el.textContent = msg; el.className = 'save-status ' + (success ? 'success' : 'error');
+            el.textContent = msg;
+            el.className = 'save-status ' + (success ? 'success' : 'error');
             setTimeout(() => el.classList.add('fading'), 2400);
             setTimeout(() => { el.className = 'save-status'; el.textContent = ''; }, 2800);
         }
 
         function togglePw(inputId, btn) {
             const input = document.getElementById(inputId);
-            input.type = input.type === 'password' ? 'text' : 'password';
-            btn.textContent = input.type === 'password' ? '👁' : '🙈';
+            const isHidden = input.type === 'password';
+            input.type = isHidden ? 'text' : 'password';
+            // Swap between open and closed eye SVG
+            btn.innerHTML = isHidden
+                ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                    <line x1="1" y1="1" x2="23" y2="23"/>
+                   </svg>`
+                : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                   </svg>`;
         }
     </script>
 </body>
