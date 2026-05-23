@@ -67,7 +67,7 @@
             border-radius: 18px;
             font-size: 14px;
             line-height: 1.5;
-            hite-space: pre-wrap;
+            white-space: pre-wrap;
         }
         .agent {
             background: #f0f0f0;
@@ -229,13 +229,15 @@
 
     <script>
         async function loadConfig() {
-    const response = await fetch('/hotel-config');
+    const slug = window.location.pathname.split('/')[2] || '';
+    const url = slug ? `/get-hotel/${slug}` : '/hotel-config';
+    const response = await fetch(url);
     const config = await response.json();
     document.querySelectorAll('.hotel-name').forEach(el => {
         el.textContent = config.name;
     });
     return config;
-        }
+}
 
         window.onload = async function() {
         const config = await loadConfig();
