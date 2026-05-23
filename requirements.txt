@@ -2,3 +2,4 @@ flask
 anthropic
 python-dotenv
 resend
+psycopg2-binary
