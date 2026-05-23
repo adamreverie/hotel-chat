@@ -56,6 +56,7 @@ def init_db():
         "ALTER TABLE hotels ADD COLUMN hotel_info TEXT",
         "ALTER TABLE hotels ADD COLUMN current_offers TEXT",
         "ALTER TABLE hotels ADD COLUMN manager_email TEXT",
+        "ALTER TABLE hotels ADD COLUMN staff_knowledge TEXT",
     ]:
         try:
             c.execute(col_sql)
@@ -250,19 +251,29 @@ def staff_chat():
     user_message = data.get('message')
     slug         = data.get('slug')
 
-    hotel_info = HOTEL_INFO
-    hotel_name = HOTEL_NAME
+    hotel_info      = HOTEL_INFO
+    hotel_name      = HOTEL_NAME
+    staff_knowledge = ""
+
     if slug:
         conn = sqlite3.connect('feedback.db')
         c = conn.cursor()
-        c.execute('SELECT name, hotel_info FROM hotels WHERE slug = ?', (slug,))
+        c.execute('SELECT name, hotel_info, staff_knowledge FROM hotels WHERE slug = ?', (slug,))
         row = c.fetchone()
         conn.close()
         if row:
-            hotel_name = row[0] or HOTEL_NAME
-            hotel_info = row[1] or HOTEL_INFO
+            hotel_name      = row[0] or HOTEL_NAME
+            hotel_info      = row[1] or HOTEL_INFO
+            staff_knowledge = row[2] or ""
 
     staff_prompt = f"""You are an internal AI assistant for the staff of {hotel_name}.
+
+HOTEL INFORMATION:
+{hotel_info}
+
+STAFF KNOWLEDGE BASE:
+{staff_knowledge if staff_knowledge else "No staff knowledge base has been set up yet. Ask your manager to add procedures and policies in the Settings page."}
+
 You help hotel staff with:
 - Hotel procedures and policies
 - How to handle guest complaints and difficult situations
@@ -270,9 +281,6 @@ You help hotel staff with:
 - Emergency procedures
 - Maintenance and housekeeping protocols
 - Upselling techniques and guest satisfaction tips
-
-Hotel information for reference:
-{hotel_info}
 
 Be concise, practical and professional.
 You are talking to hotel staff, not guests.
@@ -483,6 +491,7 @@ def get_hotel(slug):
         "current_offers":   hotel[10] if len(hotel) > 10 and hotel[10] else "",
         "manager_email":    hotel[11] if len(hotel) > 11 and hotel[11] else hotel[3],
         "location":         HOTEL_LOCATION,
+        "staff_knowledge":  hotel[12] if len(hotel) > 12 and hotel[12] else "",
     })
 
 
@@ -524,6 +533,7 @@ def update_hotel_settings():
     if 'manager_email'    in data: fields.append('manager_email = ?');    values.append(data['manager_email'])
     if 'hotel_info'       in data: fields.append('hotel_info = ?');       values.append(data['hotel_info'])
     if 'current_offers'   in data: fields.append('current_offers = ?');   values.append(data['current_offers'])
+    if 'staff_knowledge'  in data: fields.append('staff_knowledge = ?');  values.append(data['staff_knowledge'])
     if 'staff_password'   in data: fields.append('staff_password = ?');   values.append(data['staff_password'])
     if 'manager_password' in data: fields.append('manager_password = ?'); values.append(data['manager_password'])
 

@@ -121,6 +121,40 @@
             As a staff member you can only update the shared staff password. Contact your manager to change hotel information or offers.
         </div>
 
+        <div class="section" id="sectionKnowledge">
+            <div class="section-header">
+                <div class="section-eyebrow">Staff AI</div>
+                <div class="section-title">Staff Knowledge Base</div>
+                <div class="section-desc">Procedures, policies and scripts the staff AI will use to answer questions</div>
+            </div>
+            <div class="section-body">
+                <div class="form-row single">
+                    <div class="form-field" id="ff-knowledge">
+                        <label>Knowledge Base</label>
+                        <textarea id="staffKnowledge" style="min-height:200px;"
+                            placeholder="e.g.
+                            COMPLAINT HANDLING:
+                            1. Listen without interrupting
+                            2. Apologise sincerely
+                            3. Offer a solution immediately
+                            4. Escalate to manager if unresolved
+
+                            UPGRADE POLICY:
+                            - Complimentary upgrades need manager approval
+                            - Staff can offer room change if same category is unavailable
+
+                            EMERGENCY CONTACTS:
+                            - Security: ext. 100
+                            - Manager on duty: ext. 101"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="section-footer">
+                <span class="save-status" id="status-knowledge"></span>
+                <button class="save-btn" id="saveKnowledgeBtn" onclick="saveSection('knowledge')">Save Knowledge Base</button>
+            </div>
+        </div>
+
         <div class="section">
             <div class="section-header">
                 <div class="section-eyebrow">Configuration</div>
@@ -233,13 +267,14 @@
         function applyPermissions() {
             const isManager = currentRole === 'manager';
             document.getElementById('staffNotice').style.display = isManager ? 'none' : 'block';
-            ['ff-name','ff-location','ff-email','ff-info','ff-offers'].forEach(id => {
+            ['ff-name','ff-location','ff-email','ff-info','ff-offers','ff-knowledge'].forEach(id => {
                 const el = document.getElementById(id); if (!el) return;
                 el.classList.toggle('locked', !isManager);
                 const input = el.querySelector('input,textarea'); if (input) input.disabled = !isManager;
             });
             document.getElementById('saveInfoBtn').style.display   = isManager ? 'inline-block' : 'none';
             document.getElementById('saveOffersBtn').style.display = isManager ? 'inline-block' : 'none';
+            document.getElementById('saveKnowledgeBtn').style.display = isManager ? 'inline-block' : 'none';
             document.getElementById('pwManagerRow').style.display  = isManager ? 'grid' : 'none';
             document.getElementById('pwDesc').textContent = isManager ? 'Update staff and manager passwords' : 'Update the shared staff password';
         }
@@ -254,6 +289,7 @@
                 document.getElementById('managerEmail').value      = cfg.manager_email || cfg.email || '';
                 document.getElementById('hotelInfo').value         = cfg.hotel_info || '';
                 document.getElementById('currentOffers').value     = cfg.current_offers || '';
+                document.getElementById('staffKnowledge').value    = cfg.staff_knowledge || '';
             } catch(e) {}
         }
 
@@ -268,6 +304,8 @@
                     if (!payload.name) { showStatus(statusEl, 'Hotel name is required', false); return; }
                 } else if (section === 'offers') {
                     payload.current_offers = document.getElementById('currentOffers').value.trim();
+                } else if (section === 'knowledge') {
+                    payload.staff_knowledge = document.getElementById('staffKnowledge').value.trim();
                 } else if (section === 'passwords') {
                     const newStaff = document.getElementById('newStaffPw').value, confStaff = document.getElementById('confirmStaffPw').value;
                     if (newStaff || confStaff) {
