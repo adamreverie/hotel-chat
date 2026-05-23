@@ -464,6 +464,7 @@
 
     <script>
         const slug = window.location.pathname.split('/')[2] || '';
+        let conversationHistory = [];
 
         async function loadConfig() {
             const url = slug ? `/get-hotel/${slug}` : '/hotel-config';
@@ -505,11 +506,12 @@
 
             try {
                 const r = await fetch('/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message, slug })
-                });
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message, slug, history: conversationHistory })
+            });
                 const data = await r.json();
+                conversationHistory = data.history;
                 document.getElementById('typingBubble').classList.remove('visible');
                 addMessage(data.response, 'agent');
             } catch(e) {
