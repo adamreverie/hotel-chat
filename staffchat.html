@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+    <title>Staff Assistant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #f0efe9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .chat-container {
+            width: 390px;
+            height: 700px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .header {
+            background: #1a1a2e;
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .back-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.2); }
+        .header-text { flex: 1; }
+        .header h2 {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+        .header p {
+            font-size: 11px;
+            opacity: 0.6;
+        }
+        .online {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            opacity: 0.9;
+        }
+        .dot {
+            width: 7px;
+            height: 7px;
+            background: #4CAF50;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .message {
+            max-width: 82%;
+            padding: 11px 15px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .agent {
+            background: #f0efe9;
+            color: #1a1a2e;
+            align-self: flex-start;
+            border-radius: 4px 18px 18px 18px;
+        }
+        .user {
+            background: #1a1a2e;
+            color: white;
+            align-self: flex-end;
+            border-radius: 18px 4px 18px 18px;
+        }
+        .agent h1, .agent h2, .agent h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 6px 0 3px;
+        }
+        .agent p { margin: 3px 0; }
+        .agent ul, .agent ol { margin: 4px 0; padding-left: 16px; }
+        .agent li { margin: 2px 0; }
+        .agent strong { font-weight: 600; }
+
+        .typing-indicator {
+            font-size: 12px;
+            color: #999;
+            padding: 0 20px 10px;
+            height: 24px;
+        }
+
+        .quick-replies {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 0 16px 12px;
+        }
+        .quick-reply {
+            background: white;
+            border: 1px solid #1a1a2e;
+            color: #1a1a2e;
+            padding: 5px 12px;
+            border-radius: 18px;
+            font-size: 11px;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .quick-reply:hover {
+            background: #1a1a2e;
+            color: white;
+        }
+
+        .input-area {
+            padding: 12px 15px;
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid #eee;
+            background: white;
+        }
+        input {
+            flex: 1;
+            padding: 11px 16px;
+            border: 1.5px solid #e8e8e8;
+            border-radius: 25px;
+            outline: none;
+            font-size: 14px;
+            font-family: 'DM Sans', sans-serif;
+            background: #fafafa;
+            transition: border-color 0.2s;
+        }
+        input:focus {
+            border-color: #1a1a2e;
+            background: white;
+        }
+        button.send {
+            background: #1a1a2e;
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 17px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: opacity 0.2s;
+        }
+        button.send:hover { opacity: 0.85; }
+
+        @media (max-width: 768px) {
+            body { align-items: flex-start; }
+            .chat-container {
+                width: 100%;
+                height: 100vh;
+                height: 100dvh;
+                border-radius: 0;
+            }
+            input { font-size: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="header">
+            <a class="back-btn" id="backBtn" href="#">←</a>
+            <div class="header-text">
+                <h2>👥 Staff Assistant</h2>
+                <p id="hotelNameHeader">Loading...</p>
+            </div>
+            <div class="online">
+                <div class="dot"></div>
+                Live
+            </div>
+        </div>
+
+        <div class="messages" id="messages"></div>
+        <div class="typing-indicator" id="typing"></div>
+
+        <div class="quick-replies">
+            <button class="quick-reply" onclick="sendQuick('How do I handle a guest complaint?')">😤 Complaints</button>
+            <button class="quick-reply" onclick="sendQuick('What is the check-in procedure?')">🏨 Check-in</button>
+            <button class="quick-reply" onclick="sendQuick('How do I process a room upgrade?')">⬆️ Upgrades</button>
+            <button class="quick-reply" onclick="sendQuick('What are the emergency procedures?')">🚨 Emergency</button>
+            <button class="quick-reply" onclick="sendQuick('How do I handle a maintenance issue?')">🔧 Maintenance</button>
+        </div>
+
+        <div class="input-area">
+            <input
+                type="text"
+                id="userInput"
+                placeholder="Ask anything about procedures..."
+                onkeypress="handleKey(event)"
+            />
+            <button class="send" onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+
+    <script>
+        const slug = window.location.pathname.split('/')[2] || '';
+
+        async function loadHotel() {
+            try {
+                const url = slug ? `/get-hotel/${slug}` : '/hotel-config';
+                const r = await fetch(url);
+                const config = await r.json();
+                document.getElementById('hotelNameHeader').textContent = config.name || '';
+                document.getElementById('backBtn').href = slug ? `/portal/${slug}` : '/';
+                addMessage(`Hi! I'm your staff assistant for ${config.name}. Ask me anything about hotel procedures, policies, or how to handle guest situations. 💼`, 'agent');
+            } catch(e) {
+                addMessage("Hi! I'm your staff assistant. Ask me anything about hotel procedures or guest handling. 💼", 'agent');
+            }
+        }
+
+        loadHotel();
+
+        function handleKey(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+
+        function sendQuick(text) {
+            document.getElementById('userInput').value = text;
+            sendMessage();
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            addMessage(message, 'user');
+            input.value = '';
+            document.getElementById('typing').textContent = '✦ Assistant is thinking...';
+
+            try {
+                const r = await fetch('/staff-chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message, slug })
+                });
+                const data = await r.json();
+                document.getElementById('typing').textContent = '';
+                addMessage(data.response, 'agent');
+            } catch(e) {
+                document.getElementById('typing').textContent = '';
+                addMessage('Something went wrong. Please try again.', 'agent');
+            }
+        }
+
+        function addMessage(text, sender) {
+            const messages = document.getElementById('messages');
+            const div = document.createElement('div');
+            div.className = `message ${sender}`;
+            if (sender === 'agent') {
+                div.innerHTML = marked.parse(text);
+            } else {
+                div.textContent = text;
+            }
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+    </script>
+</body>
+</html>

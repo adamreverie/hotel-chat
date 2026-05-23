@@ -109,10 +109,10 @@
         <p class="subtitle" id="hotelSubtitle">Loading your hotel dashboard...</p>
 
         <div class="grid">
-            <a class="card" id="chatLink" href="#">
+            <a class="card" id="staffChatLink" href="#">
                 <div class="card-icon">🤖</div>
-                <h3>Guest AI Assistant</h3>
-                <p>Your AI concierge that handles guest requests 24/7 in any language.</p>
+                <h3>Staff AI Assistant</h3>
+                <p>Ask anything about hotel procedures, policies, and handling guest requests.</p>
                 <span class="card-badge">Live</span>
             </a>
             <a class="card" id="staffLink" href="#">
@@ -153,7 +153,7 @@
             document.getElementById('hotelSubtitle').textContent = `${hotel.name} — Favvi Portal`;
             document.title = `${hotel.name} — Favvi`;
 
-            document.getElementById('chatLink').href = `/portal/${slug}/chat`;
+            document.getElementById('staffChatLink').href = `/portal/${slug}/staffchat`;
             document.getElementById('staffLink').href = `/portal/${slug}/staff`;
             document.getElementById('feedbackLink').href = `/portal/${slug}/feedback`;
             document.getElementById('dashboardLink').href = `/portal/${slug}/dashboard`;
