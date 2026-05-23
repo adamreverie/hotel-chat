@@ -1,146 +1,218 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Share Your Feedback | {HOTEL_NAME}</title>
+    <title>Share Your Feedback</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
+            font-family: 'DM Sans', sans-serif;
+            background: #f0efe9;
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
-            padding: 20px;
+            align-items: flex-start;
+            padding: 40px 20px 60px;
         }
+
         .container {
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            border-radius: 3px;
             width: 100%;
-            max-width: 420px;
+            max-width: 440px;
+            box-shadow: 0 4px 24px rgba(26,26,46,0.08);
             overflow: hidden;
         }
+
+        /* HEADER */
         .header {
             background: #1a1a2e;
-            color: white;
-            padding: 30px 20px;
-            text-align: center;
+            padding: 36px 32px;
         }
-        .header h2 { font-size: 20px; margin-bottom: 6px; }
-        .header p { font-size: 13px; opacity: 0.7; }
-        .form-body { padding: 25px 20px; }
-        .guest-info {
+        .hotel-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px;
+            font-weight: 300;
+            color: #c9a84c;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+        .header h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 30px;
+            font-weight: 300;
+            color: #f8f4ee;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+        .header h2 em { font-style: italic; color: #c9a84c; }
+        .header p {
+            font-size: 12px;
+            font-weight: 300;
+            color: rgba(248,244,238,0.4);
+            letter-spacing: 0.5px;
+        }
+
+        /* FORM */
+        .form-body { padding: 32px; }
+
+        .guest-row {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 28px;
         }
-        #guestName {
-            flex: 2;
-            padding: 10px 14px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
+        .guest-row input {
+            padding: 11px 14px;
+            border: 1px solid #e8e8e8;
+            border-radius: 2px;
+            font-family: 'DM Sans', sans-serif;
             font-size: 14px;
+            font-weight: 300;
+            color: #1a1a2e;
+            background: #fafafa;
             outline: none;
+            transition: border-color 0.2s;
         }
-        #guestName:focus { border-color: #1a1a2e; }
-        #roomNumber {
-            flex: 1;
-            padding: 10px 14px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            font-size: 14px;
-            outline: none;
-            max-width: 90px;
+        .guest-row input:focus { border-color: #c9a84c; background: white; }
+        #guestName { flex: 1; }
+        #roomNumber { width: 90px; flex: none; }
+
+        .divider {
+            height: 1px;
+            background: #f0efe9;
+            margin: 0 0 24px;
         }
-        #roomNumber:focus { border-color: #1a1a2e; }
-        .category {
-            margin-bottom: 20px;
-        }
+
+        /* CATEGORY */
+        .category { margin-bottom: 24px; }
         .category-label {
-            font-size: 14px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 10px;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: rgba(26,26,46,0.65);
+            margin-bottom: 12px;
             display: block;
         }
-        .emojis {
+
+        .emoji-row {
             display: flex;
             justify-content: space-between;
             gap: 6px;
         }
+
         .emoji-btn {
             flex: 1;
-            font-size: 24px;
-            padding: 8px;
-            border: 2px solid #eee;
-            border-radius: 12px;
+            padding: 10px 4px;
+            border: 1.5px solid #e8e8e8;
+            border-radius: 2px;
             background: white;
             cursor: pointer;
-            transition: all 0.2s;
             text-align: center;
+            transition: all 0.2s;
+            font-size: 22px;
+            line-height: 1;
         }
-        .emoji-btn:hover { border-color: #1a1a2e; transform: scale(1.1); }
+        .emoji-btn:hover {
+            border-color: #c9a84c;
+            transform: scale(1.08);
+        }
         .emoji-btn.selected {
             border-color: #1a1a2e;
-            background: #f0f0f8;
-            transform: scale(1.1);
+            background: #f8f4ee;
+            transform: scale(1.08);
         }
-        .comment-section { margin-bottom: 20px; }
+
+        /* COMMENT */
+        .comment-section { margin-bottom: 24px; }
         .comment-section label {
-            font-size: 14px;
-            font-weight: bold;
-            color: #333;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: rgba(26,26,46,0.4);
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
         textarea {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
+            padding: 12px 14px;
+            border: 1px solid #e8e8e8;
+            border-radius: 2px;
+            font-family: 'DM Sans', sans-serif;
             font-size: 14px;
+            font-weight: 300;
+            color: #1a1a2e;
+            background: #fafafa;
             resize: none;
             height: 80px;
             outline: none;
-            font-family: Arial, sans-serif;
+            transition: border-color 0.2s;
         }
-        textarea:focus { border-color: #1a1a2e; }
+        textarea:focus { border-color: #c9a84c; background: white; }
+
         .submit-btn {
             width: 100%;
             padding: 14px;
             background: #1a1a2e;
             color: white;
             border: none;
-            border-radius: 25px;
-            font-size: 16px;
+            border-radius: 2px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
             cursor: pointer;
+            transition: opacity 0.2s, transform 0.15s;
         }
-        .submit-btn:hover { opacity: 0.85; }
+        .submit-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+
+        /* SUCCESS */
         .success {
             display: none;
+            padding: 60px 32px;
             text-align: center;
-            padding: 40px 20px;
         }
-        .success h3 { font-size: 24px; margin-bottom: 10px; }
-        .success p { color: #666; font-size: 14px; }
-        .divider {
-            height: 1px;
-            background: #eee;
-            margin: 5px 0 20px 0;
+        .success-emoji { font-size: 64px; margin-bottom: 20px; }
+        .success h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 32px;
+            font-weight: 300;
+            color: #1a1a2e;
+            margin-bottom: 10px;
+        }
+        .success p {
+            font-size: 13px;
+            font-weight: 300;
+            color: rgba(26,26,46,0.4);
+            line-height: 1.7;
+        }
+        .success .hotel-name-success {
+            font-size: 11px;
+            color: rgba(26,26,46,0.25);
+            margin-top: 24px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 0; }
+            .container { border-radius: 0; min-height: 100vh; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h2>🏨 <span class="hotel-name">Loading...</span></h2>
-            <p>How was your stay? Takes 30 seconds 🙏</p>
+        <div class="header" id="formHeader">
+            <div class="hotel-name" id="hotelNameHeader">Loading...</div>
+            <h2>How was your <em>stay?</em></h2>
+            <p>Takes less than 30 seconds — we read every response.</p>
         </div>
 
         <div class="form-body" id="formBody">
-            <div class="guest-info">
+            <div class="guest-row">
                 <input type="text" id="guestName" placeholder="Your name" />
                 <input type="text" id="roomNumber" placeholder="Room no." />
             </div>
@@ -148,8 +220,8 @@
             <div class="divider"></div>
 
             <div class="category">
-                <span class="category-label">⭐ Overall Experience</span>
-                <div class="emojis" data-category="overall">
+                <span class="category-label">Overall Experience</span>
+                <div class="emoji-row" data-category="overall">
                     <button class="emoji-btn" data-score="5">🤩</button>
                     <button class="emoji-btn" data-score="4">😊</button>
                     <button class="emoji-btn" data-score="3">🙂</button>
@@ -159,8 +231,8 @@
             </div>
 
             <div class="category">
-                <span class="category-label">🛏️ Room Cleanliness</span>
-                <div class="emojis" data-category="cleanliness">
+                <span class="category-label">Room Cleanliness</span>
+                <div class="emoji-row" data-category="cleanliness">
                     <button class="emoji-btn" data-score="5">🤩</button>
                     <button class="emoji-btn" data-score="4">😊</button>
                     <button class="emoji-btn" data-score="3">🙂</button>
@@ -170,8 +242,8 @@
             </div>
 
             <div class="category">
-                <span class="category-label">👋 Staff Friendliness</span>
-                <div class="emojis" data-category="staff">
+                <span class="category-label">Staff Friendliness</span>
+                <div class="emoji-row" data-category="staff">
                     <button class="emoji-btn" data-score="5">🤩</button>
                     <button class="emoji-btn" data-score="4">😊</button>
                     <button class="emoji-btn" data-score="3">🙂</button>
@@ -181,8 +253,8 @@
             </div>
 
             <div class="category">
-                <span class="category-label">🍽️ Dining Experience</span>
-                <div class="emojis" data-category="dining">
+                <span class="category-label">Dining Experience</span>
+                <div class="emoji-row" data-category="dining">
                     <button class="emoji-btn" data-score="5">🤩</button>
                     <button class="emoji-btn" data-score="4">😊</button>
                     <button class="emoji-btn" data-score="3">🙂</button>
@@ -192,8 +264,8 @@
             </div>
 
             <div class="category">
-                <span class="category-label">📶 WiFi Quality</span>
-                <div class="emojis" data-category="wifi">
+                <span class="category-label">WiFi Quality</span>
+                <div class="emoji-row" data-category="wifi">
                     <button class="emoji-btn" data-score="5">🤩</button>
                     <button class="emoji-btn" data-score="4">😊</button>
                     <button class="emoji-btn" data-score="3">🙂</button>
@@ -205,50 +277,42 @@
             <div class="divider"></div>
 
             <div class="comment-section">
-                <label>💬 Any comments? (optional)</label>
+                <label>Any comments? (optional)</label>
                 <textarea id="comment" placeholder="Tell us about your experience..."></textarea>
             </div>
 
-            <button class="submit-btn" onclick="submitFeedback()">
-                Submit Feedback 🙏
-            </button>
+            <button class="submit-btn" onclick="submitFeedback()">Submit Feedback</button>
         </div>
 
         <div class="success" id="successMsg">
-            <div style="font-size: 60px;">🤩</div>
-            <h3>Thank you!</h3>
-            <p>Your feedback means the world to us.<br>
-            We hope to welcome you back soon!</p>
-            <p style="margin-top: 20px; font-size: 12px; color: #999;">
-            <span class="hotel-name">Loading...</span>
-            </p>
+            <div class="success-emoji">🤩</div>
+            <h3>Thank you.</h3>
+            <p>Your feedback means everything to us.<br>We hope to welcome you back soon.</p>
+            <div class="hotel-name-success" id="hotelNameSuccess"></div>
         </div>
     </div>
 
     <script>
         async function loadHotelName() {
-    const response = await fetch('/hotel-config');
-    const config = await response.json();
-    document.querySelectorAll('.hotel-name').forEach(el => {
-        el.textContent = config.name;
-    });
+            const slug = window.location.pathname.split('/')[2] || '';
+            try {
+                const url = slug ? `/get-hotel/${slug}` : '/hotel-config';
+                const r = await fetch(url);
+                const config = await r.json();
+                document.getElementById('hotelNameHeader').textContent = config.name || '';
+                document.getElementById('hotelNameSuccess').textContent = config.name || '';
+                document.title = `Share Your Feedback — ${config.name}`;
+            } catch(e) {}
         }
-
         loadHotelName();
 
-        const scores = {
-            overall: 0,
-            cleanliness: 0,
-            staff: 0,
-            dining: 0,
-            wifi: 0
-        };
+        const scores = { overall: 0, cleanliness: 0, staff: 0, dining: 0, wifi: 0 };
 
         const params = new URLSearchParams(window.location.search);
         if (params.get('name')) document.getElementById('guestName').value = params.get('name');
         if (params.get('room')) document.getElementById('roomNumber').value = params.get('room');
 
-        document.querySelectorAll('.emojis').forEach(group => {
+        document.querySelectorAll('.emoji-row').forEach(group => {
             group.querySelectorAll('.emoji-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     group.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
@@ -260,19 +324,19 @@
 
         async function submitFeedback() {
             if (Object.values(scores).some(s => s === 0)) {
-                alert('Please rate all categories before submitting 🙏');
+                alert('Please rate all categories before submitting.');
                 return;
             }
 
             const data = {
-                guest_name: document.getElementById('guestName').value || 'Guest',
+                guest_name:  document.getElementById('guestName').value || 'Guest',
                 room_number: document.getElementById('roomNumber').value || 'N/A',
-                overall: scores.overall,
+                overall:     scores.overall,
                 cleanliness: scores.cleanliness,
-                staff: scores.staff,
-                dining: scores.dining,
-                wifi: scores.wifi,
-                comment: document.getElementById('comment').value
+                staff:       scores.staff,
+                dining:      scores.dining,
+                wifi:        scores.wifi,
+                comment:     document.getElementById('comment').value
             };
 
             await fetch('/submit-feedback', {
@@ -281,8 +345,8 @@
                 body: JSON.stringify(data)
             });
 
+            document.getElementById('formHeader').style.display = 'none';
             document.getElementById('formBody').style.display = 'none';
-            document.querySelector('.header').style.display = 'none';
             document.getElementById('successMsg').style.display = 'block';
         }
     </script>

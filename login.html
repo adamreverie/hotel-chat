@@ -1,101 +1,152 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Favvi — Hotel Login</title>
+    <title>favvi — Hotel Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'DM Sans', sans-serif;
             background: #1a1a2e;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            position: relative;
+            overflow: hidden;
         }
-        .login-box {
-            background: white;
-            border-radius: 20px;
-            padding: 40px 35px;
-            width: 340px;
-            text-align: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+
+        /* Subtle background orb */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -200px;
+            right: -200px;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
+            pointer-events: none;
         }
+
+        .card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(201,168,76,0.15);
+            border-radius: 4px;
+            padding: 52px 44px;
+            width: 380px;
+            position: relative;
+            z-index: 1;
+        }
+
         .logo {
-            font-size: 28px;
-            font-weight: bold;
-            color: #1a1a2e;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 32px;
+            font-weight: 300;
+            color: #f8f4ee;
+            letter-spacing: 3px;
             margin-bottom: 6px;
         }
         .logo span { color: #c9a84c; }
-        .subtitle {
-            font-size: 13px;
-            color: #999;
-            margin-bottom: 30px;
-        }
-        .input-group {
-            margin-bottom: 15px;
-            text-align: left;
-        }
-        .input-group label {
+
+        .tagline {
             font-size: 12px;
-            color: #666;
+            font-weight: 300;
+            color: rgba(248,244,238,0.35);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 44px;
+        }
+
+        .field {
+            margin-bottom: 16px;
+        }
+        .field label {
             display: block;
-            margin-bottom: 6px;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: rgba(248,244,238,0.4);
+            margin-bottom: 8px;
         }
-        .input-group input {
+        .field input {
             width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
+            padding: 13px 16px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 2px;
+            font-family: 'DM Sans', sans-serif;
             font-size: 14px;
+            font-weight: 300;
+            color: #f8f4ee;
             outline: none;
+            transition: border-color 0.3s;
         }
-        .input-group input:focus { border-color: #1a1a2e; }
+        .field input::placeholder { color: rgba(248,244,238,0.2); }
+        .field input:focus { border-color: rgba(201,168,76,0.5); }
+
         .login-btn {
             width: 100%;
-            padding: 13px;
-            background: #1a1a2e;
-            color: white;
+            padding: 14px;
+            background: #c9a84c;
+            color: #1a1a2e;
             border: none;
-            border-radius: 25px;
-            font-size: 15px;
+            border-radius: 2px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
             cursor: pointer;
-            margin-top: 10px;
+            margin-top: 8px;
+            transition: background 0.3s, transform 0.15s;
         }
-        .login-btn:hover { opacity: 0.85; }
+        .login-btn:hover {
+            background: #e8c97a;
+            transform: translateY(-1px);
+        }
+
         .error {
-            color: red;
+            color: #e57373;
             font-size: 12px;
-            margin-top: 10px;
+            margin-top: 12px;
             display: none;
+            text-align: center;
+        }
+
+        .divider {
+            height: 1px;
+            background: rgba(201,168,76,0.1);
+            margin: 36px 0 0;
         }
         .footer-text {
             font-size: 11px;
-            color: #ccc;
+            color: rgba(248,244,238,0.2);
+            text-align: center;
             margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="login-box">
+    <div class="card">
         <div class="logo">fav<span>vi</span></div>
-        <p class="subtitle">Hotel Management Portal</p>
+        <p class="tagline">Hotel Management Portal</p>
 
-        <div class="input-group">
+        <div class="field">
             <label>Email Address</label>
-            <input 
-                type="email" 
-                id="email" 
+            <input
+                type="email"
+                id="email"
                 placeholder="manager@yourhotel.com"
                 onkeypress="if(event.key==='Enter') login()"
             />
         </div>
-        <div class="input-group">
+        <div class="field">
             <label>Password</label>
-            <input 
-                type="password" 
-                id="password" 
+            <input
+                type="password"
+                id="password"
                 placeholder="Enter your password"
                 onkeypress="if(event.key==='Enter') login()"
             />
@@ -103,6 +154,9 @@
 
         <button class="login-btn" onclick="login()">Login to Portal</button>
         <p class="error" id="error">Incorrect email or password.</p>
+
+        <div class="divider"></div>
+        <p class="footer-text">favvi — AI guest experience platform</p>
     </div>
 
     <script>

@@ -1,272 +1,422 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Manager Dashboard</title>
+    <title>Manager Analytics — Favvi</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
+            font-family: 'DM Sans', sans-serif;
+            background: #f0efe9;
             min-height: 100vh;
         }
+
+        /* HEADER */
         .header {
             background: #1a1a2e;
-            color: white;
-            padding: 20px 25px;
+            padding: 18px 32px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .header h2 { font-size: 18px; }
-        .header p { font-size: 12px; opacity: 0.7; }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 20px;
+            font-weight: 300;
+            color: #f8f4ee;
+            letter-spacing: 3px;
+            text-decoration: none;
+        }
+        .logo span { color: #c9a84c; }
+        .divider-v {
+            width: 1px;
+            height: 20px;
+            background: rgba(255,255,255,0.1);
+        }
+        .header-title {
+            font-size: 13px;
+            font-weight: 400;
+            color: rgba(248,244,238,0.7);
+        }
         .logout {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
+            background: transparent;
+            color: rgba(248,244,238,0.4);
+            border: 1px solid rgba(248,244,238,0.12);
+            padding: 8px 20px;
+            border-radius: 2px;
             cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
             font-size: 12px;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+            transition: all 0.3s;
         }
-        .body { padding: 20px; max-width: 800px; margin: 0 auto; }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-        .stat-card {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        .stat-card .emoji { font-size: 28px; margin-bottom: 8px; }
-        .stat-card .score {
-            font-size: 28px;
-            font-weight: bold;
-            color: #1a1a2e;
-        }
-        .stat-card .label {
-            font-size: 11px;
-            color: #999;
-            margin-top: 4px;
-        }
-        .total-card {
-            background: #1a1a2e;
-            color: white;
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 25px;
-        }
-        .total-card .number {
-            font-size: 48px;
-            font-weight: bold;
-        }
-        .total-card .label {
-            font-size: 13px;
-            opacity: 0.7;
-            margin-top: 4px;
-        }
-        .section-title {
-            font-size: 16px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 15px;
-        }
-        .feedback-card {
-            background: white;
-            border-radius: 15px;
-            padding: 18px;
-            margin-bottom: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        .feedback-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        .guest-info { font-size: 14px; font-weight: bold; color: #1a1a2e; }
-        .guest-room { font-size: 12px; color: #999; margin-top: 2px; }
-        .feedback-date { font-size: 11px; color: #999; }
-        .scores-row {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-bottom: 10px;
-        }
-        .score-badge {
-            background: #f5f5f5;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-        }
-        .comment {
-            font-size: 13px;
-            color: #555;
-            font-style: italic;
-            border-left: 3px solid #1a1a2e;
-            padding-left: 10px;
-            margin-top: 8px;
-        }
-        .no-data {
-            text-align: center;
-            padding: 40px;
-            color: #999;
-            font-size: 14px;
-        }
-        .login-overlay {
+        .logout:hover { border-color: rgba(201,168,76,0.5); color: #c9a84c; }
+
+        /* LOGIN OVERLAY */
+        .overlay {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: #f5f5f5;
+            inset: 0;
+            background: #f0efe9;
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+            z-index: 200;
         }
-        .login-box {
+        .login-card {
             background: white;
-            border-radius: 20px;
-            padding: 40px 30px;
-            width: 320px;
-            text-align: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            border-radius: 3px;
+            padding: 48px 40px;
+            width: 360px;
+            box-shadow: 0 4px 24px rgba(26,26,46,0.08);
+            border-left: 3px solid #6a9e6a;
         }
-        .login-box h2 {
-            font-size: 20px;
+        .login-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px;
+            font-weight: 300;
             color: #1a1a2e;
-            margin-bottom: 8px;
+            letter-spacing: 3px;
+            margin-bottom: 4px;
         }
-        .login-box p {
-            font-size: 13px;
-            color: #999;
-            margin-bottom: 25px;
+        .login-logo span { color: #c9a84c; }
+        .login-card h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px;
+            font-weight: 300;
+            color: #1a1a2e;
+            margin-bottom: 6px;
         }
-        .login-box input {
+        .login-card p {
+            font-size: 12px;
+            font-weight: 300;
+            color: rgba(26,26,46,0.4);
+            margin-bottom: 28px;
+        }
+        .field { margin-bottom: 14px; }
+        .field label {
+            display: block;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: rgba(26,26,46,0.4);
+            margin-bottom: 7px;
+        }
+        .field input {
             width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
+            padding: 12px 14px;
+            border: 1px solid #e8e8e8;
+            border-radius: 2px;
+            font-family: 'DM Sans', sans-serif;
             font-size: 14px;
+            font-weight: 300;
+            color: #1a1a2e;
+            background: #fafafa;
             outline: none;
-            margin-bottom: 15px;
-            text-align: center;
-            letter-spacing: 4px;
+            transition: border-color 0.2s;
         }
-        .login-box input:focus { border-color: #1a1a2e; }
+        .field input:focus { border-color: #6a9e6a; background: white; }
         .login-btn {
             width: 100%;
-            padding: 12px;
+            padding: 13px;
             background: #1a1a2e;
             color: white;
             border: none;
-            border-radius: 25px;
-            font-size: 15px;
+            border-radius: 2px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
             cursor: pointer;
+            margin-top: 6px;
+            transition: opacity 0.2s;
         }
+        .login-btn:hover { opacity: 0.85; }
         .login-error {
-            color: red;
+            color: #e57373;
             font-size: 12px;
             margin-top: 10px;
             display: none;
         }
+
+        /* BODY */
+        .body {
+            padding: 40px 32px;
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 36px;
+            font-weight: 300;
+            color: #1a1a2e;
+            margin-bottom: 6px;
+        }
+        .page-title em { font-style: italic; color: #c9a84c; }
+        .page-sub {
+            font-size: 12px;
+            font-weight: 300;
+            color: rgba(26,26,46,0.35);
+            letter-spacing: 0.5px;
+            margin-bottom: 36px;
+        }
+
+        /* TOTAL CARD */
+        .total-card {
+            background: #1a1a2e;
+            border-radius: 3px;
+            padding: 32px 36px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .total-number {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 64px;
+            font-weight: 300;
+            color: #c9a84c;
+            line-height: 1;
+        }
+        .total-label {
+            font-size: 12px;
+            font-weight: 300;
+            color: rgba(248,244,238,0.4);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 6px;
+        }
+        .total-right {
+            font-size: 12px;
+            font-weight: 300;
+            color: rgba(248,244,238,0.25);
+            text-align: right;
+        }
+
+        /* STATS GRID */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 36px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 3px;
+            padding: 20px 16px;
+            text-align: center;
+            box-shadow: 0 1px 4px rgba(26,26,46,0.05);
+            border-top: 2px solid transparent;
+        }
+        .stat-card.overall   { border-color: #c9a84c; }
+        .stat-card.clean     { border-color: #4a7fa5; }
+        .stat-card.staff-s   { border-color: #6a9e6a; }
+        .stat-card.dining    { border-color: #c0392b; }
+        .stat-card.wifi      { border-color: #9b7bb8; }
+
+        .stat-score {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 36px;
+            font-weight: 300;
+            color: #1a1a2e;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+        .stat-label {
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: rgba(26,26,46,0.35);
+        }
+
+        /* SECTION TITLE */
+        .section-label {
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(26,26,46,0.35);
+            margin-bottom: 14px;
+        }
+
+        /* FEEDBACK CARDS */
+        .feedback-card {
+            background: white;
+            border-radius: 3px;
+            padding: 22px 24px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 4px rgba(26,26,46,0.05);
+            border-left: 3px solid #e8e8e8;
+        }
+        .feedback-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 14px;
+        }
+        .guest-name {
+            font-size: 15px;
+            font-weight: 500;
+            color: #1a1a2e;
+            margin-bottom: 3px;
+        }
+        .guest-room {
+            font-size: 11px;
+            font-weight: 300;
+            color: rgba(26,26,46,0.35);
+            letter-spacing: 0.5px;
+        }
+        .feedback-date {
+            font-size: 11px;
+            font-weight: 300;
+            color: rgba(26,26,46,0.3);
+        }
+        .scores-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .score-chip {
+            font-size: 11px;
+            font-weight: 400;
+            padding: 4px 12px;
+            border-radius: 2px;
+            background: #f0efe9;
+            color: #1a1a2e;
+            letter-spacing: 0.3px;
+        }
+        .score-chip.high { background: #eafaf1; color: #27ae60; }
+        .score-chip.mid  { background: #fef9e7; color: #d68910; }
+        .score-chip.low  { background: #fdecea; color: #c0392b; }
+
+        .comment {
+            font-size: 13px;
+            font-weight: 300;
+            color: rgba(26,26,46,0.55);
+            font-style: italic;
+            border-left: 2px solid #c9a84c;
+            padding-left: 12px;
+            line-height: 1.6;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 48px;
+            font-size: 13px;
+            font-weight: 300;
+            color: rgba(26,26,46,0.3);
+            background: white;
+            border-radius: 3px;
+        }
+
         @media (max-width: 600px) {
+            .body { padding: 24px 16px; }
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .header { padding: 14px 16px; }
+            .total-card { flex-direction: column; gap: 12px; }
         }
     </style>
 </head>
 <body>
 
-    <div class="login-overlay" id="loginOverlay">
-        <div class="login-box">
-            <div style="font-size: 40px; margin-bottom: 15px;">🏨</div>
-            <h2>Manager Dashboard</h2>
-            <p><span class="hotel-name">Loading...</span></p>
-            <input
-                type="password"
-                id="passwordInput"
-                placeholder="Enter password"
-                onkeypress="if(event.key==='Enter') login()"
-            />
-            <button class="login-btn" onclick="login()">Access Dashboard</button>
+    <!-- LOGIN -->
+    <div class="overlay" id="overlay">
+        <div class="login-card">
+            <div class="login-logo">fav<span>vi</span></div>
+            <h2>Manager Analytics</h2>
+            <p id="hotelNameLogin">Loading...</p>
+            <div class="field">
+                <label>Manager Password</label>
+                <input type="password" id="passwordInput" placeholder="Enter password"
+                       onkeypress="if(event.key==='Enter') login()" />
+            </div>
+            <button class="login-btn" onclick="login()">Access Analytics</button>
             <p class="login-error" id="loginError">Incorrect password. Try again.</p>
         </div>
     </div>
 
-    <div id="dashboard" style="display:none;">
-        <div class="header">
+    <!-- HEADER -->
+    <div class="header" id="mainHeader" style="display:none;">
+        <div class="header-left">
+            <a class="logo" id="backLink" href="#">fav<span>vi</span></a>
+            <div class="divider-v"></div>
+            <span class="header-title">Manager Analytics</span>
+        </div>
+        <button class="logout" onclick="logout()">Logout</button>
+    </div>
+
+    <!-- BODY -->
+    <div class="body" id="mainBody" style="display:none;">
+        <div class="page-title">Guest <em>Feedback</em></div>
+        <p class="page-sub" id="pageSubtitle">Loading...</p>
+
+        <div class="total-card">
             <div>
-                <h2>🏨 Manager Dashboard</h2>
-                <p><span class="hotel-name">Loading...</span> — Guest Feedback</p>
+                <div class="total-number" id="totalResponses">—</div>
+                <div class="total-label">Total Responses</div>
             </div>
-            <button class="logout" onclick="logout()">Logout</button>
+            <div class="total-right">Post-checkout feedback<br>collected via Favvi</div>
         </div>
 
-        <div class="body">
-            <div class="total-card">
-                <div class="number" id="totalResponses">—</div>
-                <div class="label">Total Feedback Responses</div>
+        <div class="stats-grid">
+            <div class="stat-card overall">
+                <div class="stat-score" id="avgOverall">—</div>
+                <div class="stat-label">Overall</div>
             </div>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="emoji">⭐</div>
-                    <div class="score" id="avgOverall">—</div>
-                    <div class="label">Overall Experience</div>
-                </div>
-                <div class="stat-card">
-                    <div class="emoji">🛏️</div>
-                    <div class="score" id="avgCleanliness">—</div>
-                    <div class="label">Room Cleanliness</div>
-                </div>
-                <div class="stat-card">
-                    <div class="emoji">👋</div>
-                    <div class="score" id="avgStaff">—</div>
-                    <div class="label">Staff Friendliness</div>
-                </div>
-                <div class="stat-card">
-                    <div class="emoji">🍽️</div>
-                    <div class="score" id="avgDining">—</div>
-                    <div class="label">Dining Experience</div>
-                </div>
-                <div class="stat-card">
-                    <div class="emoji">📶</div>
-                    <div class="score" id="avgWifi">—</div>
-                    <div class="label">WiFi Quality</div>
-                </div>
+            <div class="stat-card clean">
+                <div class="stat-score" id="avgCleanliness">—</div>
+                <div class="stat-label">Cleanliness</div>
             </div>
-
-            <p class="section-title">📋 Recent Feedback</p>
-            <div id="feedbackList"></div>
+            <div class="stat-card staff-s">
+                <div class="stat-score" id="avgStaff">—</div>
+                <div class="stat-label">Staff</div>
+            </div>
+            <div class="stat-card dining">
+                <div class="stat-score" id="avgDining">—</div>
+                <div class="stat-label">Dining</div>
+            </div>
+            <div class="stat-card wifi">
+                <div class="stat-score" id="avgWifi">—</div>
+                <div class="stat-label">WiFi</div>
+            </div>
         </div>
+
+        <div class="section-label">Recent Feedback</div>
+        <div id="feedbackList"></div>
     </div>
 
     <script>
-        // Load hotel name on page load
-        async function loadHotelName() {
-            const response = await fetch('/hotel-config');
-            const config = await response.json();
-            document.querySelectorAll('.hotel-name').forEach(el => {
-                el.textContent = config.name;
-            });
-        }
+        const slug = window.location.pathname.split('/')[2] || '';
 
+        async function loadHotelName() {
+            try {
+                const url = slug ? `/get-hotel/${slug}` : '/hotel-config';
+                const r = await fetch(url);
+                const config = await r.json();
+                document.getElementById('hotelNameLogin').textContent = config.name || '';
+                document.getElementById('backLink').href = slug ? `/portal/${slug}` : '/';
+            } catch(e) {}
+        }
         loadHotelName();
 
         async function login() {
-            const response = await fetch('/hotel-config');
-            const config = await response.json();
-
+            const url = slug ? `/get-hotel/${slug}` : '/hotel-config';
+            const r = await fetch(url);
+            const config = await r.json();
             const input = document.getElementById('passwordInput').value;
+
             if (input === config.manager_password) {
-                document.getElementById('loginOverlay').style.display = 'none';
-                document.getElementById('dashboard').style.display = 'block';
+                document.getElementById('overlay').style.display = 'none';
+                document.getElementById('mainHeader').style.display = 'flex';
+                document.getElementById('mainBody').style.display = 'block';
+                document.getElementById('pageSubtitle').textContent = config.name + ' — Guest satisfaction overview';
                 loadData();
             } else {
                 document.getElementById('loginError').style.display = 'block';
@@ -274,32 +424,34 @@
         }
 
         function logout() {
-            document.getElementById('loginOverlay').style.display = 'flex';
-            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('overlay').style.display = 'flex';
+            document.getElementById('mainHeader').style.display = 'none';
+            document.getElementById('mainBody').style.display = 'none';
             document.getElementById('passwordInput').value = '';
         }
 
-        function scoreEmoji(score) {
-            const emojis = {1: '😞', 2: '😐', 3: '🙂', 4: '😊', 5: '🤩'};
-            return emojis[score] || '—';
+        function scoreClass(score) {
+            if (score >= 4) return 'high';
+            if (score === 3) return 'mid';
+            return 'low';
         }
 
         async function loadData() {
-            const response = await fetch('/feedback-stats');
-            const data = await response.json();
+            const r = await fetch('/feedback-stats');
+            const data = await r.json();
             const avg = data.averages;
 
             document.getElementById('totalResponses').textContent = avg.total_responses;
-            document.getElementById('avgOverall').textContent = avg.overall + '/5';
+            document.getElementById('avgOverall').textContent     = avg.overall + '/5';
             document.getElementById('avgCleanliness').textContent = avg.cleanliness + '/5';
-            document.getElementById('avgStaff').textContent = avg.staff + '/5';
-            document.getElementById('avgDining').textContent = avg.dining + '/5';
-            document.getElementById('avgWifi').textContent = avg.wifi + '/5';
+            document.getElementById('avgStaff').textContent       = avg.staff + '/5';
+            document.getElementById('avgDining').textContent      = avg.dining + '/5';
+            document.getElementById('avgWifi').textContent        = avg.wifi + '/5';
 
             const list = document.getElementById('feedbackList');
 
-            if (data.recent.length === 0) {
-                list.innerHTML = '<div class="no-data">No feedback yet. Share the feedback link with guests! 🙏</div>';
+            if (!data.recent.length) {
+                list.innerHTML = '<div class="no-data">No feedback yet. Share the feedback link with guests after checkout.</div>';
                 return;
             }
 
@@ -307,19 +459,19 @@
                 <div class="feedback-card">
                     <div class="feedback-top">
                         <div>
-                            <div class="guest-info">${f[1] || 'Guest'}</div>
+                            <div class="guest-name">${f[1] || 'Guest'}</div>
                             <div class="guest-room">Room ${f[2] || 'N/A'}</div>
                         </div>
                         <div class="feedback-date">${f[9]}</div>
                     </div>
                     <div class="scores-row">
-                        <span class="score-badge">⭐ ${scoreEmoji(f[3])} ${f[3]}/5</span>
-                        <span class="score-badge">🛏️ ${scoreEmoji(f[4])} ${f[4]}/5</span>
-                        <span class="score-badge">👋 ${scoreEmoji(f[5])} ${f[5]}/5</span>
-                        <span class="score-badge">🍽️ ${scoreEmoji(f[6])} ${f[6]}/5</span>
-                        <span class="score-badge">📶 ${scoreEmoji(f[7])} ${f[7]}/5</span>
+                        <span class="score-chip ${scoreClass(f[3])}">Overall ${f[3]}/5</span>
+                        <span class="score-chip ${scoreClass(f[4])}">Cleanliness ${f[4]}/5</span>
+                        <span class="score-chip ${scoreClass(f[5])}">Staff ${f[5]}/5</span>
+                        <span class="score-chip ${scoreClass(f[6])}">Dining ${f[6]}/5</span>
+                        <span class="score-chip ${scoreClass(f[7])}">WiFi ${f[7]}/5</span>
                     </div>
-                    ${f[8] ? `<div class="comment">"${f[8]}"</div>` : ''}
+                    ${f[8] ? `<div class="comment">${f[8]}</div>` : ''}
                 </div>
             `).join('');
         }
