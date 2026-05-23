@@ -262,11 +262,13 @@
             document.getElementById('typing').textContent = '✦ Assistant is typing...';
 
             try {
+                const slug = window.location.pathname.split('/')[2] || '';
+
                 const response = await fetch('/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message })
-                });
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message, slug })
+        });
 
                 const data = await response.json();
                 document.getElementById('typing').textContent = '';

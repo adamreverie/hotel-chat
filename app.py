@@ -78,9 +78,10 @@ def get_system_prompt(slug=None):
         conn.close()
         if hotel:
             name = hotel[1]
-            hotel_info = hotel[8] if len(hotel) > 8 and hotel[8] else HOTEL_INFO
-            current_offers = hotel[9] if len(hotel) > 9 and hotel[9] else CURRENT_OFFERS
-            manager_email = hotel[10] if len(hotel) > 10 and hotel[10] else MANAGER_EMAIL
+            hotel_info = hotel[9] if len(hotel) > 9 and hotel[9] else HOTEL_INFO
+            current_offers = hotel[10] if len(hotel) > 10 and hotel[10] else CURRENT_OFFERS
+            manager_email = hotel[11] if len(hotel) > 11 and hotel[11] else MANAGER_EMAIL
+
         else:
             name, hotel_info, current_offers, manager_email = HOTEL_NAME, HOTEL_INFO, CURRENT_OFFERS, MANAGER_EMAIL
     else:
@@ -488,9 +489,9 @@ def get_hotel(slug):
     "email": hotel[3],
     "staff_password": hotel[6],
     "manager_password": hotel[7],
-    "hotel_info": hotel[8] if len(hotel) > 8 else "",
-    "current_offers": hotel[9] if len(hotel) > 9 else "",
-    "manager_email": hotel[10] if len(hotel) > 10 else hotel[3],
+    "hotel_info": hotel[9] if len(hotel) > 9 else "",
+    "current_offers": hotel[10] if len(hotel) > 10 else "",
+    "manager_email": hotel[11] if len(hotel) > 11 else hotel[3],
     "location": HOTEL_LOCATION,
 })
 
