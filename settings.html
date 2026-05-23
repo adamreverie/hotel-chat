@@ -121,7 +121,20 @@
             As a staff member you can only update the shared staff password. Contact your manager to change hotel information or offers.
         </div>
 
-        <div class="section" id="sectionKnowledge">
+            <div class="section-footer">
+                <span class="save-status" id="status-knowledge"></span>
+                <button class="save-btn" id="saveKnowledgeBtn" onclick="saveSection('knowledge')">Save Knowledge Base</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <div class="section-eyebrow">Configuration</div>
+                <div class="section-title">Hotel Information</div>
+                <div class="section-desc">Name, location, contact details and room info</div>
+            </div>
+
+    <div class="section" id="sectionKnowledge">
             <div class="section-header">
                 <div class="section-eyebrow">Staff AI</div>
                 <div class="section-title">Staff Knowledge Base</div>
@@ -149,18 +162,7 @@
                     </div>
                 </div>
             </div>
-            <div class="section-footer">
-                <span class="save-status" id="status-knowledge"></span>
-                <button class="save-btn" id="saveKnowledgeBtn" onclick="saveSection('knowledge')">Save Knowledge Base</button>
-            </div>
-        </div>
 
-        <div class="section">
-            <div class="section-header">
-                <div class="section-eyebrow">Configuration</div>
-                <div class="section-title">Hotel Information</div>
-                <div class="section-desc">Name, location, contact details and room info</div>
-            </div>
             <div class="section-body">
                 <div class="form-row">
                     <div class="form-field" id="ff-name"><label>Hotel Name</label><input type="text" id="hotelName" placeholder="e.g. Grand Palace Hotel" /></div>
