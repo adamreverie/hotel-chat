@@ -3,17 +3,11 @@
 <head>
     <title>Favvi Portal</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', sans-serif; background: #f0efe9; min-height: 100vh; }
 
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: #f0efe9;
-            min-height: 100vh;
-        }
-
-        /* HEADER */
         .header {
             background: #1a1a2e;
             padding: 22px 40px;
@@ -21,85 +15,20 @@
             justify-content: space-between;
             align-items: center;
         }
-
-        .logo {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 24px;
-            font-weight: 300;
-            color: #f8f4ee;
-            letter-spacing: 3px;
-        }
+        .logo { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; color: #f8f4ee; letter-spacing: 3px; }
         .logo span { color: #c9a84c; }
+        .hotel-name { font-size: 11px; font-weight: 300; color: rgba(248,244,238,0.35); letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
+        .logout { background: transparent; color: rgba(248,244,238,0.4); border: 1px solid rgba(248,244,238,0.12); padding: 8px 20px; border-radius: 2px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 300; transition: all 0.3s; }
+        .logout:hover { border-color: rgba(201,168,76,0.5); color: #c9a84c; }
 
-        .hotel-name {
-            font-size: 11px;
-            font-weight: 300;
-            color: rgba(248,244,238,0.35);
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin-top: 4px;
-        }
+        .body { padding: 48px 40px; max-width: 860px; margin: 0 auto; }
 
-        .logout {
-            background: transparent;
-            color: rgba(248,244,238,0.4);
-            border: 1px solid rgba(248,244,238,0.12);
-            padding: 8px 20px;
-            border-radius: 2px;
-            cursor: pointer;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 12px;
-            font-weight: 300;
-            letter-spacing: 0.5px;
-            transition: all 0.3s;
-        }
-        .logout:hover {
-            border-color: rgba(201,168,76,0.5);
-            color: #c9a84c;
-        }
+        .welcome-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; padding-bottom: 28px; border-bottom: 1px solid rgba(26,26,46,0.08); }
+        .welcome { font-family: 'Cormorant Garamond', serif; font-size: 38px; font-weight: 600; color: #1a1a2e; line-height: 1.1; }
+        .welcome em { font-style: italic; color: #c9a84c; font-weight: 400; }
+        .subtitle { font-size: 12px; font-weight: 300; color: rgba(26,26,46,0.4); letter-spacing: 0.5px; text-align: right; }
 
-        /* BODY */
-        .body {
-            padding: 48px 40px;
-            max-width: 860px;
-            margin: 0 auto;
-        }
-
-        .welcome-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-bottom: 40px;
-            padding-bottom: 28px;
-            border-bottom: 1px solid rgba(26,26,46,0.08);
-        }
-
-        .welcome {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 38px;
-            font-weight: 300;
-            color: #1a1a2e;
-            line-height: 1.1;
-        }
-        .welcome em {
-            font-style: italic;
-            color: #c9a84c;
-        }
-
-        .subtitle {
-            font-size: 12px;
-            font-weight: 300;
-            color: rgba(26,26,46,0.4);
-            letter-spacing: 0.5px;
-            text-align: right;
-        }
-
-        /* GRID */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 14px;
-        }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
 
         .card {
             background: white;
@@ -108,93 +37,43 @@
             text-decoration: none;
             color: inherit;
             display: block;
-            position: relative;
-            overflow: hidden;
             border-left: 3px solid transparent;
             box-shadow: 0 1px 4px rgba(26,26,46,0.06);
             transition: all 0.25s;
         }
-        .card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 24px rgba(26,26,46,0.1);
-        }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(26,26,46,0.1); }
 
-        /* Each card gets a distinct left border colour */
-        .card-ai    { border-color: #c9a84c; }
-        .card-staff { border-color: #4a7fa5; }
-        .card-analytics { border-color: #6a9e6a; }
-        .card-settings  { border-color: #9b7bb8; }
+        .card-ai       { border-color: #c9a84c; }
+        .card-staff    { border-color: #4a7fa5; }
+        .card-analytics{ border-color: #6a9e6a; }
+        .card-settings { border-color: #9b7bb8; }
 
-        .card-label {
-            font-size: 10px;
-            font-weight: 500;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-bottom: 14px;
-        }
+        .card-label { font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
         .card-ai .card-label        { color: #c9a84c; }
         .card-staff .card-label     { color: #4a7fa5; }
         .card-analytics .card-label { color: #6a9e6a; }
         .card-settings .card-label  { color: #9b7bb8; }
 
-        .card h3 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 26px;
-            font-weight: 400;
-            color: #1a1a2e;
-            margin-bottom: 10px;
-            line-height: 1.15;
-        }
+        .card h3 { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; margin-bottom: 10px; line-height: 1.15; }
+        .card-ai h3        { color: #8a6e2a; }
+        .card-staff h3     { color: #2e5f80; }
+        .card-analytics h3 { color: #3d6e3d; }
+        .card-settings h3  { color: #6b4d8a; }
 
-        .card p {
-            font-size: 13px;
-            font-weight: 300;
-            color: rgba(26,26,46,0.5);
-            line-height: 1.65;
-        }
+        .card p { font-size: 13px; font-weight: 300; color: rgba(26,26,46,0.5); line-height: 1.65; }
 
-        .card-arrow {
-            position: absolute;
-            top: 28px;
-            right: 28px;
-            font-size: 16px;
-            font-weight: 300;
-            color: rgba(26,26,46,0.15);
-            transition: all 0.3s;
-        }
-        .card:hover .card-arrow {
-            color: rgba(26,26,46,0.4);
-            transform: translate(2px, -2px);
-        }
+        .card-arrow { position: absolute; top: 28px; right: 28px; font-size: 16px; color: rgba(26,26,46,0.15); transition: all 0.3s; }
+        .card { position: relative; overflow: hidden; }
+        .card:hover .card-arrow { color: rgba(26,26,46,0.4); transform: translate(2px,-2px); }
 
-        .status-dot {
-            display: inline-block;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            margin-right: 6px;
-            vertical-align: middle;
-            position: relative;
-            top: -1px;
-        }
+        .status-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; vertical-align: middle; position: relative; top: -1px; }
         .card-ai .status-dot        { background: #c9a84c; }
         .card-staff .status-dot     { background: #4a7fa5; animation: pulse 2s infinite; }
         .card-analytics .status-dot { background: #6a9e6a; }
         .card-settings .status-dot  { background: #9b7bb8; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-
-        .card-footer {
-            margin-top: 20px;
-            padding-top: 16px;
-            border-top: 1px solid rgba(26,26,46,0.06);
-            font-size: 11px;
-            font-weight: 400;
-            color: rgba(26,26,46,0.35);
-        }
+        .card-footer { margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(26,26,46,0.06); font-size: 11px; font-weight: 300; color: rgba(26,26,46,0.3); }
 
         @media (max-width: 600px) {
             .header { padding: 18px 20px; }
@@ -220,42 +99,30 @@
             <div class="welcome">Welcome <em>back.</em></div>
             <div class="subtitle" id="hotelSubtitle">Loading...</div>
         </div>
-
         <div class="grid">
             <a class="card card-ai" id="staffChatLink" href="#">
-                <div class="card-label">
-                    <span class="status-dot"></span>AI Assistant
-                </div>
+                <div class="card-label"><span class="status-dot"></span>AI Assistant</div>
                 <div class="card-arrow">↗</div>
                 <h3>Staff Assistant</h3>
                 <p>Ask anything about hotel procedures, policies, and handling guest situations.</p>
                 <div class="card-footer">Powered by Claude AI</div>
             </a>
-
             <a class="card card-staff" id="staffLink" href="#">
-                <div class="card-label">
-                    <span class="status-dot"></span>Live
-                </div>
+                <div class="card-label"><span class="status-dot"></span>Live</div>
                 <div class="card-arrow">↗</div>
                 <h3>Staff Dashboard</h3>
                 <p>Guest requests colour coded by department. Claim and complete tasks in real time.</p>
                 <div class="card-footer">Updates every 10 seconds</div>
             </a>
-
             <a class="card card-analytics" id="dashboardLink" href="#">
-                <div class="card-label">
-                    <span class="status-dot"></span>Analytics
-                </div>
+                <div class="card-label"><span class="status-dot"></span>Analytics</div>
                 <div class="card-arrow">↗</div>
                 <h3>Manager Analytics</h3>
                 <p>Average ratings, recent guest feedback, and satisfaction trends over time.</p>
                 <div class="card-footer">From post-checkout feedback</div>
             </a>
-
             <a class="card card-settings" id="settingsLink" href="#">
-                <div class="card-label">
-                    <span class="status-dot"></span>Configuration
-                </div>
+                <div class="card-label"><span class="status-dot"></span>Configuration</div>
                 <div class="card-arrow">↗</div>
                 <h3>Settings</h3>
                 <p>Update hotel info, current offers, and staff or manager passwords.</p>
@@ -266,21 +133,17 @@
 
     <script>
         const slug = window.location.pathname.split('/')[2];
-
         async function loadHotel() {
-            const response = await fetch(`/get-hotel/${slug}`);
-            const hotel = await response.json();
-
+            const r = await fetch(`/get-hotel/${slug}`);
+            const hotel = await r.json();
             document.getElementById('hotelName').textContent = hotel.name;
             document.getElementById('hotelSubtitle').textContent = hotel.name + ' — Favvi Portal';
             document.title = hotel.name + ' — Favvi';
-
-            document.getElementById('staffChatLink').href = `/portal/${slug}/staffchat`;
-            document.getElementById('staffLink').href = `/portal/${slug}/staff`;
-            document.getElementById('dashboardLink').href = `/portal/${slug}/dashboard`;
-            document.getElementById('settingsLink').href = `/portal/${slug}/settings`;
+            document.getElementById('staffChatLink').href  = `/portal/${slug}/staffchat`;
+            document.getElementById('staffLink').href      = `/portal/${slug}/staff`;
+            document.getElementById('dashboardLink').href  = `/portal/${slug}/dashboard`;
+            document.getElementById('settingsLink').href   = `/portal/${slug}/settings`;
         }
-
         loadHotel();
     </script>
 </body>
