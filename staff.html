@@ -173,7 +173,7 @@
 
         async function loadRequests() {
             const prevCount = document.querySelectorAll('#newRequests .request-card').length;
-            const r = await fetch('/get-requests');
+            const r = await fetch(`/get-requests?slug=${slug}`);
             const requests = await r.json();
             const today = new Date().toISOString().split('T')[0];
             const newReqs = requests.filter(r => r.status === 'new');

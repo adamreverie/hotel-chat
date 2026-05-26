@@ -40,11 +40,12 @@ def init_db():
                      guest_name TEXT, room_number TEXT,
                      overall INTEGER, cleanliness INTEGER, staff INTEGER,
                      dining INTEGER, wifi INTEGER,
-                     comment TEXT, date TEXT)''')
+                     comment TEXT, date TEXT, hotel_slug TEXT)''')
         c.execute('''CREATE TABLE IF NOT EXISTS requests (
                      id SERIAL PRIMARY KEY,
                      room_number TEXT, department TEXT, details TEXT,
-                     status TEXT DEFAULT 'new', claimed_by TEXT, date TEXT)''')
+                     status TEXT DEFAULT 'new', claimed_by TEXT, date TEXT,
+                     hotel_slug TEXT)''')
         c.execute('''CREATE TABLE IF NOT EXISTS hotels (
                      id SERIAL PRIMARY KEY,
                      name TEXT, slug TEXT UNIQUE, email TEXT, password TEXT,
@@ -197,10 +198,10 @@ def chat():
 
         ph = placeholder()
         conn = get_conn(); c = conn.cursor()
-        c.execute(f'''INSERT INTO requests (room_number, department, details, status, date)
-                     VALUES ({ph}, {ph}, {ph}, {ph}, {ph})''',
-                  (room, department, alert_details, 'new',
-                   datetime.now().strftime("%Y-%m-%d %H:%M")))
+        c.execute(f'''INSERT INTO requests (room_number, department, details, status, date, hotel_slug)
+             VALUES ({ph}, {ph}, {ph}, {ph}, {ph}, {ph})''',
+          (room, department, alert_details, 'new',
+           datetime.now().strftime("%Y-%m-%d %H:%M"), slug))
         conn.commit(); conn.close()
 
         email_to = MANAGER_EMAIL
@@ -279,9 +280,10 @@ def submit_feedback():
     ph = placeholder()
     conn = get_conn(); c = conn.cursor()
     c.execute(f'''INSERT INTO feedback
-                  (guest_name, room_number, overall, cleanliness, staff, dining, wifi, comment, date)
-                  VALUES ({ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph})''',
-              (guest_name, room_number, overall, cleanliness, staff, dining, wifi, comment, date))
+              (guest_name, room_number, overall, cleanliness, staff, dining, wifi, comment, date, hotel_slug)
+              VALUES ({ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph})''',
+            (guest_name, room_number, overall, cleanliness, staff, dining, wifi, comment, date, 
+             request.json.get('slug', '')))
     conn.commit(); conn.close()
 
     def score_emoji(s): return {1:"😞",2:"😐",3:"🙂",4:"😊",5:"🤩"}.get(s, "N/A")
@@ -306,10 +308,16 @@ def submit_feedback():
 
 @app.route('/feedback-stats')
 def feedback_stats():
+    slug = request.args.get('slug', '')
     conn = get_conn(); c = conn.cursor()
-    c.execute('SELECT AVG(overall), AVG(cleanliness), AVG(staff), AVG(dining), AVG(wifi), COUNT(*) FROM feedback')
-    row = c.fetchone()
-    c.execute('SELECT * FROM feedback ORDER BY date DESC LIMIT 10')
+    if slug:
+        c.execute(f'SELECT AVG(overall), AVG(cleanliness), AVG(staff), AVG(dining), AVG(wifi), COUNT(*) FROM feedback WHERE hotel_slug = {placeholder()}', (slug,))
+        row = c.fetchone()
+        c.execute(f'SELECT * FROM feedback WHERE hotel_slug = {placeholder()} ORDER BY date DESC LIMIT 10', (slug,))
+    else:
+        c.execute('SELECT AVG(overall), AVG(cleanliness), AVG(staff), AVG(dining), AVG(wifi), COUNT(*) FROM feedback')
+        row = c.fetchone()
+        c.execute('SELECT * FROM feedback ORDER BY date DESC LIMIT 10')
     recent = c.fetchall()
     conn.close()
     return jsonify({
@@ -327,8 +335,12 @@ def feedback_stats():
 
 @app.route('/get-requests')
 def get_requests():
+    slug = request.args.get('slug', '')
     conn = get_conn(); c = conn.cursor()
-    c.execute('SELECT * FROM requests ORDER BY date DESC')
+    if slug:
+        c.execute(f'SELECT * FROM requests WHERE hotel_slug = {placeholder()} ORDER BY date DESC', (slug,))
+    else:
+        c.execute('SELECT * FROM requests ORDER BY date DESC')
     rows = c.fetchall(); conn.close()
     return jsonify([{
         'id':row[0],'room':row[1],'department':row[2],'details':row[3],

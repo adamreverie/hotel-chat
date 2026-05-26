@@ -177,7 +177,7 @@
         function scoreClass(s) { return s >= 4 ? 'high' : s === 3 ? 'mid' : 'low'; }
 
         async function loadData() {
-            const r = await fetch('/feedback-stats');
+            const r = await fetch(`/feedback-stats?slug=${slug}`);
             const data = await r.json();
             const avg = data.averages;
             document.getElementById('totalResponses').textContent   = avg.total_responses;
