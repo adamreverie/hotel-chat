@@ -120,6 +120,9 @@ Use plain text only with line breaks for spacing."""
 @app.route('/')
 def home(): return send_from_directory('.', 'landing.html')
 
+@app.route('/signup')
+def signup_page(): return send_from_directory('.', 'signup.html')
+
 @app.route('/login')
 def login_page(): return send_from_directory('.', 'login.html')
 
@@ -442,6 +445,82 @@ def update_hotel_settings():
         return jsonify({"success": True})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
+
+    
+@app.route('/signup', methods=['POST'])
+def signup():
+    data       = request.json
+    hotel_name = data.get('name', '').strip()
+    email      = data.get('email', '').strip()
+    password   = data.get('password', '').strip()
+    staff_pw   = data.get('staff_password', '').strip()
+    manager_pw = data.get('manager_password', '').strip()
+
+    if not hotel_name or not email or not password:
+        return jsonify({"success": False, "error": "Please fill in all fields"})
+
+    import re
+    slug = re.sub(r'[^a-z0-9]+', '-', hotel_name.lower()).strip('-')
+
+    ph = placeholder()
+    conn = get_conn(); c = conn.cursor()
+    c.execute(f'SELECT id FROM hotels WHERE slug = {ph} OR email = {ph}', (slug, email))
+    existing = c.fetchone(); conn.close()
+
+    if existing:
+        return jsonify({"success": False, "error": "A hotel with this name or email already exists"})
+
+    conn = get_conn(); c = conn.cursor()
+    c.execute(f'''INSERT INTO hotels
+                  (name, slug, email, password, system_prompt,
+                   staff_password, manager_password, date_created)
+                  VALUES ({ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph})''',
+              (hotel_name, slug, email, password, '',
+               staff_pw or 'staff2024',
+               manager_pw or 'manager2024',
+               datetime.now().strftime("%Y-%m-%d %H:%M")))
+    conn.commit(); conn.close()
+
+    try:
+        resend.Emails.send({
+            "from": "hello@favvi.ai",
+            "to": email,
+            "subject": f"Welcome to Favvi — {hotel_name} is live!",
+            "html": f"""
+            <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto;">
+                <h2 style="color: #1a1a2e;">Welcome to Favvi</h2>
+                <p>Your hotel portal is ready. Here are your details:</p>
+                <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <p><strong>Hotel:</strong> {hotel_name}</p>
+                    <p><strong>Portal:</strong> https://favvi.ai/portal/{slug}</p>
+                    <p><strong>Login:</strong> https://favvi.ai/login</p>
+                    <p><strong>Email:</strong> {email}</p>
+                    <p><strong>Password:</strong> {password}</p>
+                    <p><strong>Staff Password:</strong> {staff_pw or 'staff2024'}</p>
+                    <p><strong>Manager Password:</strong> {manager_pw or 'manager2024'}</p>
+                </div>
+                <h3 style="color: #1a1a2e;">Getting Started</h3>
+                <ol>
+                    <li>Log in and go to <strong>Settings</strong></li>
+                    <li>Paste your hotel info, room details and facilities</li>
+                    <li>Share <strong>favvi.ai/portal/{slug}/chat</strong> as a QR code in guest rooms</li>
+                    <li>Staff log into <strong>favvi.ai/portal/{slug}/staff</strong> for live requests</li>
+                </ol>
+                <a href="https://favvi.ai/portal/{slug}"
+                   style="display:inline-block; background:#1a1a2e; color:white;
+                          padding:12px 28px; text-decoration:none; border-radius:4px; margin-top:16px;">
+                    Go to Your Portal
+                </a>
+                <p style="color:#999; font-size:12px; margin-top:32px;">
+                    Favvi — AI guest experience platform
+                </p>
+            </div>
+            """
+        })
+    except Exception:
+        pass
+
+    return jsonify({"success": True, "slug": slug})
 
 
 if __name__ == '__main__':
