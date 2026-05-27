@@ -212,7 +212,7 @@ def chat():
             if row and row[0]: email_to = row[0]
 
         resend.Emails.send({
-            "from": "onboarding@resend.dev",
+            "from": "requests@favvi.ai",
             "to": email_to,
             "subject": f"🛎️ New Request — Room {room}",
             "html": f"<h2>New Guest Request</h2><p><strong>Department:</strong> {department.title()}</p><p><strong>Details:</strong> {alert_details}</p>"
@@ -289,7 +289,7 @@ def submit_feedback():
     def score_emoji(s): return {1:"😞",2:"😐",3:"🙂",4:"😊",5:"🤩"}.get(s, "N/A")
 
     resend.Emails.send({
-        "from": "onboarding@resend.dev",
+        "from": "feedback@favvi.ai",
         "to": MANAGER_EMAIL,
         "subject": f"⭐ New Feedback from Room {room_number}",
         "html": f"""<h2>New Guest Feedback</h2>
