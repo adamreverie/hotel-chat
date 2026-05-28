@@ -13,10 +13,10 @@
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
-            padding: 40px 20px;
+            align-items: flex-start;
+            padding: 60px 20px;
             position: relative;
-            overflow: hidden;
+            overflow-y: auto;
         }
 
         body::before {
@@ -255,19 +255,19 @@
 
             <div class="field">
                 <label>Hotel Name</label>
-                <input type="text" id="hotelName" placeholder="Your Hotel Name" />
+                <input type="text" id="hotelName" placeholder="e.g. Grand Palace Hotel" />
             </div>
 
             <div class="field">
                 <label>Your Email</label>
-                <input type="email" id="email" placeholder="login@yourhotel.com" />
+                <input type="email" id="email" placeholder="manager@yourhotel.com" />
                 <div class="field-hint">We'll send your login details here</div>
             </div>
 
             <div class="field">
                 <label>Portal Password</label>
                 <input type="password" id="password" placeholder="Choose a password" />
-                <div class="field-hint">This is your portal login password</div>
+                <div class="field-hint">This is your manager login password</div>
             </div>
 
             <div class="divider"></div>
