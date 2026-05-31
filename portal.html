@@ -47,6 +47,7 @@
         .card-staff    { border-color: #4a7fa5; }
         .card-analytics{ border-color: #6a9e6a; }
         .card-settings { border-color: #9b7bb8; }
+        .card-links { border-color: #2e8b7a; }
 
         .card-label { font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
         .card-ai .card-label        { color: #c9a84c; }
@@ -71,6 +72,7 @@
         .card-staff .status-dot     { background: #4a7fa5; animation: pulse 2s infinite; }
         .card-analytics .status-dot { background: #6a9e6a; }
         .card-settings .status-dot  { background: #9b7bb8; }
+        .card-links .status-dot     { background: #2e8b7a; }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
         .card-footer { margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(26,26,46,0.06); font-size: 11px; font-weight: 300; color: rgba(26,26,46,0.3); }
@@ -128,6 +130,13 @@
                 <p>Update hotel info, current offers, and staff or manager passwords.</p>
                 <div class="card-footer">Manager access required</div>
             </a>
+            <a class="card card-links" id="linksLink" href="#">
+                <div class="card-label"><span class="status-dot"></span>QR Codes</div>
+                <div class="card-arrow">↗</div>
+                <h3>Links & QR Codes</h3>
+                <p>Copy your guest chat and feedback links, and download print-ready QR codes for guest rooms.</p>
+                <div class="card-footer">Ready to print</div>
+            </a>
         </div>
     </div>
 
@@ -143,6 +152,7 @@
             document.getElementById('staffLink').href      = `/portal/${slug}/staff`;
             document.getElementById('dashboardLink').href  = `/portal/${slug}/dashboard`;
             document.getElementById('settingsLink').href   = `/portal/${slug}/settings`;
+            document.getElementById('linksLink').href = `/portal/${slug}/links`;
         }
         loadHotel();
     </script>
