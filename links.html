@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Links & QR Codes — Favvi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', sans-serif; background: #f0efe9; min-height: 100vh; }
+
+        .header { background: #1a1a2e; padding: 18px 32px; display: flex; justify-content: space-between; align-items: center; }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .logo { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: #f8f4ee; letter-spacing: 3px; text-decoration: none; }
+        .logo span { color: #c9a84c; }
+        .divider-v { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
+        .header-title { font-size: 13px; font-weight: 400; color: rgba(248,244,238,0.7); }
+
+        .body { max-width: 780px; margin: 0 auto; padding: 40px 32px 60px; }
+
+        .page-title { font-family: 'Cormorant Garamond', serif; font-size: 42px; font-weight: 600; color: #2e8b7a; line-height: 1.1; margin-bottom: 4px; }
+        .page-title em { font-style: italic; font-weight: 400; color: #1a1a2e; }
+        .page-sub { font-size: 12px; font-weight: 300; color: rgba(26,26,46,0.35); margin-bottom: 36px; }
+
+        .link-card {
+            background: white;
+            border-radius: 3px;
+            box-shadow: 0 1px 4px rgba(26,26,46,0.06);
+            margin-bottom: 16px;
+            overflow: hidden;
+            border-left: 3px solid transparent;
+        }
+        .link-card.chat { border-color: #c9a84c; }
+        .link-card.feedback { border-color: #6a9e6a; }
+
+        .link-card-header { padding: 20px 24px 16px; border-bottom: 1px solid #f0efe9; }
+        .link-eyebrow { font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+        .chat .link-eyebrow { color: #c9a84c; }
+        .feedback .link-eyebrow { color: #6a9e6a; }
+        .link-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; color: #1a1a2e; }
+        .link-desc { font-size: 12px; font-weight: 300; color: rgba(26,26,46,0.4); margin-top: 3px; }
+
+        .link-card-body { padding: 24px; display: grid; grid-template-columns: 1fr auto; gap: 32px; align-items: start; }
+
+        /* URL display */
+        .url-section { flex: 1; }
+        .url-label { font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(26,26,46,0.35); margin-bottom: 8px; }
+        .url-box { display: flex; align-items: center; gap: 0; margin-bottom: 16px; }
+        .url-text {
+            flex: 1;
+            padding: 11px 14px;
+            background: #f0efe9;
+            border: 1px solid #e8e8e8;
+            border-right: none;
+            border-radius: 2px 0 0 2px;
+            font-size: 12px;
+            font-weight: 300;
+            color: #1a1a2e;
+            font-family: 'DM Sans', sans-serif;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .copy-btn {
+            padding: 11px 18px;
+            background: #1a1a2e;
+            color: white;
+            border: none;
+            border-radius: 0 2px 2px 0;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s;
+            letter-spacing: 0.3px;
+        }
+        .copy-btn:hover { background: #2d2d4e; }
+        .copy-btn.copied { background: #27ae60; }
+
+        .link-hint { font-size: 11px; font-weight: 300; color: rgba(26,26,46,0.35); line-height: 1.6; }
+        .link-hint strong { font-weight: 500; color: rgba(26,26,46,0.55); }
+
+        /* QR code section */
+        .qr-section { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        .qr-box {
+            width: 160px; height: 160px;
+            background: white;
+            border: 1px solid #e8e8e8;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+        }
+        .qr-box canvas, .qr-box img { width: 100% !important; height: 100% !important; }
+
+        .download-btn {
+            width: 100%;
+            padding: 9px 16px;
+            background: #f0efe9;
+            color: #1a1a2e;
+            border: 1px solid #e8e8e8;
+            border-radius: 2px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.3px;
+            text-align: center;
+        }
+        .download-btn:hover { background: #1a1a2e; color: white; border-color: #1a1a2e; }
+
+        .qr-label { font-size: 10px; font-weight: 300; color: rgba(26,26,46,0.3); text-align: center; letter-spacing: 0.3px; }
+
+        /* Print tip */
+        .print-tip {
+            background: white;
+            border-radius: 3px;
+            padding: 18px 24px;
+            border-left: 3px solid #4a7fa5;
+            box-shadow: 0 1px 4px rgba(26,26,46,0.06);
+            margin-top: 8px;
+        }
+        .print-tip-title { font-size: 13px; font-weight: 500; color: #2e5f80; margin-bottom: 6px; }
+        .print-tip-text { font-size: 12px; font-weight: 300; color: rgba(26,26,46,0.5); line-height: 1.65; }
+
+        @media (max-width: 600px) {
+            .body { padding: 24px 16px 60px; }
+            .header { padding: 14px 16px; }
+            .link-card-body { grid-template-columns: 1fr; }
+            .qr-section { flex-direction: row; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-left">
+            <a class="logo" id="backLink" href="#">fav<span>vi</span></a>
+            <div class="divider-v"></div>
+            <span class="header-title">Links & QR Codes</span>
+        </div>
+    </div>
+
+    <div class="body">
+        <div class="page-title"><em>Links &</em> QR Codes</div>
+        <p class="page-sub" id="pageSub">Loading...</p>
+
+        <!-- GUEST CHAT -->
+        <div class="link-card chat">
+            <div class="link-card-header">
+                <div class="link-eyebrow">Guest Facing</div>
+                <div class="link-title">Guest Chat Concierge</div>
+                <div class="link-desc">Place this QR code in every guest room — on the desk, TV unit or welcome card</div>
+            </div>
+            <div class="link-card-body">
+                <div class="url-section">
+                    <div class="url-label">Link</div>
+                    <div class="url-box">
+                        <div class="url-text" id="chatUrl">Loading...</div>
+                        <button class="copy-btn" onclick="copyLink('chatUrl', this)">Copy</button>
+                    </div>
+                    <p class="link-hint">
+                        Guests scan the QR code or visit this link directly. No app download, no login needed.<br><br>
+                        The AI will ask for their room number if it needs it for a request.
+                    </p>
+                </div>
+                <div class="qr-section">
+                    <div class="qr-box" id="chatQr"></div>
+                    <button class="download-btn" onclick="downloadQR('chatQr', 'favvi-guest-chat')">Download QR Code</button>
+                    <div class="qr-label">Print & place in rooms</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FEEDBACK -->
+        <div class="link-card feedback">
+            <div class="link-card-header">
+                <div class="link-eyebrow">Post-Checkout</div>
+                <div class="link-title">Guest Feedback Form</div>
+                <div class="link-desc">Send this link to guests after checkout via WhatsApp, email or SMS</div>
+            </div>
+            <div class="link-card-body">
+                <div class="url-section">
+                    <div class="url-label">Link</div>
+                    <div class="url-box">
+                        <div class="url-text" id="feedbackUrl">Loading...</div>
+                        <button class="copy-btn" onclick="copyLink('feedbackUrl', this)">Copy</button>
+                    </div>
+                    <p class="link-hint">
+                        Send this after checkout to collect ratings and comments.<br><br>
+                        <strong>Tip:</strong> Personalise it by adding the guest's name and room number to the link:<br>
+                        <span style="font-family: monospace; font-size: 10px; color: rgba(26,26,46,0.4);">...feedback?name=John&room=412</span>
+                    </p>
+                </div>
+                <div class="qr-section">
+                    <div class="qr-box" id="feedbackQr"></div>
+                    <button class="download-btn" onclick="downloadQR('feedbackQr', 'favvi-feedback')">Download QR Code</button>
+                    <div class="qr-label">Optional — for shared spaces</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRINT TIP -->
+        <div class="print-tip">
+            <div class="print-tip-title">Printing tip</div>
+            <p class="print-tip-text">Download the QR code image and print it at any size — it stays sharp at any resolution. For a premium look, print on card stock, add your hotel name above the QR code, and laminate it. A small tent card on the desk works perfectly. Most print shops can do this for under $1 per room.</p>
+        </div>
+    </div>
+
+    <script>
+        const slug = window.location.pathname.split('/')[2] || '';
+        const base = window.location.origin;
+
+        async function loadHotel() {
+            try {
+                const r = await fetch(`/get-hotel/${slug}`);
+                const hotel = await r.json();
+                document.getElementById('backLink').href = `/portal/${slug}`;
+                document.getElementById('pageSub').textContent = hotel.name + ' — Links & QR Codes';
+
+                const chatUrl     = `${base}/portal/${slug}/chat`;
+                const feedbackUrl = `${base}/portal/${slug}/feedback`;
+
+                document.getElementById('chatUrl').textContent     = chatUrl;
+                document.getElementById('feedbackUrl').textContent = feedbackUrl;
+
+                generateQR('chatQr',     chatUrl);
+                generateQR('feedbackQr', feedbackUrl);
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        function generateQR(containerId, url) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            new QRCode(container, {
+                text:           url,
+                width:          136,
+                height:         136,
+                colorDark:      '#1a1a2e',
+                colorLight:     '#ffffff',
+                correctLevel:   QRCode.CorrectLevel.H
+            });
+        }
+
+        function copyLink(elementId, btn) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Copy';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        function downloadQR(containerId, filename) {
+            const container = document.getElementById(containerId);
+            const canvas = container.querySelector('canvas');
+            if (!canvas) { alert('QR code still loading, please try again.'); return; }
+
+            // Create a larger canvas for print quality
+            const printCanvas = document.createElement('canvas');
+            const size = 800;
+            printCanvas.width  = size;
+            printCanvas.height = size;
+            const ctx = printCanvas.getContext('2d');
+
+            // White background
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, size, size);
+
+            // Draw QR scaled up
+            ctx.drawImage(canvas, 0, 0, size, size);
+
+            // Download
+            const link = document.createElement('a');
+            link.download = `${filename}-qr.png`;
+            link.href = printCanvas.toDataURL('image/png');
+            link.click();
+        }
+
+        loadHotel();
+    </script>
+</body>
+</html>

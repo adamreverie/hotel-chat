@@ -161,6 +161,8 @@ def portal_settings(slug): return send_from_directory('.', 'settings.html')
 @app.route('/portal/<slug>/staffchat')
 def portal_staffchat(slug): return send_from_directory('.', 'staffchat.html')
 
+@app.route('/portal/<slug>/links')
+def portal_links(slug): return send_from_directory('.', 'links.html')
 
 @app.route('/chat', methods=['POST'])
 def chat():
