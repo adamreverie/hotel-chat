@@ -78,6 +78,35 @@
 
         .card-footer { margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(26,26,46,0.06); font-size: 11px; font-weight: 300; color: rgba(26,26,46,0.3); }
 
+            .setup-banner {
+                background: rgba(201,168,76,0.1);
+                border: 1px solid rgba(201,168,76,0.3);
+                border-radius: 3px;
+                padding: 14px 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 20px;
+                margin-bottom: 24px;
+            }
+            .setup-banner-text {
+                font-size: 13px;
+                font-weight: 400;
+                color: #c9a84c;
+            }
+            .setup-banner-btn {
+                background: #c9a84c;
+                color: #1a1a2e;
+                padding: 8px 18px;
+                border-radius: 2px;
+                font-size: 12px;
+                font-weight: 500;
+                text-decoration: none;
+                white-space: nowrap;
+                transition: background 0.2s;
+            }
+            .setup-banner-btn:hover { background: #e8c97a; }
+
         @media (max-width: 600px) {
             .header { padding: 18px 20px; }
             .body { padding: 28px 16px; }
@@ -98,10 +127,17 @@
     </div>
 
     <div class="body">
-        <div class="welcome-row">
-            <div class="welcome">Welcome <em>back.</em></div>
-            <div class="subtitle" id="hotelSubtitle">Loading...</div>
+        <<div class="setup-banner" id="setupBanner" style="display:none;">
+        <div class="setup-banner-text">
+            Your hotel info isn't configured yet — set it up so the AI knows what to say to guests.
         </div>
+        <a class="setup-banner-btn" id="setupBannerBtn" href="#">Set Up Now →</a>
+    </div>
+
+    <div class="welcome-row">
+        <div class="welcome">Welcome <em>back.</em></div>
+        <div class="subtitle" id="hotelSubtitle">Loading...</div>
+    </div>
         <div class="grid">
             <a class="card card-ai" id="staffChatLink" href="#">
                 <div class="card-label"><span class="status-dot"></span>AI Assistant</div>
@@ -144,16 +180,25 @@
     <script>
         const slug = window.location.pathname.split('/')[2];
         async function loadHotel() {
-            const r = await fetch(`/get-hotel/${slug}`);
-            const hotel = await r.json();
+            const response = await fetch(`/get-hotel/${slug}`);
+            const hotel = await response.json();
+
             document.getElementById('hotelName').textContent = hotel.name;
             document.getElementById('hotelSubtitle').textContent = hotel.name + ' — Favvi Portal';
             document.title = hotel.name + ' — Favvi';
+
             document.getElementById('staffChatLink').href  = `/portal/${slug}/staffchat`;
             document.getElementById('staffLink').href      = `/portal/${slug}/staff`;
             document.getElementById('dashboardLink').href  = `/portal/${slug}/dashboard`;
+            document.getElementById('linksLink').href      = `/portal/${slug}/links`;
             document.getElementById('settingsLink').href   = `/portal/${slug}/settings`;
-            document.getElementById('linksLink').href = `/portal/${slug}/links`;
+
+            document.getElementById('setupBannerBtn').href = `/portal/${slug}/settings`;
+
+            // Show setup banner if hotel info is empty
+            if (!hotel.hotel_info || hotel.hotel_info.trim() === '') {
+                document.getElementById('setupBanner').style.display = 'flex';
+            }
         }
         loadHotel();
     </script>
