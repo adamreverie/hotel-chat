@@ -161,7 +161,7 @@
         function renderCard(req) {
             const isNew = req.status === 'new', isProgress = req.status === 'inprogress', isDone = req.status === 'done';
             let buttons = '';
-            if (isNew)      buttons = `<div class="btn-row"><button class="btn btn-claim" onclick="claimRequest(${req.id})">Claim</button><button class="btn btn-done" onclick="completeRequest(${req.id})">Done</button></div>`;
+            if (isNew)      buttons = `<div class="btn-row"><button class="btn btn-claim" onclick="claimRequest(${req.id})">I'm on it!</button><button class="btn btn-done" onclick="completeRequest(${req.id})">Done</button></div>`;
             else if (isProgress) buttons = `<div class="btn-row"><button class="btn btn-done" onclick="completeRequest(${req.id})">Done</button><button class="btn btn-undo" onclick="unclaim(${req.id})">Undo</button></div>`;
             else if (isDone) buttons = `<div class="btn-row"><button class="btn btn-undo" onclick="undoDone(${req.id})">Undo</button></div>`;
             return `<div class="request-card ${isProgress?'inprogress':isDone?'done':'new'}" id="card-${req.id}">
