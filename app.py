@@ -1,6 +1,10 @@
-from config import (HOTEL_NAME, HOTEL_LOCATION, MANAGER_EMAIL,
-                    STAFF_PASSWORD, MANAGER_PASSWORD,
-                    HOTEL_INFO, CURRENT_OFFERS)
+HOTEL_NAME     = "Favvi Hotel"
+HOTEL_LOCATION = ""
+MANAGER_EMAIL  = "hello@favvi.ai"
+STAFF_PASSWORD = "staff2024"
+MANAGER_PASSWORD = "manager2024"
+HOTEL_INFO     = ""
+CURRENT_OFFERS = ""
 import os
 import resend
 import sqlite3
@@ -85,20 +89,20 @@ init_db()
 
 
 def get_system_prompt(slug=None):
-    name           = HOTEL_NAME
-    hotel_info     = HOTEL_INFO
-    current_offers = CURRENT_OFFERS
+    name           = "this hotel"
+    hotel_info     = "No hotel information has been configured yet."
+    current_offers = ""
 
     if slug:
         conn = get_conn(); c = conn.cursor()
         c.execute(f'SELECT * FROM hotels WHERE slug = {placeholder()}', (slug,))
         hotel = c.fetchone(); conn.close()
         if hotel:
-            name           = hotel[1] or HOTEL_NAME
-            hotel_info     = hotel[9]  if len(hotel) > 9  and hotel[9]  else HOTEL_INFO
-            current_offers = hotel[10] if len(hotel) > 10 and hotel[10] else CURRENT_OFFERS
+            name           = hotel[1] or "this hotel"
+            hotel_info     = hotel[9]  if len(hotel) > 9  and hotel[9]  else "No hotel information has been configured yet. Please ask the manager to set this up in Settings."
+            current_offers = hotel[10] if len(hotel) > 10 and hotel[10] else ""
 
-    return f"""You are the AI guest concierge for {name}, located in {HOTEL_LOCATION}.
+    return f"""You are the AI guest concierge for {name}.
 
 {hotel_info}
 
@@ -111,6 +115,7 @@ When a guest makes a REAL REQUEST (towels, room service, maintenance, housekeepi
 4. End with exactly: STAFF_ALERT: Room [number] - [request details]
 
 For simple questions answer directly and helpfully.
+If you don't have specific information about something, say so honestly and suggest the guest contact reception.
 Always be warm, professional and friendly. Use occasional emojis.
 Reply in the same language the guest uses.
 Never use markdown formatting like #, ##, **, or ---.
@@ -235,8 +240,8 @@ def staff_chat():
     user_message = data.get('message')
     slug         = data.get('slug')
 
-    hotel_info      = HOTEL_INFO
-    hotel_name      = HOTEL_NAME
+    hotel_info      = "No hotel information has been configured yet."
+    hotel_name      = "this hotel"
     staff_knowledge = ""
 
     if slug:
@@ -244,8 +249,8 @@ def staff_chat():
         c.execute(f'SELECT name, hotel_info, staff_knowledge FROM hotels WHERE slug = {placeholder()}', (slug,))
         row = c.fetchone(); conn.close()
         if row:
-            hotel_name      = row[0] or HOTEL_NAME
-            hotel_info      = row[1] or HOTEL_INFO
+            hotel_name      = row[0] or "this hotel"
+            hotel_info      = row[1] or "No hotel information has been configured yet."
             staff_knowledge = row[2] or ""
 
     staff_prompt = f"""You are an internal AI assistant for the staff of {hotel_name}.
