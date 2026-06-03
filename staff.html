@@ -9,221 +9,111 @@
 
         body {
             font-family: 'DM Sans', sans-serif;
-            background: #0e0e1a;
+            background: #f0efe9;
             min-height: 100vh;
-            color: #f0efe9;
+            color: #1a1a2e;
         }
 
         /* ── HEADER ── */
         .header {
             background: #1a1a2e;
-            padding: 16px 24px;
+            padding: 16px 28px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
             z-index: 100;
-            border-bottom: 1px solid rgba(201,168,76,0.1);
         }
         .header-left { display: flex; align-items: center; gap: 14px; }
         .logo { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: #f8f4ee; letter-spacing: 3px; text-decoration: none; }
         .logo span { color: #c9a84c; }
-        .divider-v { width: 1px; height: 18px; background: rgba(255,255,255,0.08); }
-        .header-title { font-size: 12px; font-weight: 400; color: rgba(248,244,238,0.5); letter-spacing: 0.5px; }
-        .header-right { display: flex; align-items: center; gap: 14px; }
-        .staff-tag {
-            background: rgba(201,168,76,0.12);
-            border: 1px solid rgba(201,168,76,0.2);
-            color: #c9a84c;
-            font-size: 11px;
-            font-weight: 500;
-            padding: 4px 12px;
-            border-radius: 20px;
-            letter-spacing: 0.3px;
-        }
-        .live-pill {
-            display: flex; align-items: center; gap: 5px;
-            font-size: 10px; color: rgba(76,175,80,0.8);
-            letter-spacing: 0.5px;
-        }
+        .divider-v { width: 1px; height: 18px; background: rgba(255,255,255,0.1); }
+        .header-title { font-size: 12px; font-weight: 400; color: rgba(248,244,238,0.5); }
+        .header-right { display: flex; align-items: center; gap: 12px; }
+        .staff-tag { background: rgba(201,168,76,0.15); border: 1px solid rgba(201,168,76,0.25); color: #c9a84c; font-size: 11px; font-weight: 500; padding: 4px 12px; border-radius: 20px; }
+        .live-pill { display: flex; align-items: center; gap: 5px; font-size: 10px; color: rgba(76,175,80,0.9); }
         .live-dot { width: 6px; height: 6px; background: #4CAF50; border-radius: 50%; animation: blink 1.5s infinite; }
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
         /* ── LOGIN ── */
-        .overlay {
-            position: fixed; inset: 0;
-            background: #0e0e1a;
-            display: flex; justify-content: center; align-items: center;
-            z-index: 200;
-        }
-        .login-card {
-            background: #1a1a2e;
-            border: 1px solid rgba(201,168,76,0.15);
-            border-radius: 4px;
-            padding: 48px 40px;
-            width: 360px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-        }
-        .login-logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: #f8f4ee; letter-spacing: 3px; margin-bottom: 4px; }
+        .overlay { position: fixed; inset: 0; background: #f0efe9; display: flex; justify-content: center; align-items: center; z-index: 200; }
+        .login-card { background: white; border-radius: 3px; padding: 48px 40px; width: 360px; box-shadow: 0 4px 24px rgba(26,26,46,0.08); border-left: 3px solid #4a7fa5; }
+        .login-logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: #1a1a2e; letter-spacing: 3px; margin-bottom: 4px; }
         .login-logo span { color: #c9a84c; }
-        .login-card h2 { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; color: #4a7fa5; margin-bottom: 6px; }
-        .login-card p { font-size: 12px; font-weight: 300; color: rgba(248,244,238,0.3); margin-bottom: 28px; }
+        .login-card h2 { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; color: #2e5f80; margin-bottom: 6px; }
+        .login-card p { font-size: 12px; font-weight: 300; color: rgba(26,26,46,0.4); margin-bottom: 28px; }
         .field { margin-bottom: 14px; }
-        .field label { display: block; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(248,244,238,0.3); margin-bottom: 7px; }
-        .field input {
-            width: 100%; padding: 12px 14px;
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 2px;
-            font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 300;
-            color: #f8f4ee; background: rgba(255,255,255,0.04);
-            outline: none; transition: border-color 0.2s;
-        }
-        .field input::placeholder { color: rgba(248,244,238,0.2); }
-        .field input:focus { border-color: #4a7fa5; background: rgba(255,255,255,0.06); }
-        .login-btn {
-            width: 100%; padding: 13px;
-            background: #c9a84c; color: #1a1a2e;
-            border: none; border-radius: 2px;
-            font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
-            cursor: pointer; margin-top: 6px; transition: background 0.2s;
-        }
-        .login-btn:hover { background: #e8c97a; }
+        .field label { display: block; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(26,26,46,0.4); margin-bottom: 7px; }
+        .field input { width: 100%; padding: 12px 14px; border: 1px solid #e8e8e8; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 300; color: #1a1a2e; background: #fafafa; outline: none; transition: border-color 0.2s; }
+        .field input:focus { border-color: #4a7fa5; background: white; }
+        .login-btn { width: 100%; padding: 13px; background: #1a1a2e; color: white; border: none; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; margin-top: 6px; transition: opacity 0.2s; }
+        .login-btn:hover { opacity: 0.85; }
         .login-error { color: #e57373; font-size: 12px; margin-top: 10px; display: none; }
 
         /* ── BODY ── */
-        .body { padding: 24px; max-width: 760px; margin: 0 auto; }
+        .body { padding: 24px 28px; max-width: 760px; margin: 0 auto; }
 
         /* ── STATS ROW ── */
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-bottom: 28px;
-        }
-        .stat-pill {
-            background: #1a1a2e;
-            border-radius: 3px;
-            padding: 14px 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-left: 3px solid transparent;
-        }
-        .stat-pill.new-stat     { border-color: #c0392b; }
-        .stat-pill.prog-stat    { border-color: #d68910; }
-        .stat-pill.done-stat    { border-color: #27ae60; }
-        .stat-pill.hist-stat    { border-color: #888; }
-
-        .stat-num {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 32px; font-weight: 600; line-height: 1;
-        }
-        .stat-pill.new-stat  .stat-num { color: #e74c3c; }
-        .stat-pill.prog-stat .stat-num { color: #f39c12; }
+        .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 28px; }
+        .stat-pill { background: white; border-radius: 3px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; border-left: 3px solid transparent; box-shadow: 0 1px 4px rgba(26,26,46,0.06); }
+        .stat-pill.new-stat  { border-color: #c0392b; }
+        .stat-pill.prog-stat { border-color: #d68910; }
+        .stat-pill.done-stat { border-color: #27ae60; }
+        .stat-pill.hist-stat { border-color: #bbb; }
+        .stat-num { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 600; line-height: 1; }
+        .stat-pill.new-stat  .stat-num { color: #c0392b; }
+        .stat-pill.prog-stat .stat-num { color: #d68910; }
         .stat-pill.done-stat .stat-num { color: #27ae60; }
-        .stat-pill.hist-stat .stat-num { color: #888; }
-
-        .stat-lbl { font-size: 10px; font-weight: 300; color: rgba(248,244,238,0.3); line-height: 1.3; letter-spacing: 0.3px; }
+        .stat-pill.hist-stat .stat-num { color: #bbb; }
+        .stat-lbl { font-size: 10px; font-weight: 300; color: rgba(26,26,46,0.4); line-height: 1.4; letter-spacing: 0.3px; }
 
         /* ── SECTION ── */
         .section { margin-bottom: 28px; }
-
-        .section-header {
-            display: flex; align-items: center; gap: 10px;
-            margin-bottom: 12px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-        .section-bar { width: 3px; height: 18px; border-radius: 2px; }
-        .bar-new     { background: #c0392b; }
-        .bar-prog    { background: #d68910; }
-        .bar-done    { background: #27ae60; }
-        .bar-hist    { background: #555; }
-
-        .section-title-text {
-            font-size: 11px; font-weight: 500;
-            letter-spacing: 2px; text-transform: uppercase;
-        }
-        .new-title  { color: #e74c3c; }
-        .prog-title { color: #f39c12; }
+        .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(26,26,46,0.06); }
+        .section-bar { width: 3px; height: 16px; border-radius: 2px; flex-shrink: 0; }
+        .bar-new  { background: #c0392b; }
+        .bar-prog { background: #d68910; }
+        .bar-done { background: #27ae60; }
+        .bar-hist { background: #ccc; }
+        .section-title-text { font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; }
+        .new-title  { color: #c0392b; }
+        .prog-title { color: #d68910; }
         .done-title { color: #27ae60; }
-        .hist-title { color: rgba(248,244,238,0.3); }
+        .hist-title { color: rgba(26,26,46,0.3); }
 
         /* ── REQUEST CARD ── */
-        .request-card {
-            background: #1a1a2e;
-            border-radius: 3px;
-            padding: 16px 18px;
-            margin-bottom: 8px;
-            border-left: 3px solid transparent;
-            transition: opacity 0.2s, transform 0.15s;
-            position: relative;
-            overflow: hidden;
-        }
-        .request-card::after {
-            content: '';
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            height: 1px;
-            background: rgba(255,255,255,0.03);
-        }
+        .request-card { background: white; border-radius: 3px; padding: 16px 18px; margin-bottom: 8px; border-left: 3px solid #eee; box-shadow: 0 1px 4px rgba(26,26,46,0.05); transition: opacity 0.2s, box-shadow 0.2s; }
+        .request-card:hover { box-shadow: 0 3px 12px rgba(26,26,46,0.08); }
         .request-card.new        { border-color: #c0392b; }
         .request-card.inprogress { border-color: #d68910; }
-        .request-card.done       { border-color: #27ae60; opacity: 0.7; }
-        .request-card.history-card { border-color: #444; opacity: 0.5; }
+        .request-card.done       { border-color: #27ae60; opacity: 0.75; }
+        .request-card.history-card { border-color: #ddd; opacity: 0.55; }
         .request-card.updating   { opacity: 0.3; pointer-events: none; }
 
         .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .dept-badge { font-size: 9px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 3px 9px; border-radius: 2px; }
+        .dept-housekeeping { background: #fdecea; color: #c0392b; }
+        .dept-roomservice  { background: #fef9e7; color: #d68910; }
+        .dept-maintenance  { background: #eaf4fb; color: #2980b9; }
+        .dept-concierge    { background: #eafaf1; color: #27ae60; }
+        .dept-general      { background: #f4f4f4; color: #888; }
 
-        .dept-badge {
-            font-size: 9px; font-weight: 600;
-            letter-spacing: 1.5px; text-transform: uppercase;
-            padding: 3px 9px; border-radius: 2px;
-        }
-        .dept-housekeeping { background: rgba(192,57,43,0.2);  color: #e74c3c; }
-        .dept-roomservice  { background: rgba(214,137,16,0.2); color: #f39c12; }
-        .dept-maintenance  { background: rgba(41,128,185,0.2); color: #5dade2; }
-        .dept-concierge    { background: rgba(39,174,96,0.2);  color: #58d68d; }
-        .dept-general      { background: rgba(255,255,255,0.06); color: #888; }
-
-        .room-tag {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 18px; font-weight: 600; color: #f8f4ee;
-        }
-
-        .request-details {
-            font-size: 13px; font-weight: 300;
-            color: rgba(248,244,238,0.6);
-            line-height: 1.5; margin-bottom: 12px;
-        }
-
+        .room-tag { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600; color: #1a1a2e; }
+        .request-details { font-size: 13px; font-weight: 300; color: rgba(26,26,46,0.6); line-height: 1.5; margin-bottom: 12px; }
         .card-bottom { display: flex; justify-content: space-between; align-items: center; }
-        .meta { font-size: 10px; font-weight: 300; color: rgba(248,244,238,0.2); }
+        .meta { font-size: 10px; font-weight: 300; color: rgba(26,26,46,0.3); }
         .claimed-by { font-size: 10px; font-weight: 400; color: #d68910; margin-top: 2px; }
 
         .btn-row { display: flex; gap: 7px; }
-        .btn {
-            padding: 7px 14px;
-            border: none; border-radius: 2px;
-            font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500;
-            cursor: pointer; letter-spacing: 0.3px;
-            transition: opacity 0.15s, transform 0.1s;
-        }
+        .btn { padding: 7px 14px; border: none; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500; cursor: pointer; transition: opacity 0.15s, transform 0.1s; }
         .btn:hover  { opacity: 0.85; transform: translateY(-1px); }
         .btn:active { transform: scale(0.95); }
-        .btn-claim { background: #c9a84c; color: #1a1a2e; }
+        .btn-claim { background: #1a1a2e; color: white; }
         .btn-done  { background: #27ae60; color: white; }
-        .btn-undo  { background: rgba(255,255,255,0.07); color: rgba(248,244,238,0.5); border: 1px solid rgba(255,255,255,0.08); }
+        .btn-undo  { background: #f0efe9; color: #666; }
 
-        .empty-state {
-            background: rgba(255,255,255,0.02);
-            border-radius: 3px; padding: 20px;
-            text-align: center;
-            font-size: 12px; font-weight: 300;
-            color: rgba(248,244,238,0.2);
-            border: 1px solid rgba(255,255,255,0.04);
-        }
+        .empty-state { background: white; border-radius: 3px; padding: 20px; text-align: center; font-size: 12px; font-weight: 300; color: rgba(26,26,46,0.3); border: 1px solid rgba(26,26,46,0.04); }
 
         @media (max-width: 600px) {
             .body { padding: 14px; }
@@ -243,7 +133,7 @@
             <p id="hotelNameLogin">Loading...</p>
             <div class="field">
                 <label>Your Name</label>
-                <input type="text" id="staffName" placeholder="e.g. Ahmed"
+                <input type="text" id="staffName" placeholder="Your name"
                        onkeypress="if(event.key==='Enter') checkPassword()" />
             </div>
             <div class="field">
@@ -272,23 +162,25 @@
     <!-- BODY -->
     <div class="body" id="mainBody" style="display:none;">
 
-        <!-- Stats -->
         <div class="stats-row">
             <div class="stat-pill new-stat">
-                <div><div class="stat-num" id="countNew">0</div><div class="stat-lbl">New</div></div>
+                <div class="stat-num" id="countNew">0</div>
+                <div class="stat-lbl">New<br>Requests</div>
             </div>
             <div class="stat-pill prog-stat">
-                <div><div class="stat-num" id="countProgress">0</div><div class="stat-lbl">In Progress</div></div>
+                <div class="stat-num" id="countProgress">0</div>
+                <div class="stat-lbl">In<br>Progress</div>
             </div>
             <div class="stat-pill done-stat">
-                <div><div class="stat-num" id="countDone">0</div><div class="stat-lbl">Done Today</div></div>
+                <div class="stat-num" id="countDone">0</div>
+                <div class="stat-lbl">Done<br>Today</div>
             </div>
             <div class="stat-pill hist-stat">
-                <div><div class="stat-num" id="countHistory">0</div><div class="stat-lbl">48hr History</div></div>
+                <div class="stat-num" id="countHistory">0</div>
+                <div class="stat-lbl">48hr<br>History</div>
             </div>
         </div>
 
-        <!-- New -->
         <div class="section">
             <div class="section-header">
                 <div class="section-bar bar-new"></div>
@@ -297,7 +189,6 @@
             <div id="newRequests"></div>
         </div>
 
-        <!-- In Progress -->
         <div class="section">
             <div class="section-header">
                 <div class="section-bar bar-prog"></div>
@@ -306,7 +197,6 @@
             <div id="inProgressRequests"></div>
         </div>
 
-        <!-- Done Today -->
         <div class="section">
             <div class="section-header">
                 <div class="section-bar bar-done"></div>
@@ -315,7 +205,6 @@
             <div id="doneRequests"></div>
         </div>
 
-        <!-- History -->
         <div class="section">
             <div class="section-header">
                 <div class="section-bar bar-hist"></div>
@@ -381,12 +270,6 @@
             return `<span class="dept-badge ${cls}">${label}</span>`;
         }
 
-        function formatTime(dateStr) {
-            if (!dateStr) return '';
-            const parts = dateStr.split(' ');
-            return parts[1] || dateStr;
-        }
-
         function renderCard(req, isHistory) {
             const isNew      = req.status === 'new';
             const isProgress = req.status === 'inprogress';
@@ -443,11 +326,8 @@
                 const inProgress = requests.filter(r => r.status === 'inprogress');
                 const done       = requests.filter(r => r.status === 'done' && r.date && r.date.startsWith(today));
                 const history    = requests.filter(r => {
-                    if (r.status !== 'done') return false;
-                    if (!r.date) return false;
-                    if (r.date.startsWith(today)) return false;
-                    const reqDate = new Date(r.date.replace(' ', 'T'));
-                    return reqDate >= fortyEightHoursAgo;
+                    if (r.status !== 'done' || !r.date || r.date.startsWith(today)) return false;
+                    return new Date(r.date.replace(' ', 'T')) >= fortyEightHoursAgo;
                 });
 
                 document.getElementById('countNew').textContent      = newReqs.length;
@@ -471,13 +351,11 @@
                     history.length ? history.map(r => renderCard(r, true)).join('') :
                     '<div class="empty-state">No history in the last 48 hours</div>';
 
-                // Sound alert
                 if (newReqs.length > prevCount) {
                     try {
                         const ctx = window._audioCtx || new (window.AudioContext || window.webkitAudioContext)();
                         if (ctx.state === 'suspended') ctx.resume();
-                        const osc  = ctx.createOscillator();
-                        const gain = ctx.createGain();
+                        const osc = ctx.createOscillator(), gain = ctx.createGain();
                         osc.connect(gain); gain.connect(ctx.destination);
                         osc.type = 'sine';
                         osc.frequency.setValueAtTime(880,  ctx.currentTime);
