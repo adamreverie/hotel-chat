@@ -6,78 +6,236 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'DM Sans', sans-serif; background: #f0efe9; min-height: 100vh; }
 
-        .header { background: #1a1a2e; padding: 18px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .header-left { display: flex; align-items: center; gap: 16px; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #0e0e1a;
+            min-height: 100vh;
+            color: #f0efe9;
+        }
+
+        /* ── HEADER ── */
+        .header {
+            background: #1a1a2e;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(201,168,76,0.1);
+        }
+        .header-left { display: flex; align-items: center; gap: 14px; }
         .logo { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: #f8f4ee; letter-spacing: 3px; text-decoration: none; }
         .logo span { color: #c9a84c; }
-        .divider-v { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
-        .header-title { font-size: 13px; font-weight: 400; color: rgba(248,244,238,0.7); }
-        .header-right { display: flex; align-items: center; gap: 16px; }
-        .live-pill { display: flex; align-items: center; gap: 6px; font-size: 11px; color: rgba(248,244,238,0.5); }
-        .live-dot { width: 7px; height: 7px; background: #4CAF50; border-radius: 50%; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-        .staff-name { font-size: 12px; font-weight: 300; color: rgba(248,244,238,0.4); }
+        .divider-v { width: 1px; height: 18px; background: rgba(255,255,255,0.08); }
+        .header-title { font-size: 12px; font-weight: 400; color: rgba(248,244,238,0.5); letter-spacing: 0.5px; }
+        .header-right { display: flex; align-items: center; gap: 14px; }
+        .staff-tag {
+            background: rgba(201,168,76,0.12);
+            border: 1px solid rgba(201,168,76,0.2);
+            color: #c9a84c;
+            font-size: 11px;
+            font-weight: 500;
+            padding: 4px 12px;
+            border-radius: 20px;
+            letter-spacing: 0.3px;
+        }
+        .live-pill {
+            display: flex; align-items: center; gap: 5px;
+            font-size: 10px; color: rgba(76,175,80,0.8);
+            letter-spacing: 0.5px;
+        }
+        .live-dot { width: 6px; height: 6px; background: #4CAF50; border-radius: 50%; animation: blink 1.5s infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-        .overlay { position: fixed; inset: 0; background: #f0efe9; display: flex; justify-content: center; align-items: center; z-index: 200; }
-        .login-card { background: white; border-radius: 3px; padding: 48px 40px; width: 360px; box-shadow: 0 4px 24px rgba(26,26,46,0.08); border-left: 3px solid #4a7fa5; }
-        .login-logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: #1a1a2e; letter-spacing: 3px; margin-bottom: 4px; }
+        /* ── LOGIN ── */
+        .overlay {
+            position: fixed; inset: 0;
+            background: #0e0e1a;
+            display: flex; justify-content: center; align-items: center;
+            z-index: 200;
+        }
+        .login-card {
+            background: #1a1a2e;
+            border: 1px solid rgba(201,168,76,0.15);
+            border-radius: 4px;
+            padding: 48px 40px;
+            width: 360px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+        .login-logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: #f8f4ee; letter-spacing: 3px; margin-bottom: 4px; }
         .login-logo span { color: #c9a84c; }
-        .login-card h2 { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 600; color: #2e5f80; margin-bottom: 6px; }
-        .login-card p { font-size: 12px; font-weight: 300; color: rgba(26,26,46,0.4); margin-bottom: 28px; }
-
+        .login-card h2 { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; color: #4a7fa5; margin-bottom: 6px; }
+        .login-card p { font-size: 12px; font-weight: 300; color: rgba(248,244,238,0.3); margin-bottom: 28px; }
         .field { margin-bottom: 14px; }
-        .field label { display: block; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(26,26,46,0.4); margin-bottom: 7px; }
-        .field input { width: 100%; padding: 12px 14px; border: 1px solid #e8e8e8; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 300; color: #1a1a2e; background: #fafafa; outline: none; transition: border-color 0.2s; }
-        .field input:focus { border-color: #4a7fa5; background: white; }
-        .login-btn { width: 100%; padding: 13px; background: #1a1a2e; color: white; border: none; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; margin-top: 6px; transition: opacity 0.2s; }
-        .login-btn:hover { opacity: 0.85; }
+        .field label { display: block; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(248,244,238,0.3); margin-bottom: 7px; }
+        .field input {
+            width: 100%; padding: 12px 14px;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 2px;
+            font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 300;
+            color: #f8f4ee; background: rgba(255,255,255,0.04);
+            outline: none; transition: border-color 0.2s;
+        }
+        .field input::placeholder { color: rgba(248,244,238,0.2); }
+        .field input:focus { border-color: #4a7fa5; background: rgba(255,255,255,0.06); }
+        .login-btn {
+            width: 100%; padding: 13px;
+            background: #c9a84c; color: #1a1a2e;
+            border: none; border-radius: 2px;
+            font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+            cursor: pointer; margin-top: 6px; transition: background 0.2s;
+        }
+        .login-btn:hover { background: #e8c97a; }
         .login-error { color: #e57373; font-size: 12px; margin-top: 10px; display: none; }
 
-        .body { padding: 32px; max-width: 780px; margin: 0 auto; }
+        /* ── BODY ── */
+        .body { padding: 24px; max-width: 760px; margin: 0 auto; }
 
-        .section-label { font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: rgba(26,26,46,0.35); margin: 28px 0 12px; }
-        .section-label:first-child { margin-top: 0; }
-        .section-label .count { display: inline-block; font-size: 9px; padding: 2px 7px; border-radius: 10px; margin-left: 8px; vertical-align: middle; letter-spacing: 0; color: white; }
-        .count.red   { background: #c0392b; }
-        .count.amber { background: #d68910; }
-        .count.green { background: #27ae60; }
+        /* ── STATS ROW ── */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+        .stat-pill {
+            background: #1a1a2e;
+            border-radius: 3px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 3px solid transparent;
+        }
+        .stat-pill.new-stat     { border-color: #c0392b; }
+        .stat-pill.prog-stat    { border-color: #d68910; }
+        .stat-pill.done-stat    { border-color: #27ae60; }
+        .stat-pill.hist-stat    { border-color: #888; }
 
-        .request-card { background: white; border-radius: 3px; padding: 18px 20px; margin-bottom: 8px; border-left: 3px solid #ddd; box-shadow: 0 1px 4px rgba(26,26,46,0.05); transition: box-shadow 0.2s; }
-        .request-card:hover { box-shadow: 0 3px 12px rgba(26,26,46,0.08); }
+        .stat-num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 32px; font-weight: 600; line-height: 1;
+        }
+        .stat-pill.new-stat  .stat-num { color: #e74c3c; }
+        .stat-pill.prog-stat .stat-num { color: #f39c12; }
+        .stat-pill.done-stat .stat-num { color: #27ae60; }
+        .stat-pill.hist-stat .stat-num { color: #888; }
+
+        .stat-lbl { font-size: 10px; font-weight: 300; color: rgba(248,244,238,0.3); line-height: 1.3; letter-spacing: 0.3px; }
+
+        /* ── SECTION ── */
+        .section { margin-bottom: 28px; }
+
+        .section-header {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .section-bar { width: 3px; height: 18px; border-radius: 2px; }
+        .bar-new     { background: #c0392b; }
+        .bar-prog    { background: #d68910; }
+        .bar-done    { background: #27ae60; }
+        .bar-hist    { background: #555; }
+
+        .section-title-text {
+            font-size: 11px; font-weight: 500;
+            letter-spacing: 2px; text-transform: uppercase;
+        }
+        .new-title  { color: #e74c3c; }
+        .prog-title { color: #f39c12; }
+        .done-title { color: #27ae60; }
+        .hist-title { color: rgba(248,244,238,0.3); }
+
+        /* ── REQUEST CARD ── */
+        .request-card {
+            background: #1a1a2e;
+            border-radius: 3px;
+            padding: 16px 18px;
+            margin-bottom: 8px;
+            border-left: 3px solid transparent;
+            transition: opacity 0.2s, transform 0.15s;
+            position: relative;
+            overflow: hidden;
+        }
+        .request-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 1px;
+            background: rgba(255,255,255,0.03);
+        }
         .request-card.new        { border-color: #c0392b; }
         .request-card.inprogress { border-color: #d68910; }
-        .request-card.done       { border-color: #ccc; opacity: 0.6; }
+        .request-card.done       { border-color: #27ae60; opacity: 0.7; }
+        .request-card.history-card { border-color: #444; opacity: 0.5; }
+        .request-card.updating   { opacity: 0.3; pointer-events: none; }
 
         .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 
-        .dept-badge { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 3px 10px; border-radius: 2px; }
-        .dept-housekeeping { background: #fdecea; color: #c0392b; }
-        .dept-roomservice  { background: #fef9e7; color: #d68910; }
-        .dept-maintenance  { background: #eaf4fb; color: #2980b9; }
-        .dept-concierge    { background: #eafaf1; color: #27ae60; }
-        .dept-general      { background: #f4f4f4; color: #888; }
+        .dept-badge {
+            font-size: 9px; font-weight: 600;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            padding: 3px 9px; border-radius: 2px;
+        }
+        .dept-housekeeping { background: rgba(192,57,43,0.2);  color: #e74c3c; }
+        .dept-roomservice  { background: rgba(214,137,16,0.2); color: #f39c12; }
+        .dept-maintenance  { background: rgba(41,128,185,0.2); color: #5dade2; }
+        .dept-concierge    { background: rgba(39,174,96,0.2);  color: #58d68d; }
+        .dept-general      { background: rgba(255,255,255,0.06); color: #888; }
 
-        .room-tag { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-weight: 600; color: #1a1a2e; }
-        .request-details { font-size: 14px; font-weight: 300; color: #333; line-height: 1.5; margin-bottom: 12px; }
+        .room-tag {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px; font-weight: 600; color: #f8f4ee;
+        }
+
+        .request-details {
+            font-size: 13px; font-weight: 300;
+            color: rgba(248,244,238,0.6);
+            line-height: 1.5; margin-bottom: 12px;
+        }
+
         .card-bottom { display: flex; justify-content: space-between; align-items: center; }
-        .meta { font-size: 11px; font-weight: 300; color: rgba(26,26,46,0.35); }
-        .claimed-by { font-size: 11px; font-weight: 400; color: #d68910; margin-top: 2px; }
+        .meta { font-size: 10px; font-weight: 300; color: rgba(248,244,238,0.2); }
+        .claimed-by { font-size: 10px; font-weight: 400; color: #d68910; margin-top: 2px; }
 
-        .btn-row { display: flex; gap: 8px; }
-        .btn { padding: 7px 16px; border: none; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; cursor: pointer; transition: opacity 0.2s, transform 0.15s; }
-        .btn:hover { opacity: 0.85; transform: translateY(-1px); }
-        .btn-claim { background: #1a1a2e; color: white; }
+        .btn-row { display: flex; gap: 7px; }
+        .btn {
+            padding: 7px 14px;
+            border: none; border-radius: 2px;
+            font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500;
+            cursor: pointer; letter-spacing: 0.3px;
+            transition: opacity 0.15s, transform 0.1s;
+        }
+        .btn:hover  { opacity: 0.85; transform: translateY(-1px); }
+        .btn:active { transform: scale(0.95); }
+        .btn-claim { background: #c9a84c; color: #1a1a2e; }
         .btn-done  { background: #27ae60; color: white; }
-        .btn-undo  { background: #f0efe9; color: #666; }
+        .btn-undo  { background: rgba(255,255,255,0.07); color: rgba(248,244,238,0.5); border: 1px solid rgba(255,255,255,0.08); }
 
-        .empty-state { background: white; border-radius: 3px; padding: 28px; text-align: center; font-size: 13px; font-weight: 300; color: rgba(26,26,46,0.3); border-left: 3px solid #eee; }
+        .empty-state {
+            background: rgba(255,255,255,0.02);
+            border-radius: 3px; padding: 20px;
+            text-align: center;
+            font-size: 12px; font-weight: 300;
+            color: rgba(248,244,238,0.2);
+            border: 1px solid rgba(255,255,255,0.04);
+        }
 
-        @media (max-width: 600px) { .body { padding: 16px; } .header { padding: 14px 16px; } }
+        @media (max-width: 600px) {
+            .body { padding: 14px; }
+            .header { padding: 12px 16px; }
+            .stats-row { grid-template-columns: repeat(2,1fr); }
+            .header-title { display: none; }
+        }
     </style>
 </head>
 <body>
+
+    <!-- LOGIN -->
     <div class="overlay" id="overlay">
         <div class="login-card">
             <div class="login-logo">fav<span>vi</span></div>
@@ -85,17 +243,20 @@
             <p id="hotelNameLogin">Loading...</p>
             <div class="field">
                 <label>Your Name</label>
-                <input type="text" id="staffName" placeholder="Your name" onkeypress="if(event.key==='Enter') checkPassword()" />
+                <input type="text" id="staffName" placeholder="e.g. Ahmed"
+                       onkeypress="if(event.key==='Enter') checkPassword()" />
             </div>
             <div class="field">
                 <label>Staff Password</label>
-                <input type="password" id="staffPassword" placeholder="Enter password" onkeypress="if(event.key==='Enter') checkPassword()" />
+                <input type="password" id="staffPassword" placeholder="Enter password"
+                       onkeypress="if(event.key==='Enter') checkPassword()" />
             </div>
             <button class="login-btn" onclick="checkPassword()">Enter Dashboard</button>
             <p class="login-error" id="loginError">Incorrect password. Try again.</p>
         </div>
     </div>
 
+    <!-- HEADER -->
     <div class="header" id="mainHeader" style="display:none;">
         <div class="header-left">
             <a class="logo" id="backLink" href="#">fav<span>vi</span></a>
@@ -103,22 +264,71 @@
             <span class="header-title">Staff Dashboard</span>
         </div>
         <div class="header-right">
-            <span class="staff-name" id="staffGreeting"></span>
+            <span class="staff-tag" id="staffGreeting"></span>
             <div class="live-pill"><div class="live-dot"></div>Live</div>
         </div>
     </div>
 
+    <!-- BODY -->
     <div class="body" id="mainBody" style="display:none;">
-        <div class="section-label">New Requests <span class="count red" id="countNew">0</span></div>
-        <div id="newRequests"></div>
-        <div class="section-label">In Progress <span class="count amber" id="countProgress">0</span></div>
-        <div id="inProgressRequests"></div>
-        <div class="section-label">Completed Today <span class="count green" id="countDone">0</span></div>
-        <div id="doneRequests"></div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-pill new-stat">
+                <div><div class="stat-num" id="countNew">0</div><div class="stat-lbl">New</div></div>
+            </div>
+            <div class="stat-pill prog-stat">
+                <div><div class="stat-num" id="countProgress">0</div><div class="stat-lbl">In Progress</div></div>
+            </div>
+            <div class="stat-pill done-stat">
+                <div><div class="stat-num" id="countDone">0</div><div class="stat-lbl">Done Today</div></div>
+            </div>
+            <div class="stat-pill hist-stat">
+                <div><div class="stat-num" id="countHistory">0</div><div class="stat-lbl">48hr History</div></div>
+            </div>
+        </div>
+
+        <!-- New -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-bar bar-new"></div>
+                <span class="section-title-text new-title">New Requests</span>
+            </div>
+            <div id="newRequests"></div>
+        </div>
+
+        <!-- In Progress -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-bar bar-prog"></div>
+                <span class="section-title-text prog-title">In Progress</span>
+            </div>
+            <div id="inProgressRequests"></div>
+        </div>
+
+        <!-- Done Today -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-bar bar-done"></div>
+                <span class="section-title-text done-title">Completed Today</span>
+            </div>
+            <div id="doneRequests"></div>
+        </div>
+
+        <!-- History -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-bar bar-hist"></div>
+                <span class="section-title-text hist-title">History — Last 48 Hours</span>
+            </div>
+            <div id="historyRequests"></div>
+        </div>
+
     </div>
 
     <script>
         let staffName = '';
+        let isLoading = false;
         const slug = window.location.pathname.split('/')[2] || '';
 
         async function loadHotelName() {
@@ -136,72 +346,170 @@
             const url = slug ? `/get-hotel/${slug}` : '/hotel-config';
             const r = await fetch(url);
             const config = await r.json();
-            const name = document.getElementById('staffName').value.trim();
-            const pw   = document.getElementById('staffPassword').value;
+            const name  = document.getElementById('staffName').value.trim();
+            const pw    = document.getElementById('staffPassword').value;
             const errEl = document.getElementById('loginError');
+
             if (!name) { errEl.textContent = 'Please enter your name.'; errEl.style.display = 'block'; return; }
             if (pw !== config.staff_password) { errEl.textContent = 'Incorrect password. Try again.'; errEl.style.display = 'block'; return; }
+
             staffName = name;
             document.getElementById('overlay').style.display = 'none';
             document.getElementById('mainHeader').style.display = 'flex';
             document.getElementById('mainBody').style.display = 'block';
             document.getElementById('staffGreeting').textContent = staffName;
+
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                ctx.resume();
+                window._audioCtx = ctx;
+            } catch(e) {}
+
             loadRequests();
-            setInterval(loadRequests, 10000);
+            setInterval(loadRequests, 8000);
         }
 
         function deptBadge(dept) {
-            const map = { housekeeping:['dept-housekeeping','Housekeeping'], roomservice:['dept-roomservice','Room Service'], maintenance:['dept-maintenance','Maintenance'], concierge:['dept-concierge','Concierge'], general:['dept-general','General'] };
+            const map = {
+                housekeeping: ['dept-housekeeping', 'Housekeeping'],
+                roomservice:  ['dept-roomservice',  'Room Service'],
+                maintenance:  ['dept-maintenance',  'Maintenance'],
+                concierge:    ['dept-concierge',    'Concierge'],
+                general:      ['dept-general',      'General'],
+            };
             const [cls, label] = map[dept] || ['dept-general', dept];
             return `<span class="dept-badge ${cls}">${label}</span>`;
         }
 
-        function formatTime(dateStr) { if (!dateStr) return ''; return dateStr.split(' ')[1] || dateStr; }
+        function formatTime(dateStr) {
+            if (!dateStr) return '';
+            const parts = dateStr.split(' ');
+            return parts[1] || dateStr;
+        }
 
-        function renderCard(req) {
-            const isNew = req.status === 'new', isProgress = req.status === 'inprogress', isDone = req.status === 'done';
+        function renderCard(req, isHistory) {
+            const isNew      = req.status === 'new';
+            const isProgress = req.status === 'inprogress';
+            const isDone     = req.status === 'done';
+
             let buttons = '';
-            if (isNew)      buttons = `<div class="btn-row"><button class="btn btn-claim" onclick="claimRequest(${req.id})">I'm on it!</button><button class="btn btn-done" onclick="completeRequest(${req.id})">Done</button></div>`;
-            else if (isProgress) buttons = `<div class="btn-row"><button class="btn btn-done" onclick="completeRequest(${req.id})">Done</button><button class="btn btn-undo" onclick="unclaim(${req.id})">Undo</button></div>`;
-            else if (isDone) buttons = `<div class="btn-row"><button class="btn btn-undo" onclick="undoDone(${req.id})">Undo</button></div>`;
-            return `<div class="request-card ${isProgress?'inprogress':isDone?'done':'new'}" id="card-${req.id}">
-                <div class="card-top">${deptBadge(req.department)}<span class="room-tag">Room ${req.room}</span></div>
+            if (isNew) {
+                buttons = `<div class="btn-row">
+                    <button class="btn btn-claim" onclick="claimRequest(${req.id})">I'm on it!</button>
+                    <button class="btn btn-done"  onclick="completeRequest(${req.id})">Done</button>
+                </div>`;
+            } else if (isProgress) {
+                buttons = `<div class="btn-row">
+                    <button class="btn btn-done" onclick="completeRequest(${req.id})">Done</button>
+                    <button class="btn btn-undo" onclick="unclaim(${req.id})">Undo</button>
+                </div>`;
+            } else if (isDone && !isHistory) {
+                buttons = `<div class="btn-row">
+                    <button class="btn btn-undo" onclick="undoDone(${req.id})">Undo</button>
+                </div>`;
+            }
+
+            const cardClass = isHistory ? 'history-card' : (isProgress ? 'inprogress' : isDone ? 'done' : 'new');
+
+            return `<div class="request-card ${cardClass}" id="card-${req.id}">
+                <div class="card-top">
+                    ${deptBadge(req.department)}
+                    <span class="room-tag">Room ${req.room}</span>
+                </div>
                 <div class="request-details">${req.details}</div>
-                <div class="card-bottom"><div><div class="meta">${formatTime(req.date)}</div>${req.claimed_by?`<div class="claimed-by">${req.claimed_by}</div>`:''}</div>${buttons}</div>
+                <div class="card-bottom">
+                    <div>
+                        <div class="meta">${req.date || ''}</div>
+                        ${req.claimed_by ? `<div class="claimed-by">${req.claimed_by}</div>` : ''}
+                    </div>
+                    ${buttons}
+                </div>
             </div>`;
         }
 
         async function loadRequests() {
-            const prevCount = document.querySelectorAll('#newRequests .request-card').length;
-            const r = await fetch(`/get-requests?slug=${slug}`);
-            const requests = await r.json();
-            const today = new Date().toISOString().split('T')[0];
-            const newReqs = requests.filter(r => r.status === 'new');
-            const inProgress = requests.filter(r => r.status === 'inprogress');
-            const done = requests.filter(r => r.status === 'done' && r.date && r.date.startsWith(today));
-            document.getElementById('countNew').textContent = newReqs.length;
-            document.getElementById('countProgress').textContent = inProgress.length;
-            document.getElementById('countDone').textContent = done.length;
-            document.getElementById('newRequests').innerHTML = newReqs.length ? newReqs.map(renderCard).join('') : '<div class="empty-state">No new requests</div>';
-            document.getElementById('inProgressRequests').innerHTML = inProgress.length ? inProgress.map(renderCard).join('') : '<div class="empty-state">Nothing in progress</div>';
-            document.getElementById('doneRequests').innerHTML = done.length ? done.map(renderCard).join('') : '<div class="empty-state">No completed requests yet today</div>';
-            if (newReqs.length > prevCount && prevCount !== null) {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator(), gain = ctx.createGain();
-                osc.connect(gain); gain.connect(ctx.destination);
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(880, ctx.currentTime);
-                osc.frequency.setValueAtTime(1100, ctx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.3, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-                osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.4);
+            if (isLoading) return;
+            isLoading = true;
+            try {
+                const prevCount = document.querySelectorAll('#newRequests .request-card').length;
+                const r = await fetch(`/get-requests?slug=${slug}`);
+                const requests = await r.json();
+
+                const today = new Date().toISOString().split('T')[0];
+                const now   = new Date();
+                const fortyEightHoursAgo = new Date(now - 48 * 60 * 60 * 1000);
+
+                const newReqs    = requests.filter(r => r.status === 'new');
+                const inProgress = requests.filter(r => r.status === 'inprogress');
+                const done       = requests.filter(r => r.status === 'done' && r.date && r.date.startsWith(today));
+                const history    = requests.filter(r => {
+                    if (r.status !== 'done') return false;
+                    if (!r.date) return false;
+                    if (r.date.startsWith(today)) return false;
+                    const reqDate = new Date(r.date.replace(' ', 'T'));
+                    return reqDate >= fortyEightHoursAgo;
+                });
+
+                document.getElementById('countNew').textContent      = newReqs.length;
+                document.getElementById('countProgress').textContent = inProgress.length;
+                document.getElementById('countDone').textContent     = done.length;
+                document.getElementById('countHistory').textContent  = history.length;
+
+                document.getElementById('newRequests').innerHTML =
+                    newReqs.length ? newReqs.map(r => renderCard(r, false)).join('') :
+                    '<div class="empty-state">No new requests — all clear</div>';
+
+                document.getElementById('inProgressRequests').innerHTML =
+                    inProgress.length ? inProgress.map(r => renderCard(r, false)).join('') :
+                    '<div class="empty-state">Nothing in progress</div>';
+
+                document.getElementById('doneRequests').innerHTML =
+                    done.length ? done.map(r => renderCard(r, false)).join('') :
+                    '<div class="empty-state">No completed requests yet today</div>';
+
+                document.getElementById('historyRequests').innerHTML =
+                    history.length ? history.map(r => renderCard(r, true)).join('') :
+                    '<div class="empty-state">No history in the last 48 hours</div>';
+
+                // Sound alert
+                if (newReqs.length > prevCount) {
+                    try {
+                        const ctx = window._audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+                        if (ctx.state === 'suspended') ctx.resume();
+                        const osc  = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.connect(gain); gain.connect(ctx.destination);
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(880,  ctx.currentTime);
+                        osc.frequency.setValueAtTime(1100, ctx.currentTime + 0.1);
+                        osc.frequency.setValueAtTime(980,  ctx.currentTime + 0.2);
+                        gain.gain.setValueAtTime(0.4, ctx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+                        osc.start(ctx.currentTime);
+                        osc.stop(ctx.currentTime + 0.5);
+                    } catch(e) {}
+                }
+            } catch(e) {
+                console.error(e);
+            } finally {
+                isLoading = false;
             }
         }
 
-        async function claimRequest(id) { await fetch('/update-request', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status:'inprogress',claimed_by:staffName})}); loadRequests(); }
-        async function completeRequest(id) { await fetch('/update-request', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status:'done',claimed_by:staffName})}); loadRequests(); }
-        async function unclaim(id) { await fetch('/update-request', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status:'new',claimed_by:''})}); loadRequests(); }
-        async function undoDone(id) { await fetch('/update-request', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status:'inprogress',claimed_by:staffName})}); loadRequests(); }
+        async function updateRequest(id, status, claimedBy) {
+            const card = document.getElementById(`card-${id}`);
+            if (card) card.classList.add('updating');
+            fetch('/update-request', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, status, claimed_by: claimedBy })
+            }).then(() => loadRequests()).catch(() => loadRequests());
+        }
+
+        function claimRequest(id)    { updateRequest(id, 'inprogress', staffName); }
+        function completeRequest(id) { updateRequest(id, 'done',       staffName); }
+        function unclaim(id)         { updateRequest(id, 'new',        '');        }
+        function undoDone(id)        { updateRequest(id, 'inprogress', staffName); }
     </script>
 </body>
 </html>
