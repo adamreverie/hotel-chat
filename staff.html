@@ -480,22 +480,39 @@
         }
 
         async function requestNotificationPermission() {
-            if (!('Notification' in window) || !('serviceWorker' in navigator)) {
-                alert('Push notifications are not supported on this browser.');
-                return;
-            }
-            const permission = await Notification.requestPermission();
-            if (permission === 'granted') {
-                await subscribeForPush();
-                const btn = document.getElementById('notifBtn');
-                btn.textContent = 'Alerts On';
-                btn.className = 'notif-banner-btn enabled';
-            } else {
-                const btn = document.getElementById('notifBtn');
-                btn.textContent = 'Blocked in Settings';
-                btn.className = 'notif-banner-btn denied';
-            }
+    if (!('Notification' in window)) {
+        alert('Push notifications are not supported on this browser. Please use Safari and add this page to your Home Screen.');
+        return;
+    }
+
+    if (Notification.permission === 'denied') {
+        alert('Notifications are blocked. Go to Settings → Safari → Notifications and allow favvi.ai.');
+        return;
+    }
+
+    if (Notification.permission === 'granted') {
+        await subscribeForPush();
+        document.getElementById('notifBtn').textContent = 'Alerts On';
+        document.getElementById('notifBtn').className = 'notif-banner-btn enabled';
+        return;
+    }
+
+    // Request permission
+    try {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+            await subscribeForPush();
+            document.getElementById('notifBtn').textContent = 'Alerts On';
+            document.getElementById('notifBtn').className = 'notif-banner-btn enabled';
+        } else {
+            document.getElementById('notifBtn').textContent = 'Blocked';
+            document.getElementById('notifBtn').className = 'notif-banner-btn denied';
         }
+    } catch(e) {
+        console.error('Permission error:', e);
+        alert('Could not request permission: ' + e.message);
+    }
+}
 
         async function subscribeForPush() {
             try {
