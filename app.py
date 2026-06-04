@@ -107,6 +107,7 @@ init_db()
 
 def send_push_notifications(hotel_slug, department, title, body, url):
     if not VAPID_PRIVATE_KEY or not VAPID_PUBLIC_KEY:
+        print("VAPID keys missing!")
         return
     try:
         conn = get_conn(); c = conn.cursor()
@@ -115,6 +116,7 @@ def send_push_notifications(hotel_slug, department, title, body, url):
                      WHERE hotel_slug = {ph} AND (department = {ph} OR department = 'all')''',
                   (hotel_slug, department))
         rows = c.fetchall(); conn.close()
+        print(f"Push: found {len(rows)} subscribers for {hotel_slug}/{department}")
 
         for row in rows:
             try:
@@ -130,8 +132,11 @@ def send_push_notifications(hotel_slug, department, title, body, url):
                     vapid_private_key=VAPID_PRIVATE_KEY,
                     vapid_claims={"sub": VAPID_EMAIL}
                 )
-            except WebPushException:
-                pass
+                print("Push sent successfully!")
+            except WebPushException as e:
+                print(f"WebPushException: {e}")
+            except Exception as e:
+                print(f"Push error: {e}")
     except Exception as e:
         print(f"Push notification error: {e}")
 
