@@ -205,12 +205,12 @@
             <div id="doneRequests"></div>
         </div>
 
-        <div class="section">
-            <div class="section-header">
-                <div class="section-bar bar-hist"></div>
+        <div class="section-header" onclick="toggleHistory()" style="cursor:pointer;">
+            <div class="section-bar bar-hist"></div>
                 <span class="section-title-text hist-title">History — Last 48 Hours</span>
-            </div>
-            <div id="historyRequests"></div>
+                <span id="historyArrow" style="margin-left:auto; font-size:11px; color:rgba(26,26,46,0.3); transition: transform 0.3s;">▼</span>
+        </div>
+            <div id="historyRequests" style="display:none;"></div>
         </div>
 
     </div>
@@ -388,6 +388,14 @@
         function completeRequest(id) { updateRequest(id, 'done',       staffName); }
         function unclaim(id)         { updateRequest(id, 'new',        '');        }
         function undoDone(id)        { updateRequest(id, 'inprogress', staffName); }
+
+        function toggleHistory() {
+        const section = document.getElementById('historyRequests');
+        const arrow   = document.getElementById('historyArrow');
+        const isOpen  = section.style.display !== 'none';
+        section.style.display = isOpen ? 'none' : 'block';
+        arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
     </script>
 </body>
 </html>
