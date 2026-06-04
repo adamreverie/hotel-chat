@@ -463,6 +463,11 @@
         // ── NOTIFICATIONS ──
 
         function checkNotifStatus() {
+            function checkNotifStatus() {
+            console.log('Notification support:', 'Notification' in window);
+            console.log('Permission state:', Notification.permission);
+            console.log('Service worker:', 'serviceWorker' in navigator);
+            console.log('Push manager:', 'PushManager' in window);
             const btn = document.getElementById('notifBtn');
             if (!('Notification' in window)) {
                 document.getElementById('notifBanner').style.display = 'none';
