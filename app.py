@@ -5,12 +5,15 @@ STAFF_PASSWORD = "staff2024"
 MANAGER_PASSWORD = "manager2024"
 HOTEL_INFO     = ""
 CURRENT_OFFERS = ""
+
 import os
+import json
 import resend
 import sqlite3
 from datetime import datetime
 from flask import Flask, request, jsonify, send_from_directory
 import anthropic
+from pywebpush import webpush, WebPushException
 
 try:
     import psycopg2
@@ -21,6 +24,10 @@ except ImportError:
 app = Flask(__name__)
 client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 resend.api_key = os.environ.get("RESEND_API_KEY")
+
+VAPID_PUBLIC_KEY  = os.environ.get("VAPID_PUBLIC_KEY")
+VAPID_PRIVATE_KEY = os.environ.get("VAPID_PRIVATE_KEY")
+VAPID_EMAIL       = os.environ.get("VAPID_EMAIL", "mailto:hello@favvi.ai")
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 USE_POSTGRES = bool(DATABASE_URL and HAS_POSTGRES)
@@ -44,7 +51,7 @@ def init_db():
                      guest_name TEXT, room_number TEXT,
                      overall INTEGER, cleanliness INTEGER, staff INTEGER,
                      dining INTEGER, wifi INTEGER,
-                     comment TEXT, date TEXT, hotel_slug TEXT)''')
+                     comment TEXT, date TEXT)''')
         c.execute('''CREATE TABLE IF NOT EXISTS requests (
                      id SERIAL PRIMARY KEY,
                      room_number TEXT, department TEXT, details TEXT,
@@ -57,6 +64,10 @@ def init_db():
                      date_created TEXT,
                      hotel_info TEXT, current_offers TEXT, manager_email TEXT,
                      staff_knowledge TEXT)''')
+        c.execute('''CREATE TABLE IF NOT EXISTS push_subscriptions (
+                     id SERIAL PRIMARY KEY,
+                     hotel_slug TEXT, staff_name TEXT, department TEXT,
+                     subscription TEXT, created_at TEXT)''')
     else:
         c.execute('''CREATE TABLE IF NOT EXISTS feedback
                     (id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -73,11 +84,17 @@ def init_db():
                      name TEXT, slug TEXT UNIQUE, email TEXT, password TEXT,
                      system_prompt TEXT, staff_password TEXT, manager_password TEXT,
                      date_created TEXT)''')
+        c.execute('''CREATE TABLE IF NOT EXISTS push_subscriptions
+                    (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                     hotel_slug TEXT, staff_name TEXT, department TEXT,
+                     subscription TEXT, created_at TEXT)''')
         for col_sql in [
             "ALTER TABLE hotels ADD COLUMN hotel_info TEXT",
             "ALTER TABLE hotels ADD COLUMN current_offers TEXT",
             "ALTER TABLE hotels ADD COLUMN manager_email TEXT",
             "ALTER TABLE hotels ADD COLUMN staff_knowledge TEXT",
+            "ALTER TABLE requests ADD COLUMN hotel_slug TEXT",
+            "ALTER TABLE feedback ADD COLUMN hotel_slug TEXT",
         ]:
             try: c.execute(col_sql)
             except Exception: pass
@@ -86,6 +103,37 @@ def init_db():
     conn.close()
 
 init_db()
+
+
+def send_push_notifications(hotel_slug, department, title, body, url):
+    if not VAPID_PRIVATE_KEY or not VAPID_PUBLIC_KEY:
+        return
+    try:
+        conn = get_conn(); c = conn.cursor()
+        ph = placeholder()
+        c.execute(f'''SELECT subscription FROM push_subscriptions
+                     WHERE hotel_slug = {ph} AND (department = {ph} OR department = 'all')''',
+                  (hotel_slug, department))
+        rows = c.fetchall(); conn.close()
+
+        for row in rows:
+            try:
+                sub = json.loads(row[0])
+                webpush(
+                    subscription_info=sub,
+                    data=json.dumps({
+                        "title": title,
+                        "body":  body,
+                        "url":   url,
+                        "tag":   f"request-{hotel_slug}"
+                    }),
+                    vapid_private_key=VAPID_PRIVATE_KEY,
+                    vapid_claims={"sub": VAPID_EMAIL}
+                )
+            except WebPushException:
+                pass
+    except Exception as e:
+        print(f"Push notification error: {e}")
 
 
 def get_system_prompt(slug=None):
@@ -122,6 +170,8 @@ Never use markdown formatting like #, ##, **, or ---.
 Use plain text only with line breaks for spacing."""
 
 
+# ── PAGE ROUTES ───────────────────────────────────────────────────────────────
+
 @app.route('/')
 def home(): return send_from_directory('.', 'landing.html')
 
@@ -139,6 +189,12 @@ def feedback(): return send_from_directory('.', 'feedback.html')
 
 @app.route('/dashboard')
 def dashboard(): return send_from_directory('.', 'dashboard.html')
+
+@app.route('/sw.js')
+def service_worker(): return send_from_directory('.', 'sw.js', mimetype='application/javascript')
+
+@app.route('/manifest.json')
+def manifest(): return send_from_directory('.', 'manifest.json', mimetype='application/json')
 
 @app.route('/portal/<slug>')
 def portal(slug):
@@ -168,6 +224,9 @@ def portal_staffchat(slug): return send_from_directory('.', 'staffchat.html')
 
 @app.route('/portal/<slug>/links')
 def portal_links(slug): return send_from_directory('.', 'links.html')
+
+
+# ── GUEST CHAT ────────────────────────────────────────────────────────────────
 
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -209,9 +268,9 @@ def chat():
         ph = placeholder()
         conn = get_conn(); c = conn.cursor()
         c.execute(f'''INSERT INTO requests (room_number, department, details, status, date, hotel_slug)
-             VALUES ({ph}, {ph}, {ph}, {ph}, {ph}, {ph})''',
-          (room, department, alert_details, 'new',
-           datetime.now().strftime("%Y-%m-%d %H:%M"), slug))
+                     VALUES ({ph}, {ph}, {ph}, {ph}, {ph}, {ph})''',
+                  (room, department, alert_details, 'new',
+                   datetime.now().strftime("%Y-%m-%d %H:%M"), slug))
         conn.commit(); conn.close()
 
         email_to = MANAGER_EMAIL
@@ -224,15 +283,26 @@ def chat():
         resend.Emails.send({
             "from": "requests@favvi.ai",
             "to": email_to,
-            "subject": f"🛎️ New Request — Room {room}",
+            "subject": f"New Request — Room {room}",
             "html": f"<h2>New Guest Request</h2><p><strong>Department:</strong> {department.title()}</p><p><strong>Details:</strong> {alert_details}</p>"
         })
+
+        # Send push notifications to relevant staff
+        send_push_notifications(
+            hotel_slug=slug,
+            department=department,
+            title=f"New {department.title()} Request",
+            body=f"Room {room} — {alert_details[:80]}",
+            url=f"/portal/{slug}/staff"
+        )
 
         clean_message = assistant_message.replace(alert_line, '').strip()
         return jsonify({"response": clean_message, "history": history})
 
     return jsonify({"response": assistant_message, "history": history})
 
+
+# ── STAFF CHAT ────────────────────────────────────────────────────────────────
 
 @app.route('/staff-chat', methods=['POST'])
 def staff_chat():
@@ -274,6 +344,8 @@ Use bullet points and clear steps when explaining procedures."""
     return jsonify({"response": response.content[0].text})
 
 
+# ── FEEDBACK ──────────────────────────────────────────────────────────────────
+
 @app.route('/submit-feedback', methods=['POST'])
 def submit_feedback():
     data        = request.json
@@ -285,15 +357,15 @@ def submit_feedback():
     dining      = data.get('dining', 0)
     wifi        = data.get('wifi', 0)
     comment     = data.get('comment', '')
+    slug        = data.get('slug', '')
     date        = datetime.now().strftime("%Y-%m-%d %H:%M")
 
     ph = placeholder()
     conn = get_conn(); c = conn.cursor()
     c.execute(f'''INSERT INTO feedback
-              (guest_name, room_number, overall, cleanliness, staff, dining, wifi, comment, date, hotel_slug)
-              VALUES ({ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph})''',
-            (guest_name, room_number, overall, cleanliness, staff, dining, wifi, comment, date, 
-             request.json.get('slug', '')))
+                  (guest_name, room_number, overall, cleanliness, staff, dining, wifi, comment, date, hotel_slug)
+                  VALUES ({ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph})''',
+              (guest_name, room_number, overall, cleanliness, staff, dining, wifi, comment, date, slug))
     conn.commit(); conn.close()
 
     def score_emoji(s): return {1:"😞",2:"😐",3:"🙂",4:"😊",5:"🤩"}.get(s, "N/A")
@@ -301,7 +373,7 @@ def submit_feedback():
     resend.Emails.send({
         "from": "feedback@favvi.ai",
         "to": MANAGER_EMAIL,
-        "subject": f"⭐ New Feedback from Room {room_number}",
+        "subject": f"New Feedback from Room {room_number}",
         "html": f"""<h2>New Guest Feedback</h2>
         <p><strong>Guest:</strong> {guest_name}</p>
         <p><strong>Room:</strong> {room_number}</p>
@@ -320,16 +392,16 @@ def submit_feedback():
 def feedback_stats():
     slug = request.args.get('slug', '')
     conn = get_conn(); c = conn.cursor()
+    ph = placeholder()
     if slug:
-        c.execute(f'SELECT AVG(overall), AVG(cleanliness), AVG(staff), AVG(dining), AVG(wifi), COUNT(*) FROM feedback WHERE hotel_slug = {placeholder()}', (slug,))
+        c.execute(f'SELECT AVG(overall), AVG(cleanliness), AVG(staff), AVG(dining), AVG(wifi), COUNT(*) FROM feedback WHERE hotel_slug = {ph}', (slug,))
         row = c.fetchone()
-        c.execute(f'SELECT * FROM feedback WHERE hotel_slug = {placeholder()} ORDER BY date DESC LIMIT 10', (slug,))
+        c.execute(f'SELECT * FROM feedback WHERE hotel_slug = {ph} ORDER BY date DESC LIMIT 10', (slug,))
     else:
         c.execute('SELECT AVG(overall), AVG(cleanliness), AVG(staff), AVG(dining), AVG(wifi), COUNT(*) FROM feedback')
         row = c.fetchone()
         c.execute('SELECT * FROM feedback ORDER BY date DESC LIMIT 10')
-    recent = c.fetchall()
-    conn.close()
+    recent = c.fetchall(); conn.close()
     return jsonify({
         "averages": {
             "overall":         round(float(row[0] or 0), 1),
@@ -343,12 +415,36 @@ def feedback_stats():
     })
 
 
+@app.route('/send-feedback-email', methods=['POST'])
+def send_feedback_email():
+    data        = request.json
+    guest_email = data.get('email')
+    guest_name  = data.get('name', 'Guest')
+    room_number = data.get('room', '')
+    feedback_link = f"{request.host_url}feedback?room={room_number}&name={guest_name}"
+    resend.Emails.send({
+        "from": "hello@favvi.ai",
+        "to": guest_email,
+        "subject": f"How was your stay?",
+        "html": f"""<div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto;">
+            <h2 style="color: #1a1a2e;">Thank you for staying with us!</h2>
+            <p>Dear {guest_name},</p>
+            <p>We'd love to hear about your experience. It takes less than 30 seconds:</p>
+            <a href="{feedback_link}" style="background: #1a1a2e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; margin: 20px 0;">Share Your Feedback</a>
+        </div>"""
+    })
+    return jsonify({"success": True})
+
+
+# ── STAFF REQUESTS ────────────────────────────────────────────────────────────
+
 @app.route('/get-requests')
 def get_requests():
     slug = request.args.get('slug', '')
     conn = get_conn(); c = conn.cursor()
+    ph = placeholder()
     if slug:
-        c.execute(f'SELECT * FROM requests WHERE hotel_slug = {placeholder()} ORDER BY date DESC', (slug,))
+        c.execute(f'SELECT * FROM requests WHERE hotel_slug = {ph} ORDER BY date DESC', (slug,))
     else:
         c.execute('SELECT * FROM requests ORDER BY date DESC')
     rows = c.fetchall(); conn.close()
@@ -364,7 +460,6 @@ def update_request():
     request_id = data.get('id')
     status     = data.get('status')
     claimed_by = data.get('claimed_by', '')
-
     ph = placeholder()
     conn = get_conn(); c = conn.cursor()
     c.execute(f'UPDATE requests SET status = {ph}, claimed_by = {ph} WHERE id = {ph}',
@@ -372,6 +467,52 @@ def update_request():
     conn.commit(); conn.close()
     return jsonify({"success": True})
 
+
+# ── PUSH NOTIFICATIONS ────────────────────────────────────────────────────────
+
+@app.route('/vapid-public-key')
+def vapid_public_key():
+    return jsonify({"key": VAPID_PUBLIC_KEY})
+
+
+@app.route('/push-subscribe', methods=['POST'])
+def push_subscribe():
+    data       = request.json
+    slug       = data.get('slug')
+    name       = data.get('name')
+    department = data.get('department')
+    sub        = data.get('subscription')
+
+    if not all([slug, name, department, sub]):
+        return jsonify({"success": False, "error": "Missing fields"})
+
+    ph = placeholder()
+    conn = get_conn(); c = conn.cursor()
+    c.execute(f'DELETE FROM push_subscriptions WHERE hotel_slug = {ph} AND staff_name = {ph}',
+              (slug, name))
+    c.execute(f'''INSERT INTO push_subscriptions
+                  (hotel_slug, staff_name, department, subscription, created_at)
+                  VALUES ({ph}, {ph}, {ph}, {ph}, {ph})''',
+              (slug, name, department, json.dumps(sub),
+               datetime.now().strftime("%Y-%m-%d %H:%M")))
+    conn.commit(); conn.close()
+    return jsonify({"success": True})
+
+
+@app.route('/push-unsubscribe', methods=['POST'])
+def push_unsubscribe():
+    data = request.json
+    slug = data.get('slug')
+    name = data.get('name')
+    ph = placeholder()
+    conn = get_conn(); c = conn.cursor()
+    c.execute(f'DELETE FROM push_subscriptions WHERE hotel_slug = {ph} AND staff_name = {ph}',
+              (slug, name))
+    conn.commit(); conn.close()
+    return jsonify({"success": True})
+
+
+# ── HOTEL CONFIG & AUTH ───────────────────────────────────────────────────────
 
 @app.route('/hotel-config')
 def hotel_config():
@@ -428,32 +569,6 @@ def add_hotel():
     return jsonify({"success": True})
 
 
-@app.route('/update-hotel-settings', methods=['POST'])
-def update_hotel_settings():
-    data = request.json
-    slug = data.get('slug')
-    if not slug: return jsonify({"success": False, "error": "No slug provided"})
-
-    ph = placeholder()
-    fields, values = [], []
-    for field in ['name','manager_email','hotel_info','current_offers',
-                  'staff_password','manager_password','staff_knowledge']:
-        if field in data:
-            fields.append(f'{field} = {ph}')
-            values.append(data[field])
-
-    if not fields: return jsonify({"success": False, "error": "Nothing to update"})
-
-    values.append(slug)
-    try:
-        conn = get_conn(); c = conn.cursor()
-        c.execute(f"UPDATE hotels SET {', '.join(fields)} WHERE slug = {ph}", values)
-        conn.commit(); conn.close()
-        return jsonify({"success": True})
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)})
-
-    
 @app.route('/signup', methods=['POST'])
 def signup():
     data       = request.json
@@ -488,6 +603,22 @@ def signup():
                datetime.now().strftime("%Y-%m-%d %H:%M")))
     conn.commit(); conn.close()
 
+    # Notify you of new signup
+    try:
+        resend.Emails.send({
+            "from": "hello@favvi.ai",
+            "to": "hello@favvi.ai",
+            "subject": f"New signup — {hotel_name}",
+            "html": f"""<h2>New Hotel Signed Up</h2>
+            <p><strong>Hotel:</strong> {hotel_name}</p>
+            <p><strong>Email:</strong> {email}</p>
+            <p><strong>Slug:</strong> {slug}</p>
+            <p><strong>Time:</strong> {datetime.now().strftime("%Y-%m-%d %H:%M")}</p>"""
+        })
+    except Exception:
+        pass
+
+    # Welcome email to hotel
     try:
         resend.Emails.send({
             "from": "hello@favvi.ai",
@@ -506,28 +637,50 @@ def signup():
                     <p><strong>Staff Password:</strong> {staff_pw or 'staff2024'}</p>
                     <p><strong>Manager Password:</strong> {manager_pw or 'manager2024'}</p>
                 </div>
-                <h3 style="color: #1a1a2e;">Getting Started</h3>
+                <h3>Getting Started</h3>
                 <ol>
                     <li>Log in and go to <strong>Settings</strong></li>
                     <li>Paste your hotel info, room details and facilities</li>
                     <li>Share <strong>favvi.ai/portal/{slug}/chat</strong> as a QR code in guest rooms</li>
-                    <li>Staff log into <strong>favvi.ai/portal/{slug}/staff</strong> for live requests</li>
+                    <li>Staff log into <strong>favvi.ai/portal/{slug}/staff</strong></li>
                 </ol>
                 <a href="https://favvi.ai/portal/{slug}"
                    style="display:inline-block; background:#1a1a2e; color:white;
                           padding:12px 28px; text-decoration:none; border-radius:4px; margin-top:16px;">
                     Go to Your Portal
                 </a>
-                <p style="color:#999; font-size:12px; margin-top:32px;">
-                    Favvi — AI guest experience platform
-                </p>
-            </div>
-            """
+            </div>"""
         })
     except Exception:
         pass
 
     return jsonify({"success": True, "slug": slug})
+
+
+@app.route('/update-hotel-settings', methods=['POST'])
+def update_hotel_settings():
+    data = request.json
+    slug = data.get('slug')
+    if not slug: return jsonify({"success": False, "error": "No slug provided"})
+
+    ph = placeholder()
+    fields, values = [], []
+    for field in ['name','manager_email','hotel_info','current_offers',
+                  'staff_password','manager_password','staff_knowledge']:
+        if field in data:
+            fields.append(f'{field} = {ph}')
+            values.append(data[field])
+
+    if not fields: return jsonify({"success": False, "error": "Nothing to update"})
+
+    values.append(slug)
+    try:
+        conn = get_conn(); c = conn.cursor()
+        c.execute(f"UPDATE hotels SET {', '.join(fields)} WHERE slug = {ph}", values)
+        conn.commit(); conn.close()
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
 
 
 if __name__ == '__main__':

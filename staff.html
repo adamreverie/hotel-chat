@@ -2,7 +2,11 @@
 <html>
 <head>
     <title>Staff Dashboard — Favvi</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="theme-color" content="#1a1a2e">
+    <link rel="manifest" href="/manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -11,13 +15,15 @@
             font-family: 'DM Sans', sans-serif;
             background: #f0efe9;
             min-height: 100vh;
+            min-height: 100dvh;
             color: #1a1a2e;
         }
 
         /* ── HEADER ── */
         .header {
             background: #1a1a2e;
-            padding: 16px 28px;
+            padding: 14px 20px;
+            padding-top: max(14px, env(safe-area-inset-top));
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -25,53 +31,180 @@
             top: 0;
             z-index: 100;
         }
-        .header-left { display: flex; align-items: center; gap: 14px; }
+        .header-left { display: flex; align-items: center; gap: 12px; }
         .logo { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: #f8f4ee; letter-spacing: 3px; text-decoration: none; }
         .logo span { color: #c9a84c; }
         .divider-v { width: 1px; height: 18px; background: rgba(255,255,255,0.1); }
         .header-title { font-size: 12px; font-weight: 400; color: rgba(248,244,238,0.5); }
-        .header-right { display: flex; align-items: center; gap: 12px; }
+        .header-right { display: flex; align-items: center; gap: 10px; }
         .staff-tag { background: rgba(201,168,76,0.15); border: 1px solid rgba(201,168,76,0.25); color: #c9a84c; font-size: 11px; font-weight: 500; padding: 4px 12px; border-radius: 20px; }
         .live-pill { display: flex; align-items: center; gap: 5px; font-size: 10px; color: rgba(76,175,80,0.9); }
         .live-dot { width: 6px; height: 6px; background: #4CAF50; border-radius: 50%; animation: blink 1.5s infinite; }
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-        /* ── LOGIN ── */
-        .overlay { position: fixed; inset: 0; background: #f0efe9; display: flex; justify-content: center; align-items: center; z-index: 200; }
-        .login-card { background: white; border-radius: 3px; padding: 48px 40px; width: 360px; box-shadow: 0 4px 24px rgba(26,26,46,0.08); border-left: 3px solid #4a7fa5; }
+        /* ── LOGIN OVERLAY ── */
+        .overlay {
+            position: fixed; inset: 0;
+            background: #f0efe9;
+            display: flex; justify-content: center; align-items: center;
+            z-index: 200;
+            padding: 20px;
+        }
+        .login-card {
+            background: white;
+            border-radius: 3px;
+            padding: 40px 36px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 4px 24px rgba(26,26,46,0.08);
+            border-left: 3px solid #4a7fa5;
+        }
         .login-logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: #1a1a2e; letter-spacing: 3px; margin-bottom: 4px; }
         .login-logo span { color: #c9a84c; }
         .login-card h2 { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; color: #2e5f80; margin-bottom: 6px; }
-        .login-card p { font-size: 12px; font-weight: 300; color: rgba(26,26,46,0.4); margin-bottom: 28px; }
+        .login-card p { font-size: 12px; font-weight: 300; color: rgba(26,26,46,0.4); margin-bottom: 24px; }
+
         .field { margin-bottom: 14px; }
         .field label { display: block; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(26,26,46,0.4); margin-bottom: 7px; }
-        .field input { width: 100%; padding: 12px 14px; border: 1px solid #e8e8e8; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 300; color: #1a1a2e; background: #fafafa; outline: none; transition: border-color 0.2s; }
-        .field input:focus { border-color: #4a7fa5; background: white; }
-        .login-btn { width: 100%; padding: 13px; background: #1a1a2e; color: white; border: none; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; margin-top: 6px; transition: opacity 0.2s; }
+        .field input, .field select {
+            width: 100%; padding: 12px 14px;
+            border: 1px solid #e8e8e8; border-radius: 2px;
+            font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 300;
+            color: #1a1a2e; background: #fafafa; outline: none;
+            transition: border-color 0.2s;
+            -webkit-appearance: none;
+        }
+        .field input:focus, .field select:focus { border-color: #4a7fa5; background: white; }
+
+        /* Department selector */
+        .dept-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 4px;
+        }
+        .dept-option {
+            padding: 10px 12px;
+            border: 1.5px solid #e8e8e8;
+            border-radius: 2px;
+            background: #fafafa;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12px;
+            font-weight: 400;
+            color: rgba(26,26,46,0.6);
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .dept-option:hover { border-color: #4a7fa5; }
+        .dept-option.selected {
+            border-color: #1a1a2e;
+            background: #1a1a2e;
+            color: white;
+            font-weight: 500;
+        }
+        .dept-option.selected.dept-all    { background: #1a1a2e; border-color: #1a1a2e; }
+        .dept-option.selected.dept-hk     { background: #c0392b; border-color: #c0392b; }
+        .dept-option.selected.dept-rs     { background: #d68910; border-color: #d68910; }
+        .dept-option.selected.dept-maint  { background: #2980b9; border-color: #2980b9; }
+        .dept-option.selected.dept-conc   { background: #27ae60; border-color: #27ae60; }
+
+        .login-btn {
+            width: 100%; padding: 13px;
+            background: #1a1a2e; color: white;
+            border: none; border-radius: 2px;
+            font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+            cursor: pointer; margin-top: 6px; transition: opacity 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
         .login-btn:hover { opacity: 0.85; }
         .login-error { color: #e57373; font-size: 12px; margin-top: 10px; display: none; }
 
+        /* ── NOTIFICATION BANNER ── */
+        .notif-banner {
+            background: rgba(74,127,165,0.08);
+            border: 1px solid rgba(74,127,165,0.2);
+            border-radius: 3px;
+            padding: 12px 16px;
+            margin: 16px 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+        .notif-banner-text { font-size: 12px; font-weight: 300; color: #2e5f80; line-height: 1.5; }
+        .notif-banner-btn {
+            background: #4a7fa5; color: white;
+            border: none; border-radius: 2px;
+            padding: 8px 14px;
+            font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500;
+            cursor: pointer; white-space: nowrap;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .notif-banner-btn:hover { opacity: 0.85; }
+        .notif-banner-btn.enabled {
+            background: #27ae60;
+        }
+        .notif-banner-btn.denied {
+            background: #888;
+            cursor: default;
+        }
+
         /* ── BODY ── */
-        .body { padding: 24px 28px; max-width: 760px; margin: 0 auto; }
+        .body {
+            padding: 16px 20px 40px;
+            max-width: 760px;
+            margin: 0 auto;
+        }
 
         /* ── STATS ROW ── */
-        .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 28px; }
-        .stat-pill { background: white; border-radius: 3px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; border-left: 3px solid transparent; box-shadow: 0 1px 4px rgba(26,26,46,0.06); }
+        .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 20px; }
+        .stat-pill { background: white; border-radius: 3px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; border-left: 3px solid transparent; box-shadow: 0 1px 4px rgba(26,26,46,0.06); }
         .stat-pill.new-stat  { border-color: #c0392b; }
         .stat-pill.prog-stat { border-color: #d68910; }
         .stat-pill.done-stat { border-color: #27ae60; }
         .stat-pill.hist-stat { border-color: #bbb; }
-        .stat-num { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 600; line-height: 1; }
+        .stat-num { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; line-height: 1; }
         .stat-pill.new-stat  .stat-num { color: #c0392b; }
         .stat-pill.prog-stat .stat-num { color: #d68910; }
         .stat-pill.done-stat .stat-num { color: #27ae60; }
         .stat-pill.hist-stat .stat-num { color: #bbb; }
-        .stat-lbl { font-size: 10px; font-weight: 300; color: rgba(26,26,46,0.4); line-height: 1.4; letter-spacing: 0.3px; }
+        .stat-lbl { font-size: 9px; font-weight: 300; color: rgba(26,26,46,0.4); line-height: 1.4; letter-spacing: 0.3px; }
+
+        /* ── DEPT FILTER BAR ── */
+        .dept-filter {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding-bottom: 2px;
+        }
+        .dept-filter::-webkit-scrollbar { display: none; }
+        .filter-btn {
+            white-space: nowrap;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1.5px solid #e8e8e8;
+            background: white;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 11px; font-weight: 400;
+            color: rgba(26,26,46,0.5);
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .filter-btn.active { border-color: #1a1a2e; background: #1a1a2e; color: white; font-weight: 500; }
+        .filter-btn.active.f-hk    { background: #c0392b; border-color: #c0392b; }
+        .filter-btn.active.f-rs    { background: #d68910; border-color: #d68910; }
+        .filter-btn.active.f-maint { background: #2980b9; border-color: #2980b9; }
+        .filter-btn.active.f-conc  { background: #27ae60; border-color: #27ae60; }
 
         /* ── SECTION ── */
-        .section { margin-bottom: 28px; }
-        .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(26,26,46,0.06); }
-        .section-bar { width: 3px; height: 16px; border-radius: 2px; flex-shrink: 0; }
+        .section { margin-bottom: 20px; }
+        .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(26,26,46,0.06); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .section-bar { width: 3px; height: 14px; border-radius: 2px; flex-shrink: 0; }
         .bar-new  { background: #c0392b; }
         .bar-prog { background: #d68910; }
         .bar-done { background: #27ae60; }
@@ -81,44 +214,58 @@
         .prog-title { color: #d68910; }
         .done-title { color: #27ae60; }
         .hist-title { color: rgba(26,26,46,0.3); }
+        .section-arrow { margin-left: auto; font-size: 10px; color: rgba(26,26,46,0.25); transition: transform 0.3s; }
 
         /* ── REQUEST CARD ── */
-        .request-card { background: white; border-radius: 3px; padding: 16px 18px; margin-bottom: 8px; border-left: 3px solid #eee; box-shadow: 0 1px 4px rgba(26,26,46,0.05); transition: opacity 0.2s, box-shadow 0.2s; }
-        .request-card:hover { box-shadow: 0 3px 12px rgba(26,26,46,0.08); }
+        .request-card {
+            background: white;
+            border-radius: 3px;
+            padding: 14px 16px;
+            margin-bottom: 7px;
+            border-left: 3px solid #eee;
+            box-shadow: 0 1px 4px rgba(26,26,46,0.05);
+            transition: opacity 0.2s, box-shadow 0.15s;
+        }
+        .request-card:hover { box-shadow: 0 3px 10px rgba(26,26,46,0.08); }
         .request-card.new        { border-color: #c0392b; }
         .request-card.inprogress { border-color: #d68910; }
-        .request-card.done       { border-color: #27ae60; opacity: 0.75; }
-        .request-card.history-card { border-color: #ddd; opacity: 0.55; }
+        .request-card.done       { border-color: #27ae60; opacity: 0.7; }
+        .request-card.history-card { border-color: #ddd; opacity: 0.5; }
         .request-card.updating   { opacity: 0.3; pointer-events: none; }
 
-        .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .dept-badge { font-size: 9px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 3px 9px; border-radius: 2px; }
+        .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; }
+        .dept-badge { font-size: 9px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 2px 8px; border-radius: 2px; }
         .dept-housekeeping { background: #fdecea; color: #c0392b; }
         .dept-roomservice  { background: #fef9e7; color: #d68910; }
         .dept-maintenance  { background: #eaf4fb; color: #2980b9; }
         .dept-concierge    { background: #eafaf1; color: #27ae60; }
         .dept-general      { background: #f4f4f4; color: #888; }
 
-        .room-tag { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600; color: #1a1a2e; }
-        .request-details { font-size: 13px; font-weight: 300; color: rgba(26,26,46,0.6); line-height: 1.5; margin-bottom: 12px; }
+        .room-tag { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 600; color: #1a1a2e; }
+        .request-details { font-size: 13px; font-weight: 300; color: rgba(26,26,46,0.65); line-height: 1.5; margin-bottom: 10px; }
         .card-bottom { display: flex; justify-content: space-between; align-items: center; }
         .meta { font-size: 10px; font-weight: 300; color: rgba(26,26,46,0.3); }
         .claimed-by { font-size: 10px; font-weight: 400; color: #d68910; margin-top: 2px; }
 
-        .btn-row { display: flex; gap: 7px; }
-        .btn { padding: 7px 14px; border: none; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500; cursor: pointer; transition: opacity 0.15s, transform 0.1s; }
-        .btn:hover  { opacity: 0.85; transform: translateY(-1px); }
+        .btn-row { display: flex; gap: 6px; }
+        .btn {
+            padding: 7px 14px;
+            border: none; border-radius: 2px;
+            font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500;
+            cursor: pointer; transition: opacity 0.15s, transform 0.1s;
+            -webkit-tap-highlight-color: transparent;
+        }
         .btn:active { transform: scale(0.95); }
         .btn-claim { background: #1a1a2e; color: white; }
         .btn-done  { background: #27ae60; color: white; }
         .btn-undo  { background: #f0efe9; color: #666; }
 
-        .empty-state { background: white; border-radius: 3px; padding: 20px; text-align: center; font-size: 12px; font-weight: 300; color: rgba(26,26,46,0.3); border: 1px solid rgba(26,26,46,0.04); }
+        .empty-state { background: white; border-radius: 3px; padding: 18px; text-align: center; font-size: 12px; font-weight: 300; color: rgba(26,26,46,0.3); border: 1px solid rgba(26,26,46,0.04); }
 
         @media (max-width: 600px) {
-            .body { padding: 14px; }
-            .header { padding: 12px 16px; }
-            .stats-row { grid-template-columns: repeat(2,1fr); }
+            .body { padding: 12px 14px 40px; }
+            .header { padding: 12px 14px; }
+            .stats-row { grid-template-columns: repeat(2,1fr); gap: 6px; }
             .header-title { display: none; }
         }
     </style>
@@ -131,16 +278,31 @@
             <div class="login-logo">fav<span>vi</span></div>
             <h2>Staff Dashboard</h2>
             <p id="hotelNameLogin">Loading...</p>
+
             <div class="field">
                 <label>Your Name</label>
-                <input type="text" id="staffName" placeholder="Your name"
+                <input type="text" id="staffName" placeholder="Enter your name"
+                       autocomplete="name"
                        onkeypress="if(event.key==='Enter') checkPassword()" />
             </div>
+
+            <div class="field">
+                <label>Your Department</label>
+                <div class="dept-grid">
+                    <div class="dept-option dept-all selected" data-dept="all" onclick="selectDept(this)">All Departments</div>
+                    <div class="dept-option dept-hk"   data-dept="housekeeping" onclick="selectDept(this)">Housekeeping</div>
+                    <div class="dept-option dept-rs"   data-dept="roomservice"  onclick="selectDept(this)">Room Service</div>
+                    <div class="dept-option dept-maint" data-dept="maintenance"  onclick="selectDept(this)">Maintenance</div>
+                    <div class="dept-option dept-conc" data-dept="concierge"    onclick="selectDept(this)">Concierge</div>
+                </div>
+            </div>
+
             <div class="field">
                 <label>Staff Password</label>
                 <input type="password" id="staffPassword" placeholder="Enter password"
                        onkeypress="if(event.key==='Enter') checkPassword()" />
             </div>
+
             <button class="login-btn" onclick="checkPassword()">Enter Dashboard</button>
             <p class="login-error" id="loginError">Incorrect password. Try again.</p>
         </div>
@@ -151,7 +313,7 @@
         <div class="header-left">
             <a class="logo" id="backLink" href="#">fav<span>vi</span></a>
             <div class="divider-v"></div>
-            <span class="header-title">Staff Dashboard</span>
+            <span class="header-title" id="deptLabel">All Departments</span>
         </div>
         <div class="header-right">
             <span class="staff-tag" id="staffGreeting"></span>
@@ -159,28 +321,33 @@
         </div>
     </div>
 
+    <!-- NOTIFICATION BANNER -->
+    <div class="notif-banner" id="notifBanner" style="display:none;">
+        <div class="notif-banner-text">Get notified instantly when a new request arrives — even with the screen off.</div>
+        <button class="notif-banner-btn" id="notifBtn" onclick="requestNotificationPermission()">Enable Alerts</button>
+    </div>
+
     <!-- BODY -->
     <div class="body" id="mainBody" style="display:none;">
 
+        <!-- Stats -->
         <div class="stats-row">
-            <div class="stat-pill new-stat">
-                <div class="stat-num" id="countNew">0</div>
-                <div class="stat-lbl">New<br>Requests</div>
-            </div>
-            <div class="stat-pill prog-stat">
-                <div class="stat-num" id="countProgress">0</div>
-                <div class="stat-lbl">In<br>Progress</div>
-            </div>
-            <div class="stat-pill done-stat">
-                <div class="stat-num" id="countDone">0</div>
-                <div class="stat-lbl">Done<br>Today</div>
-            </div>
-            <div class="stat-pill hist-stat">
-                <div class="stat-num" id="countHistory">0</div>
-                <div class="stat-lbl">48hr<br>History</div>
-            </div>
+            <div class="stat-pill new-stat"><div class="stat-num" id="countNew">0</div><div class="stat-lbl">New</div></div>
+            <div class="stat-pill prog-stat"><div class="stat-num" id="countProgress">0</div><div class="stat-lbl">In Progress</div></div>
+            <div class="stat-pill done-stat"><div class="stat-num" id="countDone">0</div><div class="stat-lbl">Done Today</div></div>
+            <div class="stat-pill hist-stat"><div class="stat-num" id="countHistory">0</div><div class="stat-lbl">48hr History</div></div>
         </div>
 
+        <!-- Department filter bar -->
+        <div class="dept-filter" id="deptFilter">
+            <button class="filter-btn active" data-filter="all" onclick="setFilter('all', this)">All</button>
+            <button class="filter-btn f-hk"    data-filter="housekeeping" onclick="setFilter('housekeeping', this)">Housekeeping</button>
+            <button class="filter-btn f-rs"    data-filter="roomservice"  onclick="setFilter('roomservice', this)">Room Service</button>
+            <button class="filter-btn f-maint" data-filter="maintenance"  onclick="setFilter('maintenance', this)">Maintenance</button>
+            <button class="filter-btn f-conc"  data-filter="concierge"    onclick="setFilter('concierge', this)">Concierge</button>
+        </div>
+
+        <!-- New -->
         <div class="section">
             <div class="section-header">
                 <div class="section-bar bar-new"></div>
@@ -189,6 +356,7 @@
             <div id="newRequests"></div>
         </div>
 
+        <!-- In Progress -->
         <div class="section">
             <div class="section-header">
                 <div class="section-bar bar-prog"></div>
@@ -197,6 +365,7 @@
             <div id="inProgressRequests"></div>
         </div>
 
+        <!-- Done Today -->
         <div class="section">
             <div class="section-header">
                 <div class="section-bar bar-done"></div>
@@ -205,20 +374,29 @@
             <div id="doneRequests"></div>
         </div>
 
-        <div class="section-header" onclick="toggleHistory()" style="cursor:pointer;">
-            <div class="section-bar bar-hist"></div>
+        <!-- History — collapsed by default -->
+        <div class="section">
+            <div class="section-header" onclick="toggleHistory()">
+                <div class="section-bar bar-hist"></div>
                 <span class="section-title-text hist-title">History — Last 48 Hours</span>
-                <span id="historyArrow" style="margin-left:auto; font-size:11px; color:rgba(26,26,46,0.3); transition: transform 0.3s;">▼</span>
-        </div>
+                <span class="section-arrow" id="historyArrow">▼</span>
+            </div>
             <div id="historyRequests" style="display:none;"></div>
         </div>
 
     </div>
 
     <script>
-        let staffName = '';
-        let isLoading = false;
+        let staffName   = '';
+        let staffDept   = 'all';
+        let activeFilter = 'all';
+        let isLoading   = false;
         const slug = window.location.pathname.split('/')[2] || '';
+
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(e => console.log('SW error:', e));
+        }
 
         async function loadHotelName() {
             try {
@@ -230,6 +408,12 @@
             } catch(e) {}
         }
         loadHotelName();
+
+        function selectDept(el) {
+            document.querySelectorAll('.dept-option').forEach(d => d.classList.remove('selected'));
+            el.classList.add('selected');
+            staffDept = el.dataset.dept;
+        }
 
         async function checkPassword() {
             const url = slug ? `/get-hotel/${slug}` : '/hotel-config';
@@ -243,20 +427,119 @@
             if (pw !== config.staff_password) { errEl.textContent = 'Incorrect password. Try again.'; errEl.style.display = 'block'; return; }
 
             staffName = name;
+
+            // Set department filter to match login selection
+            activeFilter = staffDept;
+
             document.getElementById('overlay').style.display = 'none';
             document.getElementById('mainHeader').style.display = 'flex';
+            document.getElementById('notifBanner').style.display = 'flex';
             document.getElementById('mainBody').style.display = 'block';
             document.getElementById('staffGreeting').textContent = staffName;
 
+            // Update dept label in header
+            const deptNames = {all:'All Departments', housekeeping:'Housekeeping', roomservice:'Room Service', maintenance:'Maintenance', concierge:'Concierge', general:'General'};
+            document.getElementById('deptLabel').textContent = deptNames[staffDept] || 'All Departments';
+
+            // Set active filter button to match
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === staffDept);
+            });
+
+            // Unlock audio
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
                 ctx.resume();
                 window._audioCtx = ctx;
             } catch(e) {}
 
+            // Check notification permission
+            checkNotifStatus();
+
             loadRequests();
             setInterval(loadRequests, 8000);
         }
+
+        // ── NOTIFICATIONS ──
+
+        function checkNotifStatus() {
+            const btn = document.getElementById('notifBtn');
+            if (!('Notification' in window)) {
+                document.getElementById('notifBanner').style.display = 'none';
+                return;
+            }
+            if (Notification.permission === 'granted') {
+                btn.textContent = 'Alerts On';
+                btn.className = 'notif-banner-btn enabled';
+                // Auto-subscribe
+                subscribeForPush();
+            } else if (Notification.permission === 'denied') {
+                btn.textContent = 'Blocked';
+                btn.className = 'notif-banner-btn denied';
+            }
+        }
+
+        async function requestNotificationPermission() {
+            if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+                alert('Push notifications are not supported on this browser.');
+                return;
+            }
+            const permission = await Notification.requestPermission();
+            if (permission === 'granted') {
+                await subscribeForPush();
+                const btn = document.getElementById('notifBtn');
+                btn.textContent = 'Alerts On';
+                btn.className = 'notif-banner-btn enabled';
+            } else {
+                const btn = document.getElementById('notifBtn');
+                btn.textContent = 'Blocked in Settings';
+                btn.className = 'notif-banner-btn denied';
+            }
+        }
+
+        async function subscribeForPush() {
+            try {
+                const keyRes = await fetch('/vapid-public-key');
+                const { key } = await keyRes.json();
+
+                const reg = await navigator.serviceWorker.ready;
+                const sub = await reg.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: urlBase64ToUint8Array(key)
+                });
+
+                await fetch('/push-subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        slug,
+                        name:         staffName,
+                        department:   staffDept,
+                        subscription: sub.toJSON()
+                    })
+                });
+            } catch(e) {
+                console.log('Push subscription error:', e);
+            }
+        }
+
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64  = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            return new Uint8Array([...rawData].map(char => char.charCodeAt(0)));
+        }
+
+        // ── FILTER ──
+
+        function setFilter(filter, btn) {
+            activeFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderAll(window._lastRequests || []);
+        }
+
+        // ── RENDER ──
 
         function deptBadge(dept) {
             const map = {
@@ -268,6 +551,11 @@
             };
             const [cls, label] = map[dept] || ['dept-general', dept];
             return `<span class="dept-badge ${cls}">${label}</span>`;
+        }
+
+        function matchesFilter(req) {
+            if (activeFilter === 'all') return true;
+            return req.department === activeFilter;
         }
 
         function renderCard(req, isHistory) {
@@ -310,61 +598,70 @@
             </div>`;
         }
 
+        function renderAll(requests) {
+            const today = new Date().toISOString().split('T')[0];
+            const now   = new Date();
+            const fortyEightHoursAgo = new Date(now - 48 * 60 * 60 * 1000);
+
+            const newReqs    = requests.filter(r => r.status === 'new' && matchesFilter(r));
+            const inProgress = requests.filter(r => r.status === 'inprogress' && matchesFilter(r));
+            const done       = requests.filter(r => r.status === 'done' && r.date && r.date.startsWith(today) && matchesFilter(r));
+            const history    = requests.filter(r => {
+                if (r.status !== 'done' || !r.date || r.date.startsWith(today)) return false;
+                if (!matchesFilter(r)) return false;
+                return new Date(r.date.replace(' ', 'T')) >= fortyEightHoursAgo;
+            });
+
+            document.getElementById('countNew').textContent      = requests.filter(r => r.status === 'new').length;
+            document.getElementById('countProgress').textContent = requests.filter(r => r.status === 'inprogress').length;
+            document.getElementById('countDone').textContent     = requests.filter(r => r.status === 'done' && r.date && r.date.startsWith(today)).length;
+            document.getElementById('countHistory').textContent  = requests.filter(r => {
+                if (r.status !== 'done' || !r.date || r.date.startsWith(today)) return false;
+                return new Date(r.date.replace(' ', 'T')) >= fortyEightHoursAgo;
+            }).length;
+
+            document.getElementById('newRequests').innerHTML =
+                newReqs.length ? newReqs.map(r => renderCard(r, false)).join('') :
+                '<div class="empty-state">No new requests — all clear</div>';
+
+            document.getElementById('inProgressRequests').innerHTML =
+                inProgress.length ? inProgress.map(r => renderCard(r, false)).join('') :
+                '<div class="empty-state">Nothing in progress</div>';
+
+            document.getElementById('doneRequests').innerHTML =
+                done.length ? done.map(r => renderCard(r, false)).join('') :
+                '<div class="empty-state">No completed requests yet today</div>';
+
+            document.getElementById('historyRequests').innerHTML =
+                history.length ? history.map(r => renderCard(r, true)).join('') :
+                '<div class="empty-state">No history in the last 48 hours</div>';
+        }
+
         async function loadRequests() {
             if (isLoading) return;
             isLoading = true;
             try {
-                const prevCount = document.querySelectorAll('#newRequests .request-card').length;
+                const prevCount = (window._lastRequests || []).filter(r => r.status === 'new').length;
                 const r = await fetch(`/get-requests?slug=${slug}`);
                 const requests = await r.json();
+                window._lastRequests = requests;
 
-                const today = new Date().toISOString().split('T')[0];
-                const now   = new Date();
-                const fortyEightHoursAgo = new Date(now - 48 * 60 * 60 * 1000);
+                renderAll(requests);
 
-                const newReqs    = requests.filter(r => r.status === 'new');
-                const inProgress = requests.filter(r => r.status === 'inprogress');
-                const done       = requests.filter(r => r.status === 'done' && r.date && r.date.startsWith(today));
-                const history    = requests.filter(r => {
-                    if (r.status !== 'done' || !r.date || r.date.startsWith(today)) return false;
-                    return new Date(r.date.replace(' ', 'T')) >= fortyEightHoursAgo;
-                });
-
-                document.getElementById('countNew').textContent      = newReqs.length;
-                document.getElementById('countProgress').textContent = inProgress.length;
-                document.getElementById('countDone').textContent     = done.length;
-                document.getElementById('countHistory').textContent  = history.length;
-
-                document.getElementById('newRequests').innerHTML =
-                    newReqs.length ? newReqs.map(r => renderCard(r, false)).join('') :
-                    '<div class="empty-state">No new requests — all clear</div>';
-
-                document.getElementById('inProgressRequests').innerHTML =
-                    inProgress.length ? inProgress.map(r => renderCard(r, false)).join('') :
-                    '<div class="empty-state">Nothing in progress</div>';
-
-                document.getElementById('doneRequests').innerHTML =
-                    done.length ? done.map(r => renderCard(r, false)).join('') :
-                    '<div class="empty-state">No completed requests yet today</div>';
-
-                document.getElementById('historyRequests').innerHTML =
-                    history.length ? history.map(r => renderCard(r, true)).join('') :
-                    '<div class="empty-state">No history in the last 48 hours</div>';
-
-                if (newReqs.length > prevCount) {
+                const newCount = requests.filter(r => r.status === 'new').length;
+                if (newCount > prevCount) {
                     try {
                         const ctx = window._audioCtx || new (window.AudioContext || window.webkitAudioContext)();
                         if (ctx.state === 'suspended') ctx.resume();
                         const osc = ctx.createOscillator(), gain = ctx.createGain();
                         osc.connect(gain); gain.connect(ctx.destination);
                         osc.type = 'sine';
-                        osc.frequency.setValueAtTime(880,  ctx.currentTime);
+                        osc.frequency.setValueAtTime(880, ctx.currentTime);
                         osc.frequency.setValueAtTime(1100, ctx.currentTime + 0.1);
-                        osc.frequency.setValueAtTime(980,  ctx.currentTime + 0.2);
+                        osc.frequency.setValueAtTime(980, ctx.currentTime + 0.2);
                         gain.gain.setValueAtTime(0.4, ctx.currentTime);
                         gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
-                        osc.start(ctx.currentTime);
-                        osc.stop(ctx.currentTime + 0.5);
+                        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.5);
                     } catch(e) {}
                 }
             } catch(e) {
@@ -390,11 +687,11 @@
         function undoDone(id)        { updateRequest(id, 'inprogress', staffName); }
 
         function toggleHistory() {
-        const section = document.getElementById('historyRequests');
-        const arrow   = document.getElementById('historyArrow');
-        const isOpen  = section.style.display !== 'none';
-        section.style.display = isOpen ? 'none' : 'block';
-        arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+            const section = document.getElementById('historyRequests');
+            const arrow   = document.getElementById('historyArrow');
+            const isOpen  = section.style.display !== 'none';
+            section.style.display = isOpen ? 'none' : 'block';
+            arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
         }
     </script>
 </body>
