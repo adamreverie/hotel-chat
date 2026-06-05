@@ -584,6 +584,13 @@
     });
   }, { threshold: 0.1 });
   reveals.forEach(el => observer.observe(el));
+
+    // Auto-redirect if already logged in
+  const savedSlug = localStorage.getItem('favvi_hotel_slug');
+  if (savedSlug) {
+      window.location.href = `/portal/${savedSlug}`;
+  }
+
 </script>
 </body>
 </html>
