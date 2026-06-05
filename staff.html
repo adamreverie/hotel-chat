@@ -107,15 +107,6 @@
         .notif-banner-btn.enabled { background: #27ae60; }
         .notif-banner-btn.denied  { background: #888; cursor: default; }
 
-        /* Debug box */
-        .debug-box {
-            background: #1a1a2e; color: #c9a84c;
-            font-size: 11px; font-family: monospace;
-            padding: 12px 16px; margin: 8px 20px;
-            border-radius: 3px; line-height: 1.8;
-            display: none;
-        }
-
         .body { padding: 16px 20px 40px; max-width: 760px; margin: 0 auto; }
 
         .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 20px; }
@@ -265,9 +256,6 @@
         <div class="notif-banner-text">Get notified instantly when a new request arrives.</div>
         <button class="notif-banner-btn" id="notifBtn" onclick="requestNotificationPermission()">Enable Alerts</button>
     </div>
-
-    <!-- DEBUG BOX -->
-    <div class="debug-box" id="debugBox"></div>
 
     <!-- BODY -->
     <div class="body" id="mainBody" style="display:none;">
@@ -445,17 +433,12 @@
         // ── NOTIFICATIONS ──
 
         function checkNotifStatus() {
-            const btn   = document.getElementById('notifBtn');
-            const debug = document.getElementById('debugBox');
-
+            const btn = document.getElementById('notifBtn');
             const hasNotif  = 'Notification' in window;
             const hasSW     = 'serviceWorker' in navigator;
             const hasPush   = 'PushManager' in window;
             const permission = hasNotif ? Notification.permission : 'N/A';
             const standalone = window.navigator.standalone;
-
-            debug.style.display = 'block';
-            debug.innerHTML = `Notification: ${hasNotif} | SW: ${hasSW} | Push: ${hasPush}<br>Permission: ${permission} | Standalone: ${standalone}`;
 
             if (!hasNotif || !hasSW || !hasPush) {
                 btn.textContent  = 'Not Supported';
@@ -485,24 +468,21 @@
                 return;
             }
 
-            debug.innerHTML += '<br>Requesting permission...';
-
             try {
                 const permission = await Notification.requestPermission();
-                debug.innerHTML += `<br>Result: ${permission}`;
+               
 
                 const btn = document.getElementById('notifBtn');
                 if (permission === 'granted') {
                     btn.textContent = 'Alerts On';
                     btn.className   = 'notif-banner-btn enabled';
                     await subscribeForPush();
-                    debug.innerHTML += '<br>Subscribed!';
                 } else {
                     btn.textContent = 'Blocked';
                     btn.className   = 'notif-banner-btn denied';
                 }
             } catch(e) {
-                debug.innerHTML += `<br>Error: ${e.message}`;
+               
             }
         }
 
@@ -530,7 +510,6 @@
                 });
             } catch(e) {
                 console.log('Push subscription error:', e);
-                document.getElementById('debugBox').innerHTML += `<br>Sub error: ${e.message}`;
             }
         }
 
