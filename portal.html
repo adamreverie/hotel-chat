@@ -123,7 +123,7 @@
             <div class="logo">fav<span>vi</span></div>
             <div class="hotel-name" id="hotelName">Loading...</div>
         </div>
-        <button class="logout" onclick="window.location.href='/login'">Logout</button>
+        <button class="logout" onclick="localStorage.removeItem('favvi_hotel_email'); localStorage.removeItem('favvi_hotel_password'); localStorage.removeItem('favvi_hotel_slug'); window.location.href='/login'">Logout</button>
     </div>
 
     <div class="body">

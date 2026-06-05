@@ -180,10 +180,40 @@
 
             if (data.success) {
                 window.location.href = `/portal/${data.slug}`;
+                localStorage.setItem('favvi_hotel_email', email);
+                localStorage.setItem('favvi_hotel_password', btoa(password));
+                localStorage.setItem('favvi_hotel_slug', data.slug);
             } else {
                 document.getElementById('error').style.display = 'block';
             }
         }
+
+        async function checkSavedLogin() {
+                const savedEmail = localStorage.getItem('favvi_hotel_email');
+                const savedPw    = localStorage.getItem('favvi_hotel_password');
+                const savedSlug  = localStorage.getItem('favvi_hotel_slug');
+
+                if (!savedEmail || !savedPw || !savedSlug) return;
+
+                try {
+                    const r = await fetch('/hotel-login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: savedEmail, password: atob(savedPw) })
+                    });
+                    const data = await r.json();
+                    if (data.success) {
+                        window.location.href = `/portal/${data.slug}`;
+                    } else {
+                        localStorage.removeItem('favvi_hotel_email');
+                        localStorage.removeItem('favvi_hotel_password');
+                        localStorage.removeItem('favvi_hotel_slug');
+                    }
+                } catch(e) {}
+            }
+
+            checkSavedLogin();
+
     </script>
 </body>
 </html>
