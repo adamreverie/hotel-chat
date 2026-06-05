@@ -130,7 +130,7 @@
 </head>
 <body>
     <div class="card">
-        <div class="logo">fav<span>vi</span></div>
+        <a href="/" class="logo" style="text-decoration:none;">fav<span>vi</span></a>
         <p class="tagline">Hotel Management Portal</p>
 
         <div class="field">
@@ -151,12 +151,17 @@
                 onkeypress="if(event.key==='Enter') login()"
             />
         </div>
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px; padding:12px 14px; background:#f8f6f1; border-radius:2px; border:1px solid #e8e8e8;">
                 <input type="checkbox" id="staySignedIn" checked
-                    style="width:16px; height:16px; accent-color:#1a1a2e; cursor:pointer;" />
-                <label for="staySignedIn" style="font-size:12px; font-weight:300; color:rgba(26,26,46,0.5); cursor:pointer;">
-                    Stay signed in
-                </label>
+                    style="width:16px; height:16px; accent-color:#1a1a2e; cursor:pointer; flex-shrink:0;" />
+                <div>
+                    <label for="staySignedIn" style="font-size:13px; font-weight:500; color:#1a1a2e; cursor:pointer; display:block;">
+                        Stay signed in
+                    </label>
+                    <span style="font-size:11px; font-weight:300; color:rgba(26,26,46,0.4);">
+                        Skip login next time you open Favvi
+                    </span>
+                </div>
             </div>
         <button class="login-btn" onclick="login()">Login to Portal</button>
         <p class="error" id="error">Incorrect email or password.</p>
