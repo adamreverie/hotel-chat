@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="icon" href="/favicon.ico">
     <title>Staff Dashboard — Favvi</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -446,10 +447,12 @@
                 return;
             }
             if (permission === 'granted') {
-                btn.textContent = 'Alerts On';
+                btn.textContent = 'Alerts On — tap to disable';
                 btn.className   = 'notif-banner-btn enabled';
+                btn.onclick     = disableNotifications;
                 subscribeForPush();
-            } else if (permission === 'denied') {
+            }
+            else if (permission === 'denied') {
                 btn.textContent = 'Blocked in Settings';
                 btn.className   = 'notif-banner-btn denied';
             }
@@ -474,8 +477,9 @@
 
                 const btn = document.getElementById('notifBtn');
                 if (permission === 'granted') {
-                    btn.textContent = 'Alerts On';
+                    btn.textContent = 'Alerts On — tap to disable';
                     btn.className   = 'notif-banner-btn enabled';
+                    btn.onclick     = disableNotifications;
                     await subscribeForPush();
                 } else {
                     btn.textContent = 'Blocked';
@@ -485,6 +489,27 @@
                
             }
         }
+
+        async function disableNotifications() {
+    try {
+        const reg = await navigator.serviceWorker.ready;
+        const sub = await reg.pushManager.getSubscription();
+        if (sub) await sub.unsubscribe();
+
+        await fetch('/push-unsubscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ slug, name: staffName })
+        });
+
+        const btn = document.getElementById('notifBtn');
+        btn.textContent = 'Enable Alerts';
+        btn.className   = 'notif-banner-btn';
+        btn.onclick     = requestNotificationPermission;
+    } catch(e) {
+        console.log('Unsubscribe error:', e);
+    }
+}
 
         async function subscribeForPush() {
             try {
