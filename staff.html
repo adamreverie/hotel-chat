@@ -250,6 +250,7 @@
         <div class="header-right">
             <span class="staff-tag" id="staffGreeting"></span>
             <div class="live-pill"><div class="live-dot"></div>Live</div>
+            <button onclick="logout()" style="background:transparent; border:1px solid rgba(255,255,255,0.1); color:rgba(248,244,238,0.4); font-family:'DM Sans',sans-serif; font-size:10px; padding:4px 10px; border-radius:2px; cursor:pointer;">Logout</button>
         </div>
     </div>
 
@@ -338,7 +339,52 @@
                 document.getElementById('backLink').href = slug ? `/portal/${slug}` : '/';
             } catch(e) {}
         }
+
+                async function checkSavedSession() {
+    const savedName = localStorage.getItem('favvi_staff_name');
+    const savedDept = localStorage.getItem('favvi_staff_dept');
+    const savedSlug = localStorage.getItem('favvi_staff_slug');
+    const savedPw   = localStorage.getItem('favvi_staff_pw_hash');
+
+    if (!savedName || !savedDept || savedSlug !== slug) return;
+
+    try {
+        const url = slug ? `/get-hotel/${slug}` : '/hotel-config';
+        const r = await fetch(url);
+        const config = await r.json();
+
+        if (config.staff_password !== atob(savedPw)) return;
+
+        staffName    = savedName;
+        staffDept    = savedDept;
+        activeFilter = savedDept;
+
+        document.getElementById('overlay').style.display     = 'none';
+        document.getElementById('mainHeader').style.display  = 'flex';
+        document.getElementById('notifBanner').style.display = 'flex';
+        document.getElementById('mainBody').style.display    = 'block';
+        document.getElementById('staffGreeting').textContent = staffName;
+
+        const deptNames = { all:'All Departments', housekeeping:'Housekeeping', roomservice:'Room Service', maintenance:'Maintenance', concierge:'Concierge' };
+        document.getElementById('deptLabel').textContent = deptNames[staffDept] || 'All Departments';
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.filter === staffDept);
+        });
+
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            ctx.resume();
+            window._audioCtx = ctx;
+        } catch(e) {}
+
+        checkNotifStatus();
+        loadRequests();
+        setInterval(loadRequests, 8000);
+    } catch(e) {}
+}
         loadHotelName();
+        checkSavedSession();
 
         function selectDept(el) {
             document.querySelectorAll('.dept-option').forEach(d => d.classList.remove('selected'));
@@ -358,6 +404,10 @@
             if (pw !== config.staff_password) { errEl.textContent = 'Incorrect password. Try again.'; errEl.style.display = 'block'; return; }
 
             staffName    = name;
+            localStorage.setItem('favvi_staff_name', name);
+            localStorage.setItem('favvi_staff_dept', staffDept);
+            localStorage.setItem('favvi_staff_slug', slug);
+            localStorage.setItem('favvi_staff_pw_hash', btoa(pw));
             activeFilter = staffDept;
 
             document.getElementById('overlay').style.display    = 'none';
@@ -630,6 +680,14 @@
         function completeRequest(id) { updateRequest(id, 'done',       staffName); }
         function unclaim(id)         { updateRequest(id, 'new',        '');        }
         function undoDone(id)        { updateRequest(id, 'inprogress', staffName); }
+
+        function logout() {
+        localStorage.removeItem('favvi_staff_name');
+        localStorage.removeItem('favvi_staff_dept');
+        localStorage.removeItem('favvi_staff_slug');
+        localStorage.removeItem('favvi_staff_pw_hash');
+        location.reload();
+    }
 
         function toggleHistory() {
             const section = document.getElementById('historyRequests');
