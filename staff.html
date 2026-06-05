@@ -233,8 +233,14 @@
                 <label>Staff Password</label>
                 <input type="password" id="staffPassword" placeholder="Enter password"
                        onkeypress="if(event.key==='Enter') checkPassword()" />
+            </div> 
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">
+                <input type="checkbox" id="staySignedIn" checked
+                    style="width:16px; height:16px; accent-color:#1a1a2e; cursor:pointer;" />
+                <label for="staySignedIn" style="font-size:12px; font-weight:300; color:rgba(26,26,46,0.5); cursor:pointer;">
+                    Stay signed in
+                </label>
             </div>
-
             <button class="login-btn" onclick="checkPassword()">Enter Dashboard</button>
             <p class="login-error" id="loginError">Incorrect password. Try again.</p>
         </div>
@@ -403,11 +409,13 @@
             if (!name) { errEl.textContent = 'Please enter your name.'; errEl.style.display = 'block'; return; }
             if (pw !== config.staff_password) { errEl.textContent = 'Incorrect password. Try again.'; errEl.style.display = 'block'; return; }
 
-            staffName    = name;
-            localStorage.setItem('favvi_staff_name', name);
-            localStorage.setItem('favvi_staff_dept', staffDept);
-            localStorage.setItem('favvi_staff_slug', slug);
-            localStorage.setItem('favvi_staff_pw_hash', btoa(pw));
+            staffName = name;
+            if (document.getElementById('staySignedIn').checked) {
+                localStorage.setItem('favvi_staff_name', name);
+                localStorage.setItem('favvi_staff_dept', staffDept);
+                localStorage.setItem('favvi_staff_slug', slug);
+                localStorage.setItem('favvi_staff_pw_hash', btoa(pw));
+            }
             activeFilter = staffDept;
 
             document.getElementById('overlay').style.display    = 'none';

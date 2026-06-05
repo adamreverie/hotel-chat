@@ -151,7 +151,13 @@
                 onkeypress="if(event.key==='Enter') login()"
             />
         </div>
-
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">
+                <input type="checkbox" id="staySignedIn" checked
+                    style="width:16px; height:16px; accent-color:#1a1a2e; cursor:pointer;" />
+                <label for="staySignedIn" style="font-size:12px; font-weight:300; color:rgba(26,26,46,0.5); cursor:pointer;">
+                    Stay signed in
+                </label>
+            </div>
         <button class="login-btn" onclick="login()">Login to Portal</button>
         <p class="error" id="error">Incorrect email or password.</p>
 
@@ -160,6 +166,12 @@
     </div>
 
     <script>
+        // Auto-redirect if already logged in
+            const savedSlug = localStorage.getItem('favvi_hotel_slug');
+            if (savedSlug) {
+                window.location.href = `/portal/${savedSlug}`;
+            }
+
         async function login() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
@@ -179,10 +191,12 @@
             const data = await response.json();
 
             if (data.success) {
+                if (document.getElementById('staySignedIn').checked) {
+                    localStorage.setItem('favvi_hotel_slug', data.slug);
+                    localStorage.setItem('favvi_hotel_email', email);
+                    localStorage.setItem('favvi_hotel_pw', btoa(password));
+                }
                 window.location.href = `/portal/${data.slug}`;
-                localStorage.setItem('favvi_hotel_email', email);
-                localStorage.setItem('favvi_hotel_password', btoa(password));
-                localStorage.setItem('favvi_hotel_slug', data.slug);
             } else {
                 document.getElementById('error').style.display = 'block';
             }
