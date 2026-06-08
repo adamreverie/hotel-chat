@@ -190,6 +190,9 @@ def home(): return send_from_directory('.', 'landing.html')
 @app.route('/signup')
 def signup_page(): return send_from_directory('.', 'signup.html')
 
+@app.route('/signup-success')
+def signup_success(): return send_from_directory('.', 'signup-success.html')
+
 @app.route('/login')
 def login_page(): return send_from_directory('.', 'login.html')
 
