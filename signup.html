@@ -353,9 +353,7 @@
                 const data = await r.json();
 
                 if (data.success) {
-                    document.getElementById('signupForm').style.display = 'none';
-                    document.getElementById('successState').style.display = 'block';
-                    document.getElementById('portalBtn').href = `/portal/${data.slug}`;
+                    window.location.href = data.checkout_url;
                 } else {
                     errEl.textContent = data.error || 'Something went wrong. Please try again.';
                     errEl.style.display = 'block';

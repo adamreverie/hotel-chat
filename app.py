@@ -29,6 +29,11 @@ VAPID_PUBLIC_KEY  = os.environ.get("VAPID_PUBLIC_KEY")
 VAPID_PRIVATE_KEY = os.environ.get("VAPID_PRIVATE_KEY")
 VAPID_EMAIL       = os.environ.get("VAPID_EMAIL", "mailto:hello@favvi.ai")
 
+LEMONSQUEEZY_API_KEY = os.environ.get("LEMONSQUEEZY_API_KEY")
+LEMONSQUEEZY_STORE_ID = os.environ.get("LEMONSQUEEZY_STORE_ID")
+LEMONSQUEEZY_VARIANT_ID = os.environ.get("LEMONSQUEEZY_VARIANT_ID")
+import requests as http_requests
+
 DATABASE_URL = os.environ.get("DATABASE_URL")
 USE_POSTGRES = bool(DATABASE_URL and HAS_POSTGRES)
 
@@ -63,7 +68,9 @@ def init_db():
                      system_prompt TEXT, staff_password TEXT, manager_password TEXT,
                      date_created TEXT,
                      hotel_info TEXT, current_offers TEXT, manager_email TEXT,
-                     staff_knowledge TEXT)''')
+                     staff_knowledge TEXT,
+                     trial_ends_at TEXT, subscription_status TEXT DEFAULT 'trial',
+                     lemon_customer_id TEXT, lemon_subscription_id TEXT)''')
         c.execute('''CREATE TABLE IF NOT EXISTS push_subscriptions (
                      id SERIAL PRIMARY KEY,
                      hotel_slug TEXT, staff_name TEXT, department TEXT,
@@ -597,69 +604,52 @@ def signup():
     if existing:
         return jsonify({"success": False, "error": "A hotel with this name or email already exists"})
 
-    conn = get_conn(); c = conn.cursor()
-    c.execute(f'''INSERT INTO hotels
-                  (name, slug, email, password, system_prompt,
-                   staff_password, manager_password, date_created)
-                  VALUES ({ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph})''',
-              (hotel_name, slug, email, password, '',
-               staff_pw or 'staff2024',
-               manager_pw or 'manager2024',
-               datetime.now().strftime("%Y-%m-%d %H:%M")))
-    conn.commit(); conn.close()
+    # Create Lemon Squeezy checkout
+    checkout_data = {
+        "data": {
+            "type": "checkouts",
+            "attributes": {
+                "checkout_data": {
+                    "email": email,
+                    "custom": {
+                        "hotel_name": hotel_name,
+                        "slug": slug,
+                        "email": email,
+                        "password": password,
+                        "staff_password": staff_pw or "staff2024",
+                        "manager_password": manager_pw or "manager2024"
+                    }
+                },
+                "product_options": {
+                    "redirect_url": f"https://favvi.ai/signup-success?slug={slug}"
+                }
+            },
+            "relationships": {
+                "store": {
+                    "data": {"type": "stores", "id": LEMONSQUEEZY_STORE_ID}
+                },
+                "variant": {
+                    "data": {"type": "variants", "id": LEMONSQUEEZY_VARIANT_ID}
+                }
+            }
+        }
+    }
 
-    # Notify you of new signup
     try:
-        resend.Emails.send({
-            "from": "hello@favvi.ai",
-            "to": "hello@favvi.ai",
-            "subject": f"New signup — {hotel_name}",
-            "html": f"""<h2>New Hotel Signed Up</h2>
-            <p><strong>Hotel:</strong> {hotel_name}</p>
-            <p><strong>Email:</strong> {email}</p>
-            <p><strong>Slug:</strong> {slug}</p>
-            <p><strong>Time:</strong> {datetime.now().strftime("%Y-%m-%d %H:%M")}</p>"""
-        })
-    except Exception:
-        pass
-
-    # Welcome email to hotel
-    try:
-        resend.Emails.send({
-            "from": "hello@favvi.ai",
-            "to": email,
-            "subject": f"Welcome to Favvi — {hotel_name} is live!",
-            "html": f"""
-            <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto;">
-                <h2 style="color: #1a1a2e;">Welcome to Favvi</h2>
-                <p>Your hotel portal is ready. Here are your details:</p>
-                <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                    <p><strong>Hotel:</strong> {hotel_name}</p>
-                    <p><strong>Portal:</strong> https://favvi.ai/portal/{slug}</p>
-                    <p><strong>Login:</strong> https://favvi.ai/login</p>
-                    <p><strong>Email:</strong> {email}</p>
-                    <p><strong>Password:</strong> {password}</p>
-                    <p><strong>Staff Password:</strong> {staff_pw or 'staff2024'}</p>
-                    <p><strong>Manager Password:</strong> {manager_pw or 'manager2024'}</p>
-                </div>
-                <h3>Getting Started</h3>
-                <ol>
-                    <li>Log in and go to <strong>Settings</strong></li>
-                    <li>Paste your hotel info, room details and facilities</li>
-                    <li>Share <strong>favvi.ai/portal/{slug}/chat</strong> as a QR code in guest rooms</li>
-                    <li>Staff log into <strong>favvi.ai/portal/{slug}/staff</strong></li>
-                </ol>
-                <a href="https://favvi.ai/portal/{slug}"
-                   style="display:inline-block; background:#1a1a2e; color:white;
-                          padding:12px 28px; text-decoration:none; border-radius:4px; margin-top:16px;">
-                    Go to Your Portal
-                </a>
-            </div>"""
-        })
-    except Exception:
-        pass
-
-    return jsonify({"success": True, "slug": slug})
+        response = http_requests.post(
+            "https://api.lemonsqueezy.com/v1/checkouts",
+            headers={
+                "Authorization": f"Bearer {LEMONSQUEEZY_API_KEY}",
+                "Accept": "application/vnd.api+json",
+                "Content-Type": "application/vnd.api+json"
+            },
+            json=checkout_data
+        )
+        result = response.json()
+        checkout_url = result["data"]["attributes"]["url"]
+        return jsonify({"success": True, "checkout_url": checkout_url})
+    except Exception as e:
+        return jsonify({"success": False, "error": f"Could not create checkout: {str(e)}"})
 
 
 @app.route('/update-hotel-settings', methods=['POST'])
@@ -687,6 +677,115 @@ def update_hotel_settings():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
 
+@app.route('/lemon-webhook', methods=['POST'])
+def lemon_webhook():
+    data = request.json
+    event = request.headers.get('X-Event-Name', '')
+
+    if event not in ['subscription_created', 'order_created']:
+        return jsonify({"success": True})
+
+    try:
+        meta = data.get('meta', {})
+        custom = meta.get('custom_data', {})
+
+        hotel_name = custom.get('hotel_name', '').strip()
+        slug       = custom.get('slug', '').strip()
+        email      = custom.get('email', '').strip()
+        password   = custom.get('password', '').strip()
+        staff_pw   = custom.get('staff_password', 'staff2024')
+        manager_pw = custom.get('manager_password', 'manager2024')
+
+        if not hotel_name or not slug or not email:
+            return jsonify({"success": False, "error": "Missing hotel data"})
+
+        # Get subscription details
+        attrs = data.get('data', {}).get('attributes', {})
+        lemon_customer_id     = str(data.get('data', {}).get('id', ''))
+        lemon_subscription_id = str(attrs.get('subscription_id', ''))
+
+        from datetime import datetime, timedelta
+        trial_ends_at = (datetime.now() + timedelta(days=14)).strftime("%Y-%m-%d")
+
+        ph = placeholder()
+        conn = get_conn(); c = conn.cursor()
+
+        # Check if hotel already exists (avoid duplicates)
+        c.execute(f'SELECT id FROM hotels WHERE slug = {ph} OR email = {ph}', (slug, email))
+        if c.fetchone():
+            conn.close()
+            return jsonify({"success": True, "message": "Hotel already exists"})
+
+        c.execute(f'''INSERT INTO hotels
+                      (name, slug, email, password, system_prompt,
+                       staff_password, manager_password, date_created,
+                       trial_ends_at, subscription_status,
+                       lemon_customer_id, lemon_subscription_id)
+                      VALUES ({ph},{ph},{ph},{ph},{ph},{ph},{ph},{ph},{ph},{ph},{ph},{ph})''',
+                  (hotel_name, slug, email, password, '',
+                   staff_pw, manager_pw,
+                   datetime.now().strftime("%Y-%m-%d %H:%M"),
+                   trial_ends_at, 'trial',
+                   lemon_customer_id, lemon_subscription_id))
+        conn.commit(); conn.close()
+
+        # Notify you
+        try:
+            resend.Emails.send({
+                "from": "hello@favvi.ai",
+                "to": "hello@favvi.ai",
+                "subject": f"New signup — {hotel_name}",
+                "html": f"""<h2>New Hotel Signed Up</h2>
+                <p><strong>Hotel:</strong> {hotel_name}</p>
+                <p><strong>Email:</strong> {email}</p>
+                <p><strong>Slug:</strong> {slug}</p>
+                <p><strong>Time:</strong> {datetime.now().strftime("%Y-%m-%d %H:%M")}</p>"""
+            })
+        except Exception:
+            pass
+
+        # Welcome email
+        try:
+            resend.Emails.send({
+                "from": "hello@favvi.ai",
+                "to": email,
+                "subject": f"Welcome to Favvi — {hotel_name} is live!",
+                "html": f"""
+                <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto;">
+                    <h2 style="color: #1a1a2e;">Welcome to Favvi</h2>
+                    <p>Your hotel portal is ready. Here are your details:</p>
+                    <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                        <p><strong>Hotel:</strong> {hotel_name}</p>
+                        <p><strong>Portal:</strong> https://favvi.ai/portal/{slug}</p>
+                        <p><strong>Login:</strong> https://favvi.ai/login</p>
+                        <p><strong>Email:</strong> {email}</p>
+                        <p><strong>Password:</strong> {password}</p>
+                        <p><strong>Staff Password:</strong> {staff_pw}</p>
+                        <p><strong>Manager Password:</strong> {manager_pw}</p>
+                        <p><strong>Trial ends:</strong> {trial_ends_at}</p>
+                    </div>
+                    <h3>Getting Started</h3>
+                    <ol>
+                        <li>Log in and go to <strong>Settings</strong></li>
+                        <li>Paste your hotel info, room details and facilities</li>
+                        <li>Share <strong>favvi.ai/portal/{slug}/chat</strong> as a QR code in guest rooms</li>
+                        <li>Staff log into <strong>favvi.ai/portal/{slug}/staff</strong></li>
+                    </ol>
+                    <a href="https://favvi.ai/portal/{slug}"
+                       style="display:inline-block; background:#1a1a2e; color:white;
+                              padding:12px 28px; text-decoration:none; border-radius:4px; margin-top:16px;">
+                        Go to Your Portal
+                    </a>
+                </div>"""
+            })
+        except Exception:
+            pass
+
+        return jsonify({"success": True})
+
+    except Exception as e:
+        print(f"Webhook error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
