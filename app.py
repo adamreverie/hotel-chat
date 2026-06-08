@@ -790,5 +790,22 @@ def lemon_webhook():
         print(f"Webhook error: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
+@app.route('/run-migration')
+def run_migration():
+    try:
+        conn = get_conn(); c = conn.cursor()
+        migrations = [
+            "ALTER TABLE hotels ADD COLUMN IF NOT EXISTS trial_ends_at TEXT",
+            "ALTER TABLE hotels ADD COLUMN IF NOT EXISTS subscription_status TEXT DEFAULT 'trial'",
+            "ALTER TABLE hotels ADD COLUMN IF NOT EXISTS lemon_customer_id TEXT",
+            "ALTER TABLE hotels ADD COLUMN IF NOT EXISTS lemon_subscription_id TEXT",
+        ]
+        for sql in migrations:
+            c.execute(sql)
+        conn.commit(); conn.close()
+        return jsonify({"success": True, "message": "Migration complete"})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
