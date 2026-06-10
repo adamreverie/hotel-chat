@@ -1,88 +1,170 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <link rel="icon" href="/favicon.ico">
     <title>Settings — Favvi</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --navy: #1a1a2e;
+            --gold: #c9a84c;
+            --gold-dark: #8a6e2a;
+            --linen: #f0efe9;
+            --white: #ffffff;
+            --cream: #f8f4ee;
+            --ink: #1a1a2e;
+            --ink-60: rgba(26,26,46,0.6);
+            --ink-40: rgba(26,26,46,0.4);
+            --ink-25: rgba(26,26,46,0.25);
+            --line: rgba(26,26,46,0.1);
+            --purple: #9b7bb8;
+            --purple-dark: #6b4d8a;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'DM Sans', sans-serif; background: #f0efe9; min-height: 100vh; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--linen); min-height: 100vh; color: var(--ink); -webkit-font-smoothing: antialiased; }
 
-        .header { background: #1a1a2e; padding: 18px 32px; display: flex; justify-content: space-between; align-items: center; }
-        .header-left { display: flex; align-items: center; gap: 16px; }
-        .logo { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: #f8f4ee; letter-spacing: 3px; text-decoration: none; }
-        .logo span { color: #c9a84c; }
-        .divider-v { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
-        .header-title { font-size: 13px; font-weight: 400; color: rgba(248,244,238,0.7); }
-        .role-pill { font-size: 11px; font-weight: 500; padding: 4px 14px; border-radius: 2px; letter-spacing: 0.5px; }
-        .role-manager { background: rgba(201,168,76,0.2); color: #c9a84c; }
-        .role-staff   { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); }
+        /* ── TOP BAR ── */
+        .topbar {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(240,239,233,0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--line);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 24px; height: 64px;
+        }
+        .topbar-left { display: flex; align-items: center; gap: 14px; }
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 23px; font-weight: 600;
+            color: var(--ink); letter-spacing: 3px; text-decoration: none;
+        }
+        .logo span { color: var(--gold); }
+        .divider-v { width: 1px; height: 20px; background: var(--line); }
+        .topbar-title { font-size: 12px; font-weight: 400; color: var(--ink-40); letter-spacing: 1px; text-transform: uppercase; }
+        .role-pill {
+            font-size: 10px; font-weight: 500; padding: 5px 14px; border-radius: 12px;
+            letter-spacing: 1px; text-transform: uppercase;
+            background: rgba(155,123,184,0.12); color: var(--purple-dark);
+            border: 1px solid rgba(155,123,184,0.25);
+        }
 
-        .overlay { position: fixed; inset: 0; background: #f0efe9; display: flex; justify-content: center; align-items: center; z-index: 200; }
-        .login-card { background: white; border-radius: 3px; padding: 48px 40px; width: 360px; box-shadow: 0 4px 24px rgba(26,26,46,0.08); border-left: 3px solid #9b7bb8; }
-        .login-logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: #1a1a2e; letter-spacing: 3px; margin-bottom: 4px; }
-        .login-logo span { color: #c9a84c; }
-        .login-card h2 { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 600; color: #6b4d8a; margin-bottom: 6px; }
-        .login-card > p { font-size: 12px; font-weight: 300; color: rgba(26,26,46,0.4); margin-bottom: 24px; }
-
-        .role-tabs { display: flex; background: #f0efe9; border-radius: 2px; padding: 3px; margin-bottom: 20px; gap: 3px; }
-        .role-tab { flex: 1; padding: 9px; border: none; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; background: transparent; color: #999; transition: all 0.2s; }
-        .role-tab.active { background: #1a1a2e; color: white; font-weight: 500; }
+        /* ── LOGIN OVERLAY ── */
+        .overlay {
+            position: fixed; inset: 0; background: var(--linen);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 200; padding: 20px;
+        }
+        .login-card {
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-top: 3px solid var(--purple);
+            border-radius: 4px;
+            padding: 44px 38px 38px;
+            width: 100%; max-width: 380px;
+            box-shadow: 0 16px 48px rgba(26,26,46,0.08);
+        }
+        .login-logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; letter-spacing: 3px; margin-bottom: 4px; }
+        .login-logo span { color: var(--gold); }
+        .login-card h2 { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 600; color: var(--purple-dark); margin-bottom: 6px; }
+        .login-card > p { font-size: 12px; font-weight: 300; color: var(--ink-40); margin-bottom: 24px; }
 
         .field { margin-bottom: 14px; }
-        .field label { display: block; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(26,26,46,0.4); margin-bottom: 7px; }
-        .field input { width: 100%; padding: 12px 14px; border: 1px solid #e8e8e8; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 300; color: #1a1a2e; background: #fafafa; outline: none; transition: border-color 0.2s; }
-        .field input:focus { border-color: #9b7bb8; background: white; }
-        .login-btn { width: 100%; padding: 13px; background: #1a1a2e; color: white; border: none; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; margin-top: 6px; transition: opacity 0.2s; }
-        .login-btn:hover { opacity: 0.85; }
-        .login-error { color: #e57373; font-size: 12px; margin-top: 10px; display: none; }
+        .field label { display: block; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-40); margin-bottom: 7px; }
+        .field input {
+            width: 100%; padding: 13px 15px;
+            border: 1px solid var(--line); border-radius: 2px;
+            font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 300;
+            color: var(--ink); background: var(--white);
+            outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .field input::placeholder { color: var(--ink-25); }
+        .field input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(155,123,184,0.12); }
 
-        .body { max-width: 720px; margin: 0 auto; padding: 40px 32px 60px; }
+        .login-btn {
+            width: 100%; padding: 14px;
+            background: var(--navy); color: var(--cream);
+            border: none; border-radius: 2px;
+            font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+            cursor: pointer; margin-top: 6px; transition: all 0.25s;
+        }
+        .login-btn:hover { background: var(--purple); color: white; }
+        .login-error { color: #c0392b; font-size: 12px; margin-top: 10px; display: none; }
+        .login-hint { font-size: 11px; font-weight: 300; color: var(--ink-25); margin-top: 18px; line-height: 1.5; }
 
-        .page-title { font-family: 'Cormorant Garamond', serif; font-size: 42px; font-weight: 600; color: #6b4d8a; line-height: 1.1; margin-bottom: 4px; }
-        .page-title em { font-style: italic; font-weight: 400; color: #1a1a2e; }
-        .page-sub { font-size: 12px; font-weight: 300; color: rgba(26,26,46,0.35); margin-bottom: 32px; }
+        /* ── BODY ── */
+        .body { max-width: 720px; margin: 0 auto; padding: 40px 24px 64px; }
 
-        .staff-notice { background: white; border-left: 3px solid #c9a84c; border-radius: 3px; padding: 14px 18px; font-size: 13px; font-weight: 300; color: rgba(26,26,46,0.6); margin-bottom: 24px; }
+        .page-title { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 600; line-height: 1.1; margin-bottom: 4px; }
+        .page-title em { font-style: italic; font-weight: 400; color: var(--gold-dark); }
+        .page-sub { font-size: 12px; font-weight: 300; color: var(--ink-40); margin-bottom: 32px; }
 
-        .section { background: white; border-radius: 3px; box-shadow: 0 1px 4px rgba(26,26,46,0.06); margin-bottom: 14px; overflow: hidden; }
-        .section-header { padding: 20px 24px 16px; border-bottom: 1px solid #f0efe9; }
-        .section-eyebrow { font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: rgba(26,26,46,0.35); margin-bottom: 4px; }
-        .section-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; color: #1a1a2e; }
-        .section-desc { font-size: 12px; font-weight: 300; color: rgba(26,26,46,0.35); margin-top: 3px; }
+        /* ── SECTIONS ── */
+        .section {
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            box-shadow: 0 1px 4px rgba(26,26,46,0.05);
+            margin-bottom: 14px;
+            overflow: hidden;
+        }
+        .section-header { padding: 22px 26px 16px; border-bottom: 1px solid var(--linen); }
+        .section-eyebrow { font-size: 9px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--purple-dark); margin-bottom: 5px; }
+        .section-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; }
+        .section-desc { font-size: 12px; font-weight: 300; color: var(--ink-40); margin-top: 3px; }
 
-        .section-body { padding: 22px 24px 8px; }
+        .section-body { padding: 22px 26px 8px; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
         .form-row.single { grid-template-columns: 1fr; }
         .form-field { margin-bottom: 16px; }
-        .form-field label { display: block; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(26,26,46,0.4); margin-bottom: 7px; }
-        .form-field.locked label::after { content: '  locked'; font-size: 9px; color: rgba(26,26,46,0.2); letter-spacing: 1px; }
-        .form-field input, .form-field textarea { width: 100%; padding: 11px 14px; border: 1px solid #e8e8e8; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 300; color: #1a1a2e; background: #fafafa; outline: none; transition: border-color 0.2s; }
-        .form-field input:focus, .form-field textarea:focus { border-color: #9b7bb8; background: white; }
+        .form-field label { display: block; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-40); margin-bottom: 7px; }
+        .form-field input, .form-field textarea {
+            width: 100%; padding: 12px 14px;
+            border: 1px solid var(--line); border-radius: 2px;
+            font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 300;
+            color: var(--ink); background: var(--white);
+            outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-field input::placeholder, .form-field textarea::placeholder { color: var(--ink-25); }
+        .form-field input:focus, .form-field textarea:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(155,123,184,0.1); }
         .form-field textarea { resize: vertical; min-height: 130px; line-height: 1.6; }
-        .form-field.locked input, .form-field.locked textarea { background: #f5f5f5; color: #ccc; cursor: not-allowed; }
 
-        /* Password toggle — no emojis, clean SVG icon */
+        /* Password toggle */
         .pw-wrap { position: relative; }
         .pw-wrap input { padding-right: 44px; }
         .pw-eye {
             position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
             background: none; border: none; cursor: pointer; padding: 4px;
-            color: #ccc; transition: color 0.2s; line-height: 1;
+            color: var(--ink-25); transition: color 0.2s; line-height: 1;
         }
-        .pw-eye:hover { color: #888; }
+        .pw-eye:hover { color: var(--ink-60); }
         .pw-eye svg { width: 16px; height: 16px; display: block; }
 
-        .section-footer { padding: 0 24px 20px; display: flex; justify-content: flex-end; align-items: center; gap: 14px; }
-        .save-btn { background: #1a1a2e; color: white; border: none; padding: 10px 24px; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: opacity 0.2s, transform 0.15s; }
-        .save-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+        .section-footer { padding: 0 26px 20px; display: flex; justify-content: flex-end; align-items: center; gap: 14px; }
+        .save-btn {
+            background: var(--navy); color: var(--cream);
+            border: none; padding: 11px 26px; border-radius: 2px;
+            font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+            cursor: pointer; transition: all 0.25s;
+        }
+        .save-btn:hover { background: var(--gold); color: var(--navy); }
         .save-status { font-size: 12px; font-weight: 500; opacity: 0; transition: opacity 0.3s; }
-        .save-status.success { color: #27ae60; opacity: 1; }
-        .save-status.error   { color: #e57373; opacity: 1; }
+        .save-status.success { color: #3d6e3d; opacity: 1; }
+        .save-status.error   { color: #c0392b; opacity: 1; }
         .save-status.fading  { opacity: 0; }
 
-        @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } .body { padding: 24px 16px 60px; } .header { padding: 14px 16px; } }
+        @media (max-width: 600px) {
+            .topbar { padding: 0 16px; height: 58px; }
+            .topbar-title { display: none; }
+            .body { padding: 28px 16px 56px; }
+            .page-title { font-size: 32px; }
+            .form-row { grid-template-columns: 1fr; }
+            .section-header { padding: 18px 18px 14px; }
+            .section-body { padding: 18px 18px 6px; }
+            .section-footer { padding: 0 18px 18px; }
+        }
     </style>
 </head>
 <body>
@@ -92,39 +174,32 @@
         <div class="login-card">
             <div class="login-logo">fav<span>vi</span></div>
             <h2>Settings</h2>
-            <p id="loginDesc">Enter your manager password to continue</p>
-            <div class="field" id="nameFieldWrap" style="display:none;">
-                <label>Your Name</label>
-                <input type="text" id="staffNameInput" placeholder="Enter your name" />
-            </div>
+            <p>Enter your manager password to continue</p>
             <div class="field">
-                <label>Password</label>
+                <label>Manager Password</label>
                 <input type="password" id="passwordInput" placeholder="Enter password"
                        onkeypress="if(event.key==='Enter') attemptLogin()" />
             </div>
             <button class="login-btn" onclick="attemptLogin()">Access Settings</button>
             <p class="login-error" id="loginError">Incorrect password. Try again.</p>
+            <p class="login-hint">Settings are manager-only. Staff access the dashboard and assistant from the portal.</p>
         </div>
     </div>
 
-    <!-- HEADER -->
-    <div class="header" id="mainHeader" style="display:none;">
-        <div class="header-left">
+    <!-- TOP BAR -->
+    <div class="topbar" id="mainHeader" style="display:none;">
+        <div class="topbar-left">
             <a class="logo" id="backLink" href="#">fav<span>vi</span></a>
             <div class="divider-v"></div>
-            <span class="header-title">Settings</span>
+            <span class="topbar-title">Settings</span>
         </div>
-        <span class="role-pill" id="rolePill"></span>
+        <span class="role-pill">Manager</span>
     </div>
 
     <!-- BODY -->
     <div class="body" id="mainBody" style="display:none;">
-        <div class="page-title"><em>Hotel</em> Settings</div>
-        <p class="page-sub" id="pageSub">Loading...</p>
-
-        <div class="staff-notice" id="staffNotice" style="display:none;">
-            As a staff member you can only update the shared staff password. Contact your manager to change hotel information or offers.
-        </div>
+        <div class="page-title">Hotel <em>Settings</em></div>
+        <p class="page-sub" id="pageSub">Loading…</p>
 
         <!-- 1. HOTEL INFORMATION -->
         <div class="section">
@@ -135,23 +210,23 @@
             </div>
             <div class="section-body">
                 <div class="form-row">
-                    <div class="form-field" id="ff-name">
+                    <div class="form-field">
                         <label>Hotel Name</label>
                         <input type="text" id="hotelName" placeholder="Your hotel's name" />
                     </div>
-                    <div class="form-field" id="ff-location">
+                    <div class="form-field">
                         <label>Location</label>
                         <input type="text" id="hotelLocation" placeholder="Your hotel's location" />
                     </div>
                 </div>
                 <div class="form-row single">
-                    <div class="form-field" id="ff-email">
+                    <div class="form-field">
                         <label>Manager Email (for alerts)</label>
                         <input type="email" id="managerEmail" placeholder="manager@hotel.com" />
                     </div>
                 </div>
                 <div class="form-row single">
-                    <div class="form-field" id="ff-info">
+                    <div class="form-field">
                         <label>Hotel Info</label>
                         <textarea id="hotelInfo" placeholder="Rooms, facilities, dining hours, contacts, WiFi password..."></textarea>
                     </div>
@@ -159,7 +234,7 @@
             </div>
             <div class="section-footer">
                 <span class="save-status" id="status-info"></span>
-                <button class="save-btn" id="saveInfoBtn" onclick="saveSection('info')">Save Changes</button>
+                <button class="save-btn" onclick="saveSection('info')">Save Changes</button>
             </div>
         </div>
 
@@ -172,7 +247,7 @@
             </div>
             <div class="section-body">
                 <div class="form-row single">
-                    <div class="form-field" id="ff-offers">
+                    <div class="form-field">
                         <label>Offers and Packages</label>
                         <textarea id="currentOffers" style="min-height:110px;"
                             placeholder="What are you offering at the moment?"></textarea>
@@ -181,12 +256,12 @@
             </div>
             <div class="section-footer">
                 <span class="save-status" id="status-offers"></span>
-                <button class="save-btn" id="saveOffersBtn" onclick="saveSection('offers')">Save Changes</button>
+                <button class="save-btn" onclick="saveSection('offers')">Save Changes</button>
             </div>
         </div>
 
         <!-- 3. STAFF KNOWLEDGE BASE -->
-        <div class="section" id="sectionKnowledge">
+        <div class="section">
             <div class="section-header">
                 <div class="section-eyebrow">Staff AI</div>
                 <div class="section-title">Staff Knowledge Base</div>
@@ -194,7 +269,7 @@
             </div>
             <div class="section-body">
                 <div class="form-row single">
-                    <div class="form-field" id="ff-knowledge">
+                    <div class="form-field">
                         <label>Knowledge Base</label>
                         <textarea id="staffKnowledge" style="min-height:200px;"
                             placeholder="Your hotel's procedures, policies and scripts..."></textarea>
@@ -203,7 +278,7 @@
             </div>
             <div class="section-footer">
                 <span class="save-status" id="status-knowledge"></span>
-                <button class="save-btn" id="saveKnowledgeBtn" onclick="saveSection('knowledge')">Save Knowledge Base</button>
+                <button class="save-btn" onclick="saveSection('knowledge')">Save Knowledge Base</button>
             </div>
         </div>
 
@@ -212,10 +287,10 @@
             <div class="section-header">
                 <div class="section-eyebrow">Access</div>
                 <div class="section-title">Passwords</div>
-                <div class="section-desc" id="pwDesc">Update access passwords</div>
+                <div class="section-desc">Update staff and manager passwords</div>
             </div>
             <div class="section-body">
-                <div class="form-row" id="pwStaffRow">
+                <div class="form-row">
                     <div class="form-field">
                         <label>New Staff Password</label>
                         <div class="pw-wrap">
@@ -241,7 +316,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-row" id="pwManagerRow" style="display:none;">
+                <div class="form-row">
                     <div class="form-field">
                         <label>New Manager Password</label>
                         <div class="pw-wrap">
@@ -277,20 +352,10 @@
     </div>
 
     <script>
-        let currentRole = 'manager', slug = '', hotelConfig = null;
+        let slug = '', hotelConfig = null;
         const pathParts = window.location.pathname.split('/');
         const portalIdx = pathParts.indexOf('portal');
         if (portalIdx !== -1) slug = pathParts[portalIdx + 1];
-
-        function setRole(role) {
-            currentRole = role;
-            document.getElementById('tab-manager').classList.toggle('active', role === 'manager');
-            document.getElementById('tab-staff').classList.toggle('active', role === 'staff');
-            document.getElementById('nameFieldWrap').style.display = role === 'staff' ? 'block' : 'none';
-            document.getElementById('loginDesc').textContent = role === 'manager'
-                ? 'Enter your manager password'
-                : 'Enter your name and staff password';
-        }
 
         async function loadConfig() {
             try {
@@ -305,43 +370,20 @@
             if (!hotelConfig) await loadConfig();
             const pw = document.getElementById('passwordInput').value;
             const errEl = document.getElementById('loginError');
-            const correctPw = hotelConfig.manager_password;
-            if (pw !== correctPw) { errEl.style.display = 'block'; return; }
-            if (currentRole === 'staff') {
-                const name = document.getElementById('staffNameInput').value.trim();
-                if (!name) { errEl.textContent = 'Please enter your name.'; errEl.style.display = 'block'; return; }
+            if (pw !== hotelConfig.manager_password) {
+                errEl.style.display = 'block';
+                return;
             }
             errEl.style.display = 'none';
-            enterDashboard();
+            enterSettings();
         }
 
-        function enterDashboard() {
+        function enterSettings() {
             document.getElementById('overlay').style.display = 'none';
             document.getElementById('mainHeader').style.display = 'flex';
             document.getElementById('mainBody').style.display = 'block';
-            const pill = document.getElementById('rolePill');
-            pill.textContent = currentRole === 'manager' ? 'Manager' : 'Staff';
-            pill.className = 'role-pill ' + (currentRole === 'manager' ? 'role-manager' : 'role-staff');
             document.getElementById('backLink').href = slug ? `/portal/${slug}` : '/';
-            applyPermissions();
             loadCurrentValues();
-        }
-
-        function applyPermissions() {
-            const isManager = currentRole === 'manager';
-            document.getElementById('staffNotice').style.display = isManager ? 'none' : 'block';
-            ['ff-name','ff-location','ff-email','ff-info','ff-offers','ff-knowledge'].forEach(id => {
-                const el = document.getElementById(id); if (!el) return;
-                el.classList.toggle('locked', !isManager);
-                const input = el.querySelector('input,textarea'); if (input) input.disabled = !isManager;
-            });
-            document.getElementById('saveInfoBtn').style.display      = isManager ? 'inline-block' : 'none';
-            document.getElementById('saveOffersBtn').style.display    = isManager ? 'inline-block' : 'none';
-            document.getElementById('saveKnowledgeBtn').style.display = isManager ? 'inline-block' : 'none';
-            document.getElementById('pwManagerRow').style.display     = isManager ? 'grid' : 'none';
-            document.getElementById('pwDesc').textContent = isManager
-                ? 'Update staff and manager passwords'
-                : 'Update the shared staff password';
         }
 
         async function loadCurrentValues() {
@@ -349,13 +391,13 @@
                 const url = slug ? `/get-hotel/${slug}` : '/hotel-config';
                 const r = await fetch(url);
                 const cfg = await r.json();
-                document.getElementById('pageSub').textContent      = (cfg.name || '') + ' — Settings';
-                document.getElementById('hotelName').value          = cfg.name || '';
-                document.getElementById('hotelLocation').value      = cfg.location || '';
-                document.getElementById('managerEmail').value       = cfg.manager_email || cfg.email || '';
-                document.getElementById('hotelInfo').value          = cfg.hotel_info || '';
-                document.getElementById('currentOffers').value      = cfg.current_offers || '';
-                document.getElementById('staffKnowledge').value     = cfg.staff_knowledge || '';
+                document.getElementById('pageSub').textContent   = (cfg.name || '') + ' — Settings';
+                document.getElementById('hotelName').value       = cfg.name || '';
+                document.getElementById('hotelLocation').value   = cfg.location || '';
+                document.getElementById('managerEmail').value    = cfg.manager_email || cfg.email || '';
+                document.getElementById('hotelInfo').value       = cfg.hotel_info || '';
+                document.getElementById('currentOffers').value   = cfg.current_offers || '';
+                document.getElementById('staffKnowledge').value  = cfg.staff_knowledge || '';
             } catch(e) {}
         }
 
@@ -380,14 +422,12 @@
                         if (newStaff.length < 4)    { showStatus(statusEl, 'Minimum 4 characters', false); return; }
                         payload.staff_password = newStaff;
                     }
-                    if (currentRole === 'manager') {
-                        const newMgr  = document.getElementById('newManagerPw').value;
-                        const confMgr = document.getElementById('confirmManagerPw').value;
-                        if (newMgr || confMgr) {
-                            if (newMgr !== confMgr) { showStatus(statusEl, 'Manager passwords do not match', false); return; }
-                            if (newMgr.length < 4)  { showStatus(statusEl, 'Minimum 4 characters', false); return; }
-                            payload.manager_password = newMgr;
-                        }
+                    const newMgr  = document.getElementById('newManagerPw').value;
+                    const confMgr = document.getElementById('confirmManagerPw').value;
+                    if (newMgr || confMgr) {
+                        if (newMgr !== confMgr) { showStatus(statusEl, 'Manager passwords do not match', false); return; }
+                        if (newMgr.length < 4)  { showStatus(statusEl, 'Minimum 4 characters', false); return; }
+                        payload.manager_password = newMgr;
                     }
                     if (!payload.staff_password && !payload.manager_password) {
                         showStatus(statusEl, 'Enter a new password first', false); return;
@@ -425,7 +465,6 @@
             const input = document.getElementById(inputId);
             const isHidden = input.type === 'password';
             input.type = isHidden ? 'text' : 'password';
-            // Swap between open and closed eye SVG
             btn.innerHTML = isHidden
                 ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>

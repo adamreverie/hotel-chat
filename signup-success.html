@@ -1,108 +1,122 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <link rel="icon" href="/favicon.ico">
     <title>You're Live — Favvi</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --navy: #1a1a2e;
+            --gold: #c9a84c;
+            --gold-dark: #8a6e2a;
+            --linen: #f0efe9;
+            --white: #ffffff;
+            --cream: #f8f4ee;
+            --ink: #1a1a2e;
+            --ink-60: rgba(26,26,46,0.6);
+            --ink-40: rgba(26,26,46,0.4);
+            --line: rgba(26,26,46,0.1);
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'DM Sans', sans-serif;
-            background: #1a1a2e;
+            background: var(--linen);
+            color: var(--ink);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 40px 20px;
+            -webkit-font-smoothing: antialiased;
         }
-        body::before {
-            content: '';
-            position: fixed;
-            top: -200px; right: -200px;
-            width: 600px; height: 600px;
-            background: radial-gradient(circle, rgba(201,168,76,0.07) 0%, transparent 70%);
-            pointer-events: none;
-        }
+
         .card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(201,168,76,0.15);
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-top: 3px solid var(--gold);
             border-radius: 4px;
             padding: 52px 44px;
             width: 100%;
-            max-width: 480px;
+            max-width: 460px;
             text-align: center;
-            position: relative;
-            z-index: 1;
+            box-shadow: 0 16px 48px rgba(26,26,46,0.08);
         }
+
         .logo {
             font-family: 'Cormorant Garamond', serif;
             font-size: 24px;
             font-weight: 600;
-            color: #f8f4ee;
             letter-spacing: 3px;
-            margin-bottom: 32px;
+            margin-bottom: 30px;
         }
-        .logo span { color: #c9a84c; }
+        .logo span { color: var(--gold); }
+
         .mark {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 64px;
+            font-size: 58px;
             font-weight: 300;
-            color: #c9a84c;
+            color: var(--gold);
             line-height: 1;
-            margin-bottom: 24px;
+            margin-bottom: 22px;
         }
+
         h1 {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 36px;
+            font-size: 38px;
             font-weight: 600;
-            color: #f8f4ee;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
         }
+        h1 em { font-style: italic; color: var(--gold-dark); font-weight: 400; }
+
+        .trial-badge {
+            display: inline-block;
+            border: 1px solid rgba(201,168,76,0.4);
+            color: var(--gold-dark);
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 6px 16px;
+            border-radius: 2px;
+            margin-bottom: 26px;
+        }
+
         p {
             font-size: 14px;
             font-weight: 300;
-            color: rgba(248,244,238,0.45);
+            color: var(--ink-60);
             line-height: 1.7;
             margin-bottom: 32px;
         }
+
         .portal-btn {
-            display: inline-block;
-            background: #c9a84c;
-            color: #1a1a2e;
-            padding: 14px 36px;
+            display: block;
+            background: var(--navy);
+            color: var(--cream);
+            padding: 15px 36px;
             border-radius: 2px;
-            font-family: 'DM Sans', sans-serif;
             font-size: 13px;
             font-weight: 500;
             text-decoration: none;
             letter-spacing: 0.5px;
-            transition: background 0.2s;
-            margin-bottom: 16px;
-            display: block;
+            transition: all 0.25s;
+            margin-bottom: 18px;
         }
-        .portal-btn:hover { background: #e8c97a; }
-        .login-link {
+        .portal-btn:hover { background: var(--gold); color: var(--navy); }
+
+        .help-link {
             font-size: 12px;
             font-weight: 300;
-            color: rgba(248,244,238,0.25);
-            margin-top: 16px;
+            color: var(--ink-40);
         }
-        .login-link a {
-            color: #c9a84c;
-            text-decoration: none;
-        }
-        .trial-badge {
-            display: inline-block;
-            border: 1px solid rgba(201,168,76,0.3);
-            color: rgba(201,168,76,0.7);
-            font-size: 11px;
-            font-weight: 500;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            padding: 6px 16px;
-            border-radius: 2px;
-            margin-bottom: 28px;
+        .help-link a { color: var(--gold-dark); text-decoration: none; }
+        .help-link a:hover { text-decoration: underline; }
+
+        @media (max-width: 460px) {
+            .card { padding: 40px 24px; }
+            h1 { font-size: 32px; }
         }
     </style>
 </head>
@@ -110,11 +124,11 @@
     <div class="card">
         <div class="logo">fav<span>vi</span></div>
         <div class="mark">✦</div>
-        <h1>You're live.</h1>
-        <div class="trial-badge">14-day free trial started</div>
+        <h1>You're <em>live.</em></h1>
+        <div class="trial-badge">14-Day Free Trial Started</div>
         <p>Your hotel portal is ready. We've sent your login details to your email — check your inbox to get started.</p>
         <a class="portal-btn" id="portalBtn" href="/login">Go to My Portal</a>
-        <div class="login-link">
+        <div class="help-link">
             Need help? <a href="mailto:hello@favvi.ai">hello@favvi.ai</a>
         </div>
     </div>
