@@ -4,495 +4,705 @@
 <link rel="icon" href="/favicon.ico">
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Favvi — AI Guest Experience for Hotels</title>
+<title>Favvi — The 24/7 AI Front Desk for Hotels</title>
+<meta name="description" content="Favvi answers your guests instantly, day and night, in any language — and alerts your staff only when a human is needed. Live in 5 minutes.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
     --navy: #1a1a2e;
+    --navy-soft: #23233c;
     --gold: #c9a84c;
     --gold-light: #e8c97a;
+    --gold-dark: #8a6e2a;
+    --linen: #f0efe9;
+    --white: #ffffff;
     --cream: #f8f4ee;
-    --border: rgba(201,168,76,0.2);
-    --muted: rgba(248,244,238,0.45);
-    /* Feature accent colours — same as portal */
+    --ink: #1a1a2e;
+    --ink-60: rgba(26,26,46,0.6);
+    --ink-40: rgba(26,26,46,0.4);
+    --ink-25: rgba(26,26,46,0.25);
+    --line: rgba(26,26,46,0.1);
+    --gold-line: rgba(201,168,76,0.25);
     --blue: #4a7fa5;
     --green: #6a9e6a;
     --purple: #9b7bb8;
-    --red: #c0392b;
+    --teal: #2e8b7a;
   }
 
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--navy); color: var(--cream); overflow-x: hidden; }
-
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none; z-index: 0; opacity: 0.4;
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--linen);
+    color: var(--ink);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
   }
 
-  /* ── NAV ── */
+  ::selection { background: var(--gold); color: var(--navy); }
+
+  /* ───────── NAV ───────── */
   nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    position: fixed; top: 0; left: 0; right: 0; z-index: 200;
     display: flex; justify-content: space-between; align-items: center;
-    padding: 22px 60px;
-    background: linear-gradient(to bottom, rgba(26,26,46,0.98), transparent);
-    backdrop-filter: blur(4px);
+    padding: 0 48px; height: 68px;
+    background: rgba(240,239,233,0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s;
   }
-  .logo { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; color: var(--cream); letter-spacing: 3px; text-decoration: none; }
+  nav.scrolled { border-bottom-color: var(--line); }
+
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 25px; font-weight: 600;
+    color: var(--ink); letter-spacing: 3px;
+    text-decoration: none;
+  }
   .logo em { color: var(--gold); font-style: normal; }
-  .nav-links { display: flex; gap: 36px; list-style: none; }
-  .nav-links a { font-size: 11px; font-weight: 300; color: rgba(248,244,238,0.5); text-decoration: none; letter-spacing: 1.5px; text-transform: uppercase; transition: color 0.3s; }
-  .nav-links a:hover { color: var(--gold); }
+
+  .nav-links { display: flex; gap: 34px; list-style: none; }
+  .nav-links a {
+    font-size: 11px; font-weight: 400; color: var(--ink-60);
+    text-decoration: none; letter-spacing: 1.5px; text-transform: uppercase;
+    transition: color 0.25s;
+  }
+  .nav-links a:hover { color: var(--gold-dark); }
+
   .nav-actions { display: flex; align-items: center; gap: 10px; }
-  .btn-nav-ghost { background: transparent; color: rgba(248,244,238,0.55); border: 1px solid rgba(201,168,76,0.25); padding: 9px 20px; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 300; cursor: pointer; letter-spacing: 0.5px; transition: all 0.3s; text-decoration: none; }
-  .btn-nav-ghost:hover { border-color: var(--gold); color: var(--gold); }
-  .btn-nav-gold { background: var(--gold); color: var(--navy); border: none; padding: 10px 22px; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500; cursor: pointer; letter-spacing: 0.5px; transition: background 0.3s; text-decoration: none; }
-  .btn-nav-gold:hover { background: var(--gold-light); }
+  .btn-nav-ghost {
+    color: var(--ink-60); border: 1px solid var(--line);
+    padding: 9px 20px; border-radius: 2px;
+    font-size: 11px; font-weight: 400; letter-spacing: 0.5px;
+    text-decoration: none; transition: all 0.25s; background: transparent;
+  }
+  .btn-nav-ghost:hover { border-color: var(--gold); color: var(--gold-dark); }
+  .btn-nav-gold {
+    background: var(--navy); color: var(--cream);
+    padding: 10px 22px; border-radius: 2px;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.5px;
+    text-decoration: none; transition: all 0.25s; border: none;
+  }
+  .btn-nav-gold:hover { background: var(--gold); color: var(--navy); }
 
-  /* ── BUTTONS ── */
-  .btn-primary { background: var(--gold); color: var(--navy); border: none; padding: 15px 36px; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; letter-spacing: 0.5px; transition: all 0.3s; text-decoration: none; display: inline-block; }
-  .btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(201,168,76,0.25); }
-  .btn-ghost { background: transparent; color: var(--cream); border: 1px solid rgba(248,244,238,0.2); padding: 15px 36px; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 300; cursor: pointer; transition: all 0.3s; text-decoration: none; display: inline-block; }
-  .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+  /* ───────── BUTTONS ───────── */
+  .btn-primary {
+    background: var(--navy); color: var(--cream);
+    border: none; padding: 16px 38px; border-radius: 2px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+    letter-spacing: 0.5px; cursor: pointer; text-decoration: none;
+    display: inline-block; transition: all 0.3s;
+  }
+  .btn-primary:hover { background: var(--gold); color: var(--navy); transform: translateY(-2px); box-shadow: 0 12px 28px rgba(201,168,76,0.3); }
 
-  section { position: relative; z-index: 1; }
+  .btn-outline {
+    background: transparent; color: var(--ink);
+    border: 1px solid rgba(26,26,46,0.25); padding: 16px 38px; border-radius: 2px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 400;
+    cursor: pointer; text-decoration: none; display: inline-block; transition: all 0.3s;
+  }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold-dark); }
 
-  /* ── HERO ── */
+  .eyebrow {
+    font-size: 10px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--gold-dark); display: flex; align-items: center; gap: 12px; margin-bottom: 22px;
+  }
+  .eyebrow::before { content: ''; display: block; width: 28px; height: 1px; background: var(--gold); }
+
+  /* ───────── HERO ───────── */
   .hero {
     min-height: 100vh;
-    display: grid; grid-template-columns: 1fr 1fr;
-    align-items: center;
-    padding: 0 60px; max-width: 1200px; margin: 0 auto; gap: 60px;
+    display: grid; grid-template-columns: 1.05fr 0.95fr;
+    align-items: center; gap: 64px;
+    max-width: 1180px; margin: 0 auto;
+    padding: 130px 48px 80px;
   }
-  .hero-left { padding-top: 80px; animation: fadeUp 0.9s ease both; }
 
-  .eyebrow { font-size: 10px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
-  .eyebrow::before { content: ''; display: block; width: 24px; height: 1px; background: var(--gold); }
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(52px, 5.6vw, 82px);
+    font-weight: 600; line-height: 1.02; margin-bottom: 26px;
+  }
+  .hero-title em { font-style: italic; color: var(--gold-dark); font-weight: 400; }
 
-  .hero-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(54px, 6vw, 86px); font-weight: 600; line-height: 1.0; color: var(--cream); margin-bottom: 26px; }
-  .hero-title em { font-style: italic; color: var(--gold); font-weight: 400; }
-  .hero-sub { font-size: 16px; font-weight: 300; color: var(--muted); line-height: 1.75; max-width: 420px; margin-bottom: 40px; }
-  .hero-actions { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
-  .hero-note { font-size: 11px; font-weight: 300; color: rgba(248,244,238,0.2); }
-  .hero-note span { color: rgba(201,168,76,0.5); }
+  .hero-sub {
+    font-size: 16px; font-weight: 300; color: var(--ink-60);
+    line-height: 1.8; max-width: 460px; margin-bottom: 38px;
+  }
+  .hero-sub strong { font-weight: 500; color: var(--ink); }
 
-  /* Phone mockup */
-  .hero-right { padding-top: 80px; display: flex; justify-content: center; animation: fadeUp 0.9s 0.2s ease both; }
-  .phone { width: 265px; height: 530px; background: #0d1117; border-radius: 30px; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 60px rgba(201,168,76,0.07); overflow: hidden; transform: rotate(-2deg) translateY(16px); transition: transform 0.5s ease; }
-  .phone:hover { transform: rotate(0deg) translateY(0); }
-  .phone-header { background: linear-gradient(135deg, #1a1a2e, #0f3460); padding: 20px 16px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-  .phone-hotel { font-family: 'Cormorant Garamond', serif; font-size: 15px; font-weight: 600; color: var(--gold); margin-bottom: 2px; }
-  .phone-sub { font-size: 9px; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; margin-bottom: 8px; }
-  .phone-pill { display: inline-flex; align-items: center; gap: 5px; background: rgba(76,175,80,0.12); border: 1px solid rgba(76,175,80,0.2); padding: 3px 8px; border-radius: 10px; font-size: 8px; color: #81c784; }
-  .phone-pill-dot { width: 4px; height: 4px; background: #4CAF50; border-radius: 50%; animation: pulse 2s infinite; }
+  .hero-actions { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; }
+  .hero-note { font-size: 12px; font-weight: 300; color: var(--ink-40); }
+  .hero-note span { color: var(--gold-dark); font-weight: 400; }
+
+  /* ── Hero simulation ── */
+  .sim-wrap { position: relative; }
+
+  .sim-clock {
+    position: absolute; top: -38px; right: 8px;
+    font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 600;
+    color: var(--ink-40); letter-spacing: 1px;
+    display: flex; align-items: baseline; gap: 8px;
+  }
+  .sim-clock small { font-family: 'DM Sans', sans-serif; font-size: 9px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-25); }
+
+  .sim-phone {
+    background: var(--navy);
+    border-radius: 22px;
+    padding: 24px 20px 20px;
+    box-shadow: 0 30px 70px rgba(26,26,46,0.28), 0 4px 16px rgba(26,26,46,0.12);
+    position: relative;
+    min-height: 430px;
+    display: flex; flex-direction: column;
+  }
+  .sim-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-bottom: 16px; margin-bottom: 16px;
+    border-bottom: 1px solid rgba(248,244,238,0.08);
+  }
+  .sim-hotel { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 600; color: var(--gold); letter-spacing: 0.5px; }
+  .sim-hotel-sub { font-size: 9px; font-weight: 300; color: rgba(248,244,238,0.35); letter-spacing: 1px; margin-top: 2px; }
+  .sim-online {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 9px; color: #82c98c; letter-spacing: 0.5px;
+    background: rgba(106,158,106,0.12); border: 1px solid rgba(106,158,106,0.25);
+    padding: 4px 10px; border-radius: 12px;
+  }
+  .sim-online-dot { width: 5px; height: 5px; border-radius: 50%; background: #82c98c; animation: pulse 2s infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-  .phone-messages { padding: 14px 12px; display: flex; flex-direction: column; gap: 9px; }
-  .pmsg { padding: 9px 11px; border-radius: 12px; font-size: 10px; line-height: 1.5; max-width: 85%; }
-  .pmsg-ai { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.8); align-self: flex-start; border-radius: 3px 12px 12px 12px; }
-  .pmsg-user { background: var(--gold); color: var(--navy); align-self: flex-end; border-radius: 12px 3px 12px 12px; font-weight: 500; }
-  .typing { display: flex; gap: 3px; padding: 8px 11px; background: rgba(255,255,255,0.07); border-radius: 3px 12px 12px 12px; width: fit-content; }
-  .typing span { width: 4px; height: 4px; background: var(--gold); border-radius: 50%; animation: tdot 1.2s infinite; opacity: 0.4; }
-  .typing span:nth-child(2) { animation-delay: 0.2s; }
-  .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+  .sim-messages { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+  .sim-msg {
+    padding: 11px 14px; border-radius: 14px;
+    font-size: 12px; line-height: 1.55; max-width: 86%;
+    opacity: 0; transform: translateY(8px);
+    transition: opacity 0.45s ease, transform 0.45s ease;
+  }
+  .sim-msg.shown { opacity: 1; transform: translateY(0); }
+  .sim-msg-guest {
+    background: var(--gold); color: var(--navy); font-weight: 500;
+    align-self: flex-end; border-radius: 14px 4px 14px 14px;
+  }
+  .sim-msg-ai {
+    background: rgba(248,244,238,0.08); color: rgba(248,244,238,0.85);
+    align-self: flex-start; border-radius: 4px 14px 14px 14px;
+  }
+  .sim-typing {
+    display: none; gap: 4px; padding: 11px 14px;
+    background: rgba(248,244,238,0.08); border-radius: 4px 14px 14px 14px;
+    width: fit-content;
+  }
+  .sim-typing.shown { display: flex; }
+  .sim-typing span { width: 5px; height: 5px; background: var(--gold); border-radius: 50%; animation: tdot 1.2s infinite; opacity: 0.4; }
+  .sim-typing span:nth-child(2) { animation-delay: 0.2s; }
+  .sim-typing span:nth-child(3) { animation-delay: 0.4s; }
   @keyframes tdot { 0%,80%,100%{transform:translateY(0);opacity:0.4} 40%{transform:translateY(-5px);opacity:1} }
 
-  /* ── STAT BAR ── */
-  .stat-bar { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: rgba(201,168,76,0.03); display: grid; grid-template-columns: repeat(4,1fr); position: relative; z-index: 1; }
-  .stat-item { padding: 40px 20px; text-align: center; border-right: 1px solid var(--border); }
-  .stat-item:last-child { border-right: none; }
-  .stat-num { font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 600; color: var(--gold); line-height: 1; margin-bottom: 6px; }
-  .stat-label { font-size: 10px; font-weight: 300; color: rgba(248,244,238,0.35); letter-spacing: 1.5px; text-transform: uppercase; }
-
-  /* ── FEATURES — colour coded ── */
-  .features-section { border-bottom: 1px solid var(--border); }
-
-  .features-intro { padding: 100px 60px 60px; max-width: 1100px; margin: 0 auto; }
-
-  .section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(36px,4vw,54px); font-weight: 600; line-height: 1.1; color: var(--cream); margin-bottom: 16px; }
-  .section-title em { font-style: italic; color: var(--gold); font-weight: 400; }
-  .section-sub { font-size: 15px; font-weight: 300; color: var(--muted); line-height: 1.7; max-width: 500px; }
-
-  .features-grid { display: grid; grid-template-columns: repeat(2,1fr); max-width: 1100px; margin: 0 auto; }
-
-  .feature-card {
-    padding: 52px 48px;
-    border-top: 1px solid var(--border);
-    border-right: 1px solid var(--border);
-    position: relative; overflow: hidden;
-    transition: background 0.3s;
-  }
-  .feature-card:nth-child(even) { border-right: none; }
-  .feature-card:hover { background: rgba(255,255,255,0.02); }
-
-  /* Coloured top border per feature */
-  .feature-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
-  .feature-card.f-gold::before  { background: var(--gold); }
-  .feature-card.f-blue::before  { background: var(--blue); }
-  .feature-card.f-green::before { background: var(--green); }
-  .feature-card.f-purple::before{ background: var(--purple); }
-
-  .feature-num { font-family: 'Cormorant Garamond', serif; font-size: 42px; font-weight: 300; line-height: 1; margin-bottom: 20px; }
-  .f-gold   .feature-num { color: rgba(201,168,76,0.25); }
-  .f-blue   .feature-num { color: rgba(74,127,165,0.25); }
-  .f-green  .feature-num { color: rgba(106,158,106,0.25); }
-  .f-purple .feature-num { color: rgba(155,123,184,0.25); }
-
-  .feature-title { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 600; margin-bottom: 14px; line-height: 1.2; }
-  .f-gold   .feature-title { color: #d4b05a; }
-  .f-blue   .feature-title { color: #6da0c4; }
-  .f-green  .feature-title { color: #82b882; }
-  .f-purple .feature-title { color: #b89ad4; }
-
-  .feature-desc { font-size: 13px; font-weight: 300; color: var(--muted); line-height: 1.75; }
-
-  .feature-tag { display: inline-block; font-size: 9px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; padding: 4px 10px; border-radius: 2px; margin-top: 18px; }
-  .f-gold   .feature-tag { color: var(--gold);   border: 1px solid rgba(201,168,76,0.3);   background: rgba(201,168,76,0.06); }
-  .f-blue   .feature-tag { color: var(--blue);   border: 1px solid rgba(74,127,165,0.3);   background: rgba(74,127,165,0.06); }
-  .f-green  .feature-tag { color: var(--green);  border: 1px solid rgba(106,158,106,0.3);  background: rgba(106,158,106,0.06); }
-  .f-purple .feature-tag { color: var(--purple); border: 1px solid rgba(155,123,184,0.3);  background: rgba(155,123,184,0.06); }
-
-  /* ── HOW IT WORKS ── */
-  .how-section { border-bottom: 1px solid var(--border); }
-  .how-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; padding: 100px 60px; max-width: 1100px; margin: 0 auto; }
-  .steps { display: flex; flex-direction: column; margin-top: 48px; }
-  .step { display: flex; gap: 24px; padding: 28px 0; border-bottom: 1px solid var(--border); transition: all 0.3s; }
-  .step:first-child { border-top: 1px solid var(--border); }
-  .step-num { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 300; color: rgba(201,168,76,0.2); line-height: 1; min-width: 44px; transition: color 0.3s; }
-  .step:hover .step-num { color: var(--gold); }
-  .step-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: var(--cream); margin-bottom: 6px; }
-  .step-desc { font-size: 13px; font-weight: 300; color: var(--muted); line-height: 1.65; }
-
-  /* Dashboard mockup */
-  .dash-mockup { background: #0d1117; border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; overflow: hidden; box-shadow: 0 40px 80px rgba(0,0,0,0.4); position: sticky; top: 100px; }
-  .dash-header { background: #1a1a2e; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
-  .dash-logo { font-family: 'Cormorant Garamond', serif; font-size: 14px; font-weight: 600; color: var(--cream); letter-spacing: 2px; }
-  .dash-logo span { color: var(--gold); }
-  .dash-live { display: flex; align-items: center; gap: 5px; font-size: 9px; color: rgba(255,255,255,0.35); letter-spacing: 1px; }
-  .dash-live-dot { width: 6px; height: 6px; background: #4CAF50; border-radius: 50%; animation: pulse 1.5s infinite; }
-  .dash-body { padding: 16px; }
-  .dash-label { font-size: 8px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.25); margin-bottom: 10px; padding-left: 10px; border-left: 2px solid var(--red); }
-  .dash-card { border-radius: 6px; padding: 12px 14px; margin-bottom: 8px; border-left: 3px solid; }
-  .dc-new { background: rgba(255,255,255,0.04); border-color: var(--red); }
-  .dc-prog { background: rgba(255,255,255,0.03); border-color: #d68910; }
-  .dc-done { background: rgba(255,255,255,0.02); border-color: var(--green); opacity: 0.6; }
-  .dash-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-  .dbadge { font-size: 8px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 2px 7px; border-radius: 2px; }
-  .dbadge-hk { background: rgba(192,57,43,0.2); color: #e74c3c; }
-  .dbadge-rs { background: rgba(214,137,16,0.2); color: #f39c12; }
-  .dbadge-done { background: rgba(106,158,106,0.2); color: var(--green); }
-  .droom { font-size: 12px; font-weight: 600; color: var(--cream); font-family: 'Cormorant Garamond', serif; }
-  .ddetail { font-size: 10px; color: rgba(255,255,255,0.45); line-height: 1.4; margin-bottom: 8px; }
-  .dbtn { font-size: 9px; font-weight: 500; padding: 4px 10px; border: none; border-radius: 2px; cursor: pointer; }
-  .dbtn-claim { background: #1a1a2e; color: white; border: 1px solid rgba(255,255,255,0.1); }
-  .dbtn-done { background: var(--green); color: white; }
-  .dash-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 12px; }
-  .dstat { background: rgba(255,255,255,0.03); border-radius: 6px; padding: 12px; text-align: center; }
-  .dstat-val { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; color: var(--gold); line-height: 1; }
-  .dstat-lbl { font-size: 8px; color: rgba(255,255,255,0.25); margin-top: 4px; letter-spacing: 0.5px; }
-
-  /* ── WHO IT'S FOR ── */
-  .who-section { border-bottom: 1px solid var(--border); padding: 100px 60px; max-width: 1100px; margin: 0 auto; }
-  .who-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 60px; }
-  .who-card { background: var(--navy); padding: 40px 34px; transition: background 0.3s; position: relative; overflow: hidden; }
-  .who-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
-  .who-card:nth-child(1)::before { background: var(--gold); }
-  .who-card:nth-child(2)::before { background: var(--blue); }
-  .who-card:nth-child(3)::before { background: var(--green); }
-  .who-card:hover { background: rgba(255,255,255,0.02); }
-  .who-type { font-size: 9px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; }
-  .who-card:nth-child(1) .who-type { color: var(--gold); }
-  .who-card:nth-child(2) .who-type { color: var(--blue); }
-  .who-card:nth-child(3) .who-type { color: var(--green); }
-  .who-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--cream); margin-bottom: 12px; line-height: 1.2; }
-  .who-desc { font-size: 13px; font-weight: 300; color: var(--muted); line-height: 1.65; }
-
-  /* ── PRICING — single card ── */
-  .pricing-section { border-bottom: 1px solid var(--border); padding: 100px 60px; max-width: 1100px; margin: 0 auto; }
-
-  .pricing-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; margin-top: 60px; }
-
-  .price-card {
-    border: 1px solid var(--gold);
+  /* Staff alert toast */
+  .sim-alert {
+    position: absolute; bottom: 26px; right: -34px;
+    background: var(--white);
+    border-left: 3px solid var(--blue);
     border-radius: 4px;
-    padding: 52px 44px;
-    background: rgba(201,168,76,0.04);
-    position: relative;
+    padding: 14px 18px;
+    box-shadow: 0 16px 40px rgba(26,26,46,0.22);
+    width: 250px;
+    opacity: 0; transform: translateX(24px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
   }
-
-  .price-everything {
-    position: absolute;
-    top: -12px; left: 50%;
-    transform: translateX(-50%);
-    background: var(--gold);
-    color: var(--navy);
-    font-size: 9px;
-    font-weight: 600;
-    padding: 4px 16px;
-    border-radius: 20px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    white-space: nowrap;
+  .sim-alert.shown { opacity: 1; transform: translateX(0); }
+  .sim-alert-label {
+    font-size: 8px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--blue); margin-bottom: 6px;
+    display: flex; align-items: center; gap: 6px;
   }
+  .sim-alert-label::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--blue); }
+  .sim-alert-text { font-size: 12px; font-weight: 400; color: var(--ink); line-height: 1.5; }
+  .sim-alert-sub { font-size: 10px; font-weight: 300; color: var(--ink-40); margin-top: 5px; }
 
+  /* ───────── TRUST STRIP ───────── */
+  .strip {
+    border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    background: var(--white);
+  }
+  .strip-inner {
+    max-width: 1180px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+  }
+  .strip-item {
+    padding: 34px 24px; text-align: center;
+    border-right: 1px solid var(--line);
+  }
+  .strip-item:last-child { border-right: none; }
+  .strip-value { font-family: 'Cormorant Garamond', serif; font-size: 34px; font-weight: 600; color: var(--ink); line-height: 1; margin-bottom: 6px; }
+  .strip-value em { font-style: italic; color: var(--gold-dark); }
+  .strip-label { font-size: 10px; font-weight: 400; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-40); }
+
+  /* ───────── SECTIONS GENERIC ───────── */
+  section { position: relative; }
+  .section-inner { max-width: 1180px; margin: 0 auto; padding: 110px 48px; }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(38px, 4vw, 56px); font-weight: 600; line-height: 1.08;
+    margin-bottom: 18px;
+  }
+  .section-title em { font-style: italic; color: var(--gold-dark); font-weight: 400; }
+  .section-sub { font-size: 15px; font-weight: 300; color: var(--ink-60); line-height: 1.75; max-width: 520px; }
+
+  /* ───────── HOW IT WORKS ───────── */
+  .steps {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
+    margin-top: 64px; border-top: 1px solid var(--line);
+  }
+  .step {
+    padding: 44px 36px 0 0;
+    border-right: 1px solid var(--line);
+    padding-right: 36px; padding-left: 36px;
+  }
+  .step:first-child { padding-left: 0; }
+  .step:last-child { border-right: none; padding-right: 0; }
+  .step-num {
+    font-family: 'Cormorant Garamond', serif; font-size: 18px; font-style: italic;
+    color: var(--gold-dark); margin-bottom: 18px;
+  }
+  .step-title { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 600; margin-bottom: 12px; line-height: 1.2; }
+  .step-desc { font-size: 14px; font-weight: 300; color: var(--ink-60); line-height: 1.75; }
+
+  /* ───────── NIGHT SHIFT (dark) ───────── */
+  .night {
+    background: var(--navy); color: var(--cream);
+    overflow: hidden; position: relative;
+  }
+  .night::before {
+    content: '';
+    position: absolute; top: -180px; right: -180px;
+    width: 560px; height: 560px;
+    background: radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .night-inner {
+    max-width: 1180px; margin: 0 auto; padding: 120px 48px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: center;
+  }
+  .night .eyebrow { color: var(--gold); }
+  .night .eyebrow::before { background: var(--gold); }
+  .night-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(38px, 4vw, 56px); font-weight: 600; line-height: 1.08;
+    color: var(--cream); margin-bottom: 18px;
+  }
+  .night-title em { font-style: italic; color: var(--gold); font-weight: 400; }
+  .night-sub { font-size: 15px; font-weight: 300; color: rgba(248,244,238,0.5); line-height: 1.8; max-width: 440px; }
+
+  .night-feed {
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .feed-card {
+    background: rgba(248,244,238,0.04);
+    border: 1px solid rgba(248,244,238,0.08);
+    border-left: 3px solid var(--gold);
+    border-radius: 4px;
+    padding: 18px 22px;
+    display: flex; justify-content: space-between; align-items: center; gap: 16px;
+    opacity: 0.45;
+    transition: opacity 0.6s ease, border-color 0.6s ease, background 0.6s ease;
+  }
+  .feed-card.active {
+    opacity: 1;
+    background: rgba(248,244,238,0.07);
+  }
+  .feed-card.c-blue { border-left-color: var(--blue); }
+  .feed-card.c-green { border-left-color: var(--green); }
+  .feed-card.c-teal { border-left-color: var(--teal); }
+  .feed-time {
+    font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600;
+    color: var(--gold); white-space: nowrap; min-width: 74px;
+  }
+  .feed-body { flex: 1; }
+  .feed-req { font-size: 13px; font-weight: 400; color: rgba(248,244,238,0.85); margin-bottom: 4px; }
+  .feed-res { font-size: 11px; font-weight: 300; color: rgba(248,244,238,0.4); }
+  .feed-res b { color: #82c98c; font-weight: 400; }
+
+  /* ───────── FEATURES ───────── */
+  .features { background: var(--white); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .features-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+    margin-top: 64px;
+  }
+  .fcard {
+    background: var(--linen);
+    border-radius: 4px;
+    border-top: 3px solid var(--gold);
+    padding: 36px 30px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .fcard:hover { transform: translateY(-4px); box-shadow: 0 16px 36px rgba(26,26,46,0.1); }
+  .fcard.c-gold { border-top-color: var(--gold); }
+  .fcard.c-blue { border-top-color: var(--blue); }
+  .fcard.c-green { border-top-color: var(--green); }
+  .fcard.c-purple { border-top-color: var(--purple); }
+  .fcard.c-teal { border-top-color: var(--teal); }
+  .fcard-label {
+    font-size: 9px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .c-gold .fcard-label { color: var(--gold-dark); }
+  .c-blue .fcard-label { color: var(--blue); }
+  .c-green .fcard-label { color: var(--green); }
+  .c-purple .fcard-label { color: var(--purple); }
+  .c-teal .fcard-label { color: var(--teal); }
+  .fcard-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; margin-bottom: 10px; line-height: 1.2; }
+  .fcard-desc { font-size: 13px; font-weight: 300; color: var(--ink-60); line-height: 1.7; }
+
+  /* ───────── PRICING ───────── */
+  .pricing-grid {
+    display: grid; grid-template-columns: 0.95fr 1.05fr; gap: 72px;
+    margin-top: 64px; align-items: start;
+  }
+  .price-card {
+    background: var(--navy); color: var(--cream);
+    border-radius: 6px; padding: 48px 44px;
+    box-shadow: 0 30px 70px rgba(26,26,46,0.25);
+    position: relative; overflow: hidden;
+  }
+  .price-card::before {
+    content: '';
+    position: absolute; top: -120px; right: -120px;
+    width: 320px; height: 320px;
+    background: radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .price-badge {
+    display: inline-block;
+    border: 1px solid rgba(201,168,76,0.4); color: var(--gold);
+    font-size: 9px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
+    padding: 6px 14px; border-radius: 2px; margin-bottom: 28px;
+  }
   .price-amount {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 80px;
-    font-weight: 600;
-    color: var(--gold);
-    line-height: 1;
-    margin-bottom: 4px;
+    font-size: 84px; font-weight: 600; line-height: 1; color: var(--cream);
   }
-  .price-amount sup { font-size: 32px; vertical-align: top; margin-top: 12px; display: inline-block; }
-  .price-period { font-size: 13px; font-weight: 300; color: rgba(248,244,238,0.35); margin-bottom: 32px; }
-
+  .price-amount sup { font-size: 34px; font-weight: 400; color: var(--gold); margin-right: 4px; }
+  .price-period { font-size: 12px; font-weight: 300; color: rgba(248,244,238,0.4); margin: 8px 0 10px; }
+  .price-strike { font-size: 13px; font-weight: 300; color: rgba(248,244,238,0.3); margin-bottom: 28px; }
+  .price-strike s { color: rgba(248,244,238,0.45); }
   .price-features { list-style: none; margin-bottom: 36px; }
-  .price-features li { font-size: 13px; font-weight: 300; color: rgba(248,244,238,0.7); padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); display: flex; align-items: center; gap: 10px; }
-  .price-features li::before { content: '✦'; font-size: 7px; flex-shrink: 0; }
-  .price-features li:nth-child(1)::before { color: var(--gold); }
-  .price-features li:nth-child(2)::before { color: var(--blue); }
-  .price-features li:nth-child(3)::before { color: var(--blue); }
-  .price-features li:nth-child(4)::before { color: var(--green); }
-  .price-features li:nth-child(5)::before { color: var(--green); }
-  .price-features li:nth-child(6)::before { color: var(--purple); }
-  .price-features li:nth-child(7)::before { color: var(--purple); }
-  .price-features li:nth-child(8)::before { color: var(--gold); }
+  .price-features li {
+    font-size: 13px; font-weight: 300; color: rgba(248,244,238,0.75);
+    padding: 9px 0 9px 24px; position: relative;
+    border-bottom: 1px solid rgba(248,244,238,0.06);
+  }
+  .price-features li:last-child { border-bottom: none; }
+  .price-features li::before { content: '✦'; position: absolute; left: 0; color: var(--gold); font-size: 10px; top: 11px; }
+  .price-cta {
+    display: block; text-align: center;
+    background: var(--gold); color: var(--navy);
+    padding: 16px; border-radius: 2px;
+    font-size: 13px; font-weight: 500; letter-spacing: 0.5px;
+    text-decoration: none; transition: background 0.25s;
+  }
+  .price-cta:hover { background: var(--gold-light); }
+  .price-fine { text-align: center; font-size: 11px; font-weight: 300; color: rgba(248,244,238,0.3); margin-top: 14px; }
 
-  .price-right 
-  .price-right-title { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 600; color: var(--cream); line-height: 1.2; margin-bottom: 20px; }
-  .price-right-title em { font-style: italic; color: var(--gold); font-weight: 400; }
-  .price-right-desc { font-size: 14px; font-weight: 300; color: var(--muted); line-height: 1.75; margin-bottom: 28px; }
-  .price-value-row { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
-  .price-value-item { display: flex; align-items: flex-start; gap: 12px; }
-  .pvi-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
-  .pvi-text { font-size: 13px; font-weight: 300; color: var(--muted); line-height: 1.5; }
-  .price-trial-note { font-size: 11px; font-weight: 300; color: rgba(248,244,238,0.2); margin-top: 14px; }
-  .price-trial-note span { color: rgba(201,168,76,0.5); }
+  .price-right { padding-top: 12px; }
+  .price-right-title { font-family: 'Cormorant Garamond', serif; font-size: 34px; font-weight: 600; line-height: 1.15; margin-bottom: 18px; }
+  .price-right-title em { font-style: italic; color: var(--gold-dark); font-weight: 400; }
+  .price-right-desc { font-size: 14px; font-weight: 300; color: var(--ink-60); line-height: 1.8; margin-bottom: 32px; }
+  .pvi { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 18px; }
+  .pvi-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+  .pvi-text { font-size: 13px; font-weight: 300; color: var(--ink-60); line-height: 1.6; }
 
-  /* ── CTA ── */
-  .cta-section { text-align: center; padding: 140px 60px; background: linear-gradient(135deg, rgba(201,168,76,0.05) 0%, transparent 60%); border-top: 1px solid var(--border); position: relative; z-index: 1; }
-  .cta-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(42px,5vw,68px); font-weight: 600; line-height: 1.1; color: var(--cream); max-width: 680px; margin: 0 auto 20px; }
-  .cta-title em { font-style: italic; color: var(--gold); font-weight: 400; }
-  .cta-sub { font-size: 15px; font-weight: 300; color: var(--muted); max-width: 380px; margin: 0 auto 44px; line-height: 1.7; }
-  .cta-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
-  .cta-note { font-size: 11px; font-weight: 300; color: rgba(248,244,238,0.2); margin-top: 20px; }
-  .cta-note span { color: rgba(201,168,76,0.5); }
+  /* ───────── FAQ ───────── */
+  .faq { background: var(--white); border-top: 1px solid var(--line); }
+  .faq-list { margin-top: 56px; max-width: 760px; }
+  .faq-item { border-bottom: 1px solid var(--line); }
+  .faq-item summary {
+    font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600;
+    padding: 26px 40px 26px 0;
+    cursor: pointer; list-style: none; position: relative;
+    transition: color 0.25s;
+  }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item summary::after {
+    content: '+'; position: absolute; right: 4px; top: 24px;
+    font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: 24px;
+    color: var(--gold-dark); transition: transform 0.25s;
+  }
+  .faq-item[open] summary::after { transform: rotate(45deg); }
+  .faq-item summary:hover { color: var(--gold-dark); }
+  .faq-item p { font-size: 14px; font-weight: 300; color: var(--ink-60); line-height: 1.8; padding-bottom: 28px; max-width: 640px; }
 
-  /* ── FOOTER ── */
-  footer { border-top: 1px solid var(--border); padding: 40px 60px; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1; flex-wrap: wrap; gap: 16px; }
-  .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: var(--cream); letter-spacing: 3px; }
+  /* ───────── CONTACT ───────── */
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 72px; margin-top: 56px; align-items: start; }
+  .contact-left p { font-size: 14px; font-weight: 300; color: var(--ink-60); line-height: 1.8; margin-bottom: 28px; max-width: 400px; }
+  .contact-direct { font-size: 13px; font-weight: 300; color: var(--ink-40); }
+  .contact-direct a { color: var(--gold-dark); text-decoration: none; }
+  .contact-direct a:hover { text-decoration: underline; }
+
+  .cform { display: flex; flex-direction: column; gap: 14px; }
+  .cform-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .cform input, .cform textarea {
+    width: 100%; padding: 14px 16px;
+    background: var(--white); border: 1px solid var(--line); border-radius: 2px;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 300; color: var(--ink);
+    outline: none; transition: border-color 0.2s; resize: vertical;
+  }
+  .cform input:focus, .cform textarea:focus { border-color: var(--gold); }
+  .cform input::placeholder, .cform textarea::placeholder { color: var(--ink-25); }
+  .cform-status { font-size: 13px; font-weight: 300; display: none; }
+  .cform-status.ok { color: var(--green); display: block; }
+  .cform-status.err { color: #c0392b; display: block; }
+
+  /* ───────── FINAL CTA ───────── */
+  .final {
+    background: var(--navy); text-align: center;
+    padding: 130px 48px; position: relative; overflow: hidden;
+  }
+  .final::before {
+    content: '';
+    position: absolute; bottom: -200px; left: 50%; transform: translateX(-50%);
+    width: 700px; height: 500px;
+    background: radial-gradient(ellipse, rgba(201,168,76,0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .final-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(40px, 4.5vw, 62px); font-weight: 600; line-height: 1.1;
+    color: var(--cream); margin-bottom: 18px; position: relative;
+  }
+  .final-title em { font-style: italic; color: var(--gold); font-weight: 400; }
+  .final-sub { font-size: 14px; font-weight: 300; color: rgba(248,244,238,0.45); margin-bottom: 40px; position: relative; }
+  .final .btn-primary { background: var(--gold); color: var(--navy); position: relative; }
+  .final .btn-primary:hover { background: var(--gold-light); }
+  .final-note { font-size: 11px; font-weight: 300; color: rgba(248,244,238,0.25); margin-top: 18px; position: relative; }
+
+  /* ───────── FOOTER ───────── */
+  footer {
+    background: var(--navy); border-top: 1px solid rgba(248,244,238,0.07);
+    padding: 48px; text-align: center;
+  }
+  .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--cream); letter-spacing: 3px; margin-bottom: 14px; }
   .footer-logo span { color: var(--gold); }
-  .footer-contact { font-size: 11px; font-weight: 300; color: rgba(248,244,238,0.3); }
-  .footer-contact a { color: var(--gold); text-decoration: none; }
-  .footer-links { display: flex; gap: 24px; list-style: none; }
-  .footer-links a { font-size: 11px; font-weight: 300; color: rgba(248,244,238,0.3); text-decoration: none; transition: color 0.3s; }
+  .footer-links { list-style: none; display: flex; justify-content: center; gap: 28px; margin-bottom: 18px; flex-wrap: wrap; }
+  .footer-links a { font-size: 11px; font-weight: 300; color: rgba(248,244,238,0.4); text-decoration: none; letter-spacing: 1px; text-transform: uppercase; transition: color 0.25s; }
   .footer-links a:hover { color: var(--gold); }
-  .footer-copy { font-size: 11px; font-weight: 300; color: rgba(248,244,238,0.18); }
+  .footer-copy { font-size: 11px; font-weight: 300; color: rgba(248,244,238,0.2); }
+  .footer-copy a { color: rgba(248,244,238,0.35); text-decoration: none; }
 
-  /* ── REVEAL ── */
-  @keyframes fadeUp { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
-  .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  /* ───────── REVEAL ───────── */
+  .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.7s ease, transform 0.7s ease; }
   .reveal.visible { opacity: 1; transform: translateY(0); }
 
-  /* ── RESPONSIVE ── */
-  @media (max-width: 900px) {
-    nav { padding: 18px 24px; }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+    .sim-msg, .sim-alert { opacity: 1; transform: none; }
+  }
+
+  /* ───────── RESPONSIVE ───────── */
+  @media (max-width: 960px) {
+    nav { padding: 0 22px; }
     .nav-links { display: none; }
-    .hero { grid-template-columns: 1fr; padding: 100px 24px 60px; gap: 40px; min-height: auto; }
-    .hero-right { display: none; }
-    .stat-bar { grid-template-columns: repeat(2,1fr); }
-    .stat-item { border-right: none; border-bottom: 1px solid var(--border); }
-    .features-intro { padding: 60px 24px 40px; }
+    .hero { grid-template-columns: 1fr; gap: 70px; padding: 120px 22px 70px; }
+    .sim-alert { right: 0; }
+    .strip-inner { grid-template-columns: repeat(2, 1fr); }
+    .strip-item:nth-child(2) { border-right: none; }
+    .strip-item:nth-child(1), .strip-item:nth-child(2) { border-bottom: 1px solid var(--line); }
+    .section-inner { padding: 80px 22px; }
+    .steps { grid-template-columns: 1fr; border-top: none; }
+    .step { border-right: none; border-top: 1px solid var(--line); padding: 34px 0 10px; }
+    .night-inner { grid-template-columns: 1fr; padding: 90px 22px; gap: 56px; }
     .features-grid { grid-template-columns: 1fr; }
-    .feature-card { border-right: 1px solid var(--border); }
-    .how-grid { grid-template-columns: 1fr; padding: 60px 24px; }
-    .who-section { padding: 60px 24px; }
-    .who-grid { grid-template-columns: 1fr; }
-    .pricing-section { padding: 60px 24px; }
-    .pricing-wrap { grid-template-columns: 1fr; }
-    .cta-section { padding: 80px 24px; }
-    footer { flex-direction: column; padding: 32px 24px; text-align: center; }
-    .footer-links { flex-wrap: wrap; justify-content: center; }
+    .pricing-grid { grid-template-columns: 1fr; gap: 56px; }
+    .contact-grid { grid-template-columns: 1fr; gap: 40px; }
+    .cform-row { grid-template-columns: 1fr; }
+    .final { padding: 90px 22px; }
   }
 </style>
 </head>
 <body>
 
 <!-- NAV -->
-<nav>
-  <a href="/" class="logo">fav<em>vi</em></a>
+<nav id="nav">
+  <a class="logo" href="/">fav<em>vi</em></a>
   <ul class="nav-links">
-    <li><a href="#features">Features</a></li>
     <li><a href="#how">How It Works</a></li>
-    <li><a href="#who">Who It's For</a></li>
+    <li><a href="#features">Features</a></li>
     <li><a href="#pricing">Pricing</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
   <div class="nav-actions">
-    <a href="/login" class="btn-nav-ghost">Hotel Login</a>
-    <a href="/signup" class="btn-nav-gold">Start Free Trial</a>
+    <a class="btn-nav-ghost" href="/login">Log in</a>
+    <a class="btn-nav-gold" href="/signup">Start Free Trial</a>
   </div>
 </nav>
 
 <!-- HERO -->
-<section>
-  <div class="hero">
-    <div class="hero-left">
-      <div class="eyebrow">AI Guest Experience</div>
-      <h1 class="hero-title">Your hotel,<br><em>always</em><br>available.</h1>
-      <p class="hero-sub">Favvi gives every guest a personal AI concierge — handling requests, routing your team, collecting feedback, and giving you the data to improve. In any language, at any hour.</p>
-      <div class="hero-actions">
-        <a href="/signup" class="btn-primary">Start Free Trial</a>
-        <a href="#features" class="btn-ghost">See How It Works</a>
-      </div>
-      <p class="hero-note"><span>Free trial</span> — no credit card. Live in under 5 minutes.</p>
+<section class="hero">
+  <div class="hero-left">
+    <div class="eyebrow">The 24/7 AI Front Desk</div>
+    <h1 class="hero-title">Every guest answered. <em>Even at 3am.</em></h1>
+    <p class="hero-sub">
+      Guests scan a QR code and chat. Favvi answers <strong>instantly, in their language, at any hour</strong> — and alerts your staff only when a human is needed. No apps to download. No extra headcount. Live in 5 minutes.
+    </p>
+    <div class="hero-actions">
+      <a href="/signup" class="btn-primary">Start 14-Day Free Trial</a>
+      <a href="#how" class="btn-outline">See How It Works</a>
     </div>
-    <div class="hero-right">
-      <div class="phone">
-        <div class="phone-header">
-          <div class="phone-hotel">Grand Palace Hotel</div>
-          <div class="phone-sub">Your Personal Concierge</div>
-          <div class="phone-pill"><div class="phone-pill-dot"></div> Available 24/7</div>
+    <p class="hero-note"><span>14 days free</span> · Set up in 5 minutes · Cancel anytime</p>
+  </div>
+
+  <div class="hero-right">
+    <div class="sim-wrap">
+      <div class="sim-clock"><span id="simClock">3:12</span> <small id="simAmPm">AM</small></div>
+      <div class="sim-phone">
+        <div class="sim-header">
+          <div>
+            <div class="sim-hotel" id="simHotel">The Marlowe House</div>
+            <div class="sim-hotel-sub">Guest Concierge</div>
+          </div>
+          <div class="sim-online"><span class="sim-online-dot"></span>Always on</div>
         </div>
-        <div class="phone-messages">
-          <div class="pmsg pmsg-ai">Welcome to Grand Palace! I'm your personal concierge — here to help any time. How can I make your stay more comfortable?</div>
-          <div class="pmsg pmsg-user">Can I get extra towels for room 412?</div>
-          <div class="pmsg pmsg-ai">Of course! I've notified housekeeping right away. They'll be with you shortly.</div>
-          <div class="pmsg pmsg-user">What time does the pool close?</div>
-          <div class="typing"><span></span><span></span><span></span></div>
-        </div>
+        <div class="sim-messages" id="simMessages"></div>
+      </div>
+      <div class="sim-alert" id="simAlert">
+        <div class="sim-alert-label" id="simAlertLabel">Housekeeping</div>
+        <div class="sim-alert-text" id="simAlertText">Room 412 — extra towels requested</div>
+        <div class="sim-alert-sub">Staff notified · just now</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- STAT BAR -->
-<div class="stat-bar">
-  <div class="stat-item reveal"><div class="stat-num">24/7</div><div class="stat-label">Guest Support</div></div>
-  <div class="stat-item reveal"><div class="stat-num">40+</div><div class="stat-label">Languages</div></div>
-  <div class="stat-item reveal"><div class="stat-num">2s</div><div class="stat-label">Response Time</div></div>
-  <div class="stat-item reveal"><div class="stat-num">5 min</div><div class="stat-label">To Go Live</div></div>
+<!-- TRUST STRIP -->
+<div class="strip">
+  <div class="strip-inner">
+    <div class="strip-item">
+      <div class="strip-value">24<em>/</em>7</div>
+      <div class="strip-label">Always Answering</div>
+    </div>
+    <div class="strip-item">
+      <div class="strip-value">40<em>+</em></div>
+      <div class="strip-label">Languages</div>
+    </div>
+    <div class="strip-item">
+      <div class="strip-value"><em>~</em>5 min</div>
+      <div class="strip-label">To Go Live</div>
+    </div>
+    <div class="strip-item">
+      <div class="strip-value">0</div>
+      <div class="strip-label">Apps To Download</div>
+    </div>
+  </div>
 </div>
 
-<!-- FEATURES -->
-<section class="features-section" id="features">
-  <div class="features-intro">
-    <div class="eyebrow reveal">What Favvi Does</div>
-    <h2 class="section-title reveal">One platform.<br><em>Every touchpoint.</em></h2>
-    <p class="section-sub reveal">From the moment a guest checks in to the review they leave after checkout — Favvi handles the entire guest experience loop.</p>
-  </div>
-
-  <div class="features-grid">
-    <div class="feature-card f-gold reveal">
-      <div class="feature-num">01</div>
-      <div class="feature-title">AI Guest Concierge</div>
-      <p class="feature-desc">A personal concierge in every guest's pocket — accessible via QR code in their room or your hotel website. Answers questions, handles requests, and notifies the right department instantly. Replies in the guest's own language with no setup required.</p>
-      <span class="feature-tag">Guest Facing</span>
-    </div>
-    <div class="feature-card f-blue reveal">
-      <div class="feature-num">02</div>
-      <div class="feature-title">Live Staff Dashboard</div>
-      <p class="feature-desc">Every guest request appears in real time, colour coded by department — housekeeping, room service, maintenance, concierge. Staff claim and complete tasks from any device. Sound alerts for new requests. Nothing gets missed, nothing falls through the cracks.</p>
-      <span class="feature-tag">Staff Facing</span>
-    </div>
-    <div class="feature-card f-green reveal">
-      <div class="feature-num">03</div>
-      <div class="feature-title">Staff AI Assistant</div>
-      <p class="feature-desc">An internal AI trained on your hotel's own procedures and policies. Staff ask it how to handle complaints, process upgrades, or navigate any situation — and get instant, hotel-specific guidance. Makes onboarding new staff effortless and keeps your team consistent.</p>
-      <span class="feature-tag">Staff Facing</span>
-    </div>
-    <div class="feature-card f-purple reveal">
-      <div class="feature-num">04</div>
-      <div class="feature-title">Feedback and Analytics</div>
-      <p class="feature-desc">Send personalised feedback links to guests at checkout. Emoji-rated scores across overall experience, cleanliness, staff, dining and WiFi flow directly into your analytics dashboard. Spot trends, identify issues early, and track improvement over time.</p>
-      <span class="feature-tag">Manager Facing</span>
-    </div>
-  </div>
-</section>
-
 <!-- HOW IT WORKS -->
-<section class="how-section" id="how">
-  <div class="how-grid">
-    <div>
-      <div class="eyebrow reveal">Simple Setup</div>
-      <h2 class="section-title reveal">Live in <em>minutes,</em><br>not months.</h2>
-      <p class="section-sub reveal">No technical knowledge needed. If you can paste text, you can run Favvi.</p>
-      <div class="steps reveal">
-        <div class="step">
-          <div class="step-num">01</div>
-          <div><div class="step-title">Sign up and configure</div><p class="step-desc">Create your portal in 60 seconds. Paste your hotel info, room types, dining hours, and offers into the settings page. The AI learns everything instantly.</p></div>
-        </div>
-        <div class="step">
-          <div class="step-num">02</div>
-          <div><div class="step-title">Share the guest chat link</div><p class="step-desc">Print a QR code for every room. Guests scan it and have a personal concierge immediately. No app download, no login, no friction.</p></div>
-        </div>
-        <div class="step">
-          <div class="step-num">03</div>
-          <div><div class="step-title">Your team responds live</div><p class="step-desc">Requests appear on the staff dashboard in real time. Staff claim tasks from their phone, colour coded so they know exactly what needs doing.</p></div>
-        </div>
-        <div class="step">
-          <div class="step-num">04</div>
-          <div><div class="step-title">Collect feedback and improve</div><p class="step-desc">Send the feedback link at checkout. Scores land in your analytics dashboard automatically. Track satisfaction and act on what guests are telling you.</p></div>
-        </div>
+<section id="how">
+  <div class="section-inner">
+    <div class="eyebrow reveal">How It Works</div>
+    <h2 class="section-title reveal">A front desk that <em>runs itself.</em></h2>
+    <p class="section-sub reveal">Three steps. No integrations, no training, no IT department needed.</p>
+
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-num">Step one</div>
+        <div class="step-title">Guests scan a QR code</div>
+        <p class="step-desc">Print-ready QR codes for guest rooms, reception, and key cards — generated for you. Guests scan and chat instantly in their browser. Nothing to download, nothing to install.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">Step two</div>
+        <div class="step-title">Favvi resolves it</div>
+        <p class="step-desc">Wifi passwords, breakfast hours, late checkout, local tips — answered instantly from your hotel's own knowledge, in the guest's language, at any hour of the night.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">Step three</div>
+        <div class="step-title">Staff alerted only when needed</div>
+        <p class="step-desc">Towels, maintenance, room service — real requests are routed to the right department with a push notification. Your team sees everything on a live dashboard and claims tasks in one tap.</p>
       </div>
     </div>
+  </div>
+</section>
 
-    <div class="reveal">
-      <div class="dash-mockup">
-        <div class="dash-header">
-          <div class="dash-logo">fav<span>vi</span> — Staff Dashboard</div>
-          <div class="dash-live"><div class="dash-live-dot"></div> Live</div>
+<!-- NIGHT SHIFT -->
+<section class="night">
+  <div class="night-inner">
+    <div>
+      <div class="eyebrow reveal">The Night Shift</div>
+      <h2 class="night-title reveal">While your team sleeps, <em>Favvi doesn't.</em></h2>
+      <p class="night-sub reveal">No more unanswered calls at reception. No more morning complaint emails. Every late-night question gets an instant answer, every request is logged and waiting for your team at sunrise — already sorted by department.</p>
+    </div>
+    <div class="night-feed" id="nightFeed">
+      <div class="feed-card c-gold">
+        <div class="feed-time">11:47 PM</div>
+        <div class="feed-body">
+          <div class="feed-req">"What time does breakfast start?"</div>
+          <div class="feed-res">Answered instantly · <b>resolved by AI</b></div>
         </div>
-        <div class="dash-body">
-          <div class="dash-label">New Requests</div>
-          <div class="dash-card dc-new">
-            <div class="dash-card-top"><span class="dbadge dbadge-hk">Housekeeping</span><span class="droom">Room 412</span></div>
-            <div class="ddetail">Extra towels requested via guest concierge</div>
-            <button class="dbtn dbtn-claim">Claim</button>
-          </div>
-          <div class="dash-card dc-prog">
-            <div class="dash-card-top"><span class="dbadge dbadge-rs">Room Service</span><span class="droom">Room 208</span></div>
-            <div class="ddetail">Burger and fries — assigned to Ahmed</div>
-            <button class="dbtn dbtn-done">Done</button>
-          </div>
-          <div class="dash-card dc-done">
-            <div class="dash-card-top"><span class="dbadge" style="background:rgba(106,158,106,0.15);color:#82b882;">Maintenance</span><span class="droom">Room 315</span></div>
-            <div class="ddetail">AC issue — resolved</div>
-          </div>
-          <div class="dash-stats">
-            <div class="dstat"><div class="dstat-val">4.8</div><div class="dstat-lbl">Overall</div></div>
-            <div class="dstat"><div class="dstat-val">12</div><div class="dstat-lbl">Requests</div></div>
-            <div class="dstat"><div class="dstat-val">4.9</div><div class="dstat-lbl">Staff</div></div>
-          </div>
+      </div>
+      <div class="feed-card c-blue">
+        <div class="feed-time">1:23 AM</div>
+        <div class="feed-body">
+          <div class="feed-req">"Could I get extra pillows in 309?"</div>
+          <div class="feed-res">Routed to housekeeping · <b>queued for staff</b></div>
+        </div>
+      </div>
+      <div class="feed-card c-teal">
+        <div class="feed-time">3:12 AM</div>
+        <div class="feed-body">
+          <div class="feed-req">"¿Hay servicio de taxi al aeropuerto?"</div>
+          <div class="feed-res">Answered in Spanish · <b>resolved by AI</b></div>
+        </div>
+      </div>
+      <div class="feed-card c-green">
+        <div class="feed-time">5:48 AM</div>
+        <div class="feed-body">
+          <div class="feed-req">"The AC in 117 is making a noise"</div>
+          <div class="feed-res">Routed to maintenance · <b>waiting at shift start</b></div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- WHO IT'S FOR -->
-<section id="who" style="border-bottom:1px solid var(--border);">
-  <div class="who-section">
-    <div class="eyebrow reveal">Who It's For</div>
-    <h2 class="section-title reveal">Built for any <em>property.</em></h2>
-    <p class="section-sub reveal">If you have guests, Favvi works for you.</p>
-    <div class="who-grid reveal">
-      <div class="who-card">
-        <div class="who-type">Boutique Hotels</div>
-        <div class="who-title">5-star service without a 5-star headcount</div>
-        <p class="who-desc">Give every guest a personal concierge experience without hiring extra staff. The AI handles the routine so your team can focus on the human touches that matter.</p>
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-inner">
+    <div class="eyebrow reveal">Everything Included</div>
+    <h2 class="section-title reveal">One platform. <em>Six tools.</em></h2>
+    <p class="section-sub reveal">Everything a modern front desk does — without the desk.</p>
+
+    <div class="features-grid">
+      <div class="fcard c-gold reveal">
+        <div class="fcard-label">Guest Concierge</div>
+        <div class="fcard-title">AI guest chat</div>
+        <p class="fcard-desc">Answers questions, takes requests, and recommends like your best concierge — 24/7, in 40+ languages, trained on your hotel's own information.</p>
       </div>
-      <div class="who-card">
-        <div class="who-type">Serviced Apartments</div>
-        <div class="who-title">Support guests around the clock with no front desk</div>
-        <p class="who-desc">Perfect for properties without 24/7 reception. Guests get instant answers at 3am without calling anyone. Requests are logged and handled when your team is on shift.</p>
+      <div class="fcard c-blue reveal">
+        <div class="fcard-label">Operations</div>
+        <div class="fcard-title">Live staff dashboard</div>
+        <p class="fcard-desc">Every request colour-coded by department in real time. Staff claim tasks, mark them done, and get push notifications straight to their phones.</p>
       </div>
-      <div class="who-card">
-        <div class="who-type">Hotel Groups</div>
-        <div class="who-title">One platform across every property</div>
-        <p class="who-desc">Each property gets its own fully isolated portal — chat, staff dashboard, feedback, and analytics. Consistent guest experience across every hotel in your group.</p>
+      <div class="fcard c-gold reveal">
+        <div class="fcard-label">Team Support</div>
+        <div class="fcard-title">Staff AI assistant</div>
+        <p class="fcard-desc">Your procedures, policies, and emergency steps — instantly searchable by any team member. New staff onboard themselves.</p>
+      </div>
+      <div class="fcard c-green reveal">
+        <div class="fcard-label">Insight</div>
+        <div class="fcard-title">Feedback & analytics</div>
+        <p class="fcard-desc">Post-checkout feedback with one-tap ratings, and a manager dashboard showing satisfaction trends across cleanliness, staff, dining, and more.</p>
+      </div>
+      <div class="fcard c-teal reveal">
+        <div class="fcard-label">Setup</div>
+        <div class="fcard-title">QR codes & links</div>
+        <p class="fcard-desc">Print-ready QR codes for rooms and reception, generated automatically. Share links anywhere guests are — including your website and WhatsApp.</p>
+      </div>
+      <div class="fcard c-purple reveal">
+        <div class="fcard-label">Control</div>
+        <div class="fcard-title">Self-serve settings</div>
+        <p class="fcard-desc">Update your hotel info, offers, and passwords any time. Role-based access keeps manager analytics separate from staff tools.</p>
       </div>
     </div>
   </div>
@@ -500,98 +710,310 @@
 
 <!-- PRICING -->
 <section id="pricing">
-  <div class="pricing-section">
+  <div class="section-inner">
     <div class="eyebrow reveal">Pricing</div>
     <h2 class="section-title reveal">Simple, honest <em>pricing.</em></h2>
-    <p class="section-sub reveal">One plan. Everything included. No feature tiers, no hidden fees, no surprises.</p>
+    <p class="section-sub reveal">One plan with everything included. No tiers, no add-ons, no surprises.</p>
 
-    <div class="pricing-wrap">
+    <div class="pricing-grid">
       <div class="price-card reveal">
-        <div class="price-everything">Everything Included</div>
+        <div class="price-badge">Early Adopter Rate</div>
         <div class="price-amount"><sup>$</sup>149</div>
         <div class="price-period">per property, per month</div>
+        <p class="price-strike">Locks in before the standard <s>$199</s> rate</p>
         <ul class="price-features">
-          <li>AI Guest Concierge — 24/7, 40+ languages</li>
-          <li>Live Staff Dashboard with sound alerts</li>
-          <li>Real-time request routing by department</li>
-          <li>Staff AI Assistant</li>
-          <li>Staff Knowledge Base</li>
-          <li>Post-checkout Feedback Collection</li>
-          <li>Manager Analytics Dashboard</li>
-          <li>Settings — update everything yourself</li>
+          <li>AI guest concierge — 24/7, 40+ languages</li>
+          <li>Live staff dashboard with push notifications</li>
+          <li>Request routing by department</li>
+          <li>Staff AI assistant & knowledge base</li>
+          <li>Post-checkout feedback collection</li>
+          <li>Manager analytics dashboard</li>
+          <li>QR codes & links, ready to print</li>
+          <li>Email support from a real human</li>
         </ul>
-        <a href="/signup" class="btn-primary" style="display:block; text-align:center;">Start Free Trial</a>
+        <a href="/signup" class="price-cta">Start 14-Day Free Trial</a>
+        <p class="price-fine">Cancel before the trial ends and pay nothing.</p>
       </div>
 
       <div class="price-right reveal">
-        <div class="price-right-title">Less than one<br><em>room night.</em></div>
-        <p class="price-right-desc">Most hotel tech costs hundreds a month and takes weeks to set up. Favvi is live in 5 minutes and costs less than a single booking. For most hotels, one prevented complaint or one extra review pays for an entire month.</p>
-        <div class="price-value-row">
-          <div class="price-value-item">
-            <div class="pvi-dot" style="background:var(--gold);"></div>
-            <div class="pvi-text">No contracts — cancel any time, no questions asked</div>
-          </div>
-          <div class="price-value-item">
-            <div class="pvi-dot" style="background:var(--blue);"></div>
-            <div class="pvi-text">Free trial to start — set everything up before you pay</div>
-          </div>
-          <div class="price-value-item">
-            <div class="pvi-dot" style="background:var(--green);"></div>
-            <div class="pvi-text">Each property is its own subscription — add as many as you need</div>
-          </div>
-          <div class="price-value-item">
-            <div class="pvi-dot" style="background:var(--purple);"></div>
-            <div class="pvi-text">Enterprise pricing available for groups of 5+ properties</div>
-          </div>
-        </div>
-        <a href="/signup" class="btn-primary">Start Free Trial</a>
-        <p class="price-trial-note"><span>Free trial</span> — no credit card needed.</p>
+        <div class="price-right-title">Costs less than <em>one room night.</em></div>
+        <p class="price-right-desc">Most hotel software costs hundreds a month and takes weeks of onboarding. Favvi costs less than a single booking and is live before your coffee gets cold. One prevented complaint, one saved late-night call, one extra positive review — and the month has paid for itself.</p>
+        <div class="pvi"><div class="pvi-dot" style="background:var(--gold);"></div><div class="pvi-text">No contracts — cancel any time, no questions asked</div></div>
+        <div class="pvi"><div class="pvi-dot" style="background:var(--blue);"></div><div class="pvi-text">14-day free trial — set everything up and see it work before you pay</div></div>
+        <div class="pvi"><div class="pvi-dot" style="background:var(--green);"></div><div class="pvi-text">Each property is its own portal — add as many as you need</div></div>
+        <div class="pvi"><div class="pvi-dot" style="background:var(--purple);"></div><div class="pvi-text">Group pricing available for 5+ properties — just ask</div></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- CTA -->
-<section class="cta-section" id="contact">
-  <h2 class="cta-title reveal">Ready to <em>transform</em><br>your guest experience?</h2>
-  <p class="cta-sub reveal">Set up in 5 minutes. No credit card. Cancel any time.</p>
-  <div class="cta-actions reveal">
-    <a href="/signup" class="btn-primary">Start Free Trial</a>
-    <a href="mailto:hello@favvi.ai" class="btn-ghost">Talk to Us</a>
+<!-- FAQ -->
+<section class="faq">
+  <div class="section-inner">
+    <div class="eyebrow reveal">Questions</div>
+    <h2 class="section-title reveal">Asked & <em>answered.</em></h2>
+
+    <div class="faq-list reveal">
+      <details class="faq-item">
+        <summary>How long does setup actually take?</summary>
+        <p>About 5 minutes. You sign up, paste your hotel information — rooms, facilities, breakfast hours, wifi details — into Settings, and print your QR codes. That's it. No integrations, no API keys, no IT team.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Does it connect to my booking system?</summary>
+        <p>It doesn't need to. Favvi works alongside whatever you already use — it handles guest communication and staff requests, not reservations. That's why it takes minutes to set up instead of months.</p>
+      </details>
+      <details class="faq-item">
+        <summary>What happens when the AI can't help?</summary>
+        <p>It alerts your team. Any request that needs a human — towels, maintenance, room service — is routed to the right department with a push notification and appears on the live staff dashboard. The AI handles the routine; your team handles the rest.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Do guests need to download anything?</summary>
+        <p>No. Guests scan a QR code and the chat opens in their browser instantly. It works on any phone, in any language, with nothing to install.</p>
+      </details>
+      <details class="faq-item">
+        <summary>What if I want to cancel?</summary>
+        <p>Cancel any time — there are no contracts. If you cancel during your 14-day trial, you pay nothing at all.</p>
+      </details>
+    </div>
   </div>
-  <p class="cta-note"><span>Free trial</span> — no credit card needed.</p>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-inner">
+    <div class="eyebrow reveal">Contact</div>
+    <h2 class="section-title reveal">Talk to a <em>human.</em></h2>
+
+    <div class="contact-grid">
+      <div class="contact-left reveal">
+        <p>Questions about Favvi, group pricing, or whether it fits your property? Send a message and you'll hear back from a real person — usually within a few hours.</p>
+        <p class="contact-direct">Prefer email? <a href="mailto:hello@favvi.ai">hello@favvi.ai</a></p>
+      </div>
+      <form class="cform reveal" id="contactForm" onsubmit="return false;">
+        <div class="cform-row">
+          <input type="text" id="cfName" placeholder="Your name" required />
+          <input type="text" id="cfHotel" placeholder="Hotel / property name" />
+        </div>
+        <input type="email" id="cfEmail" placeholder="Email address" required />
+        <textarea id="cfMessage" rows="5" placeholder="What would you like to know?" required></textarea>
+        <button class="btn-primary" id="cfBtn" onclick="sendContact()">Send Message</button>
+        <p class="cform-status" id="cfStatus"></p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final">
+  <h2 class="final-title reveal">Your front desk never<br>has to <em>sleep again.</em></h2>
+  <p class="final-sub reveal">Live in 5 minutes. 14 days free. Cancel anytime.</p>
+  <div class="reveal">
+    <a href="/signup" class="btn-primary">Start Free Trial</a>
+  </div>
+  <p class="final-note">Early adopter rate — $149/month, locked in.</p>
 </section>
 
 <!-- FOOTER -->
 <footer>
   <div class="footer-logo">fav<span>vi</span></div>
-  <div class="footer-contact">Questions? <a href="mailto:hello@favvi.ai">hello@favvi.ai</a></div>
-  <p class="footer-copy">© 2025 Favvi. AI-powered hotel guest experience.</p>
   <ul class="footer-links">
     <li><a href="/signup">Sign Up</a></li>
-    <li><a href="/login">Login</a></li>
+    <li><a href="/login">Log In</a></li>
+    <li><a href="/terms">Terms of Service</a></li>
+    <li><a href="/privacy">Privacy Policy</a></li>
     <li><a href="mailto:hello@favvi.ai">Contact</a></li>
   </ul>
+  <p class="footer-copy">© 2026 Favvi — The 24/7 AI front desk. <a href="mailto:hello@favvi.ai">hello@favvi.ai</a></p>
 </footer>
 
 <script>
+  /* ── Nav border on scroll ── */
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 10);
+  }, { passive: true });
+
+  /* ── Scroll reveal ── */
   const reveals = document.querySelectorAll('.reveal');
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry, i) => {
       if (entry.isIntersecting) {
-        setTimeout(() => entry.target.classList.add('visible'), i * 60);
+        setTimeout(() => entry.target.classList.add('visible'), i * 70);
         observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.1 });
+  }, { threshold: 0.12 });
   reveals.forEach(el => observer.observe(el));
 
-    // Auto-redirect if already logged in
-  const savedSlug = localStorage.getItem('favvi_hotel_slug');
-  if (savedSlug) {
-      window.location.href = `/portal/${savedSlug}`;
+  /* ── Hero simulation ── */
+  const scenarios = [
+    {
+      clock: ['3:12', 'AM'],
+      msgs: [
+        { who: 'guest', text: 'Hi, could we get extra towels in room 412?' },
+        { who: 'ai', text: "Of course! I've let housekeeping know — fresh towels are on their way to room 412. Anything else I can help with?" },
+      ],
+      alert: { dept: 'Housekeeping', text: 'Room 412 — extra towels requested', color: '#4a7fa5' }
+    },
+    {
+      clock: ['11:54', 'PM'],
+      msgs: [
+        { who: 'guest', text: 'What time is breakfast tomorrow?' },
+        { who: 'ai', text: 'Breakfast is served from 7:00 to 10:30 in the garden restaurant on the ground floor. Would you like me to arrange a late checkout too?' },
+      ],
+      alert: null
+    },
+    {
+      clock: ['2:38', 'AM'],
+      msgs: [
+        { who: 'guest', text: '¿Pueden recomendar un restaurante cerca?' },
+        { who: 'ai', text: 'Con gusto — Le recomiendo "La Terraza", a 5 minutos a pie. Cocina local excelente y abre hasta tarde. ¿Le gustaría la dirección?' },
+      ],
+      alert: null
+    },
+    {
+      clock: ['6:05', 'AM'],
+      msgs: [
+        { who: 'guest', text: 'The AC in 117 is making a rattling noise' },
+        { who: 'ai', text: "I'm sorry about that — I've notified our maintenance team about room 117. They'll take a look as soon as possible." },
+      ],
+      alert: { dept: 'Maintenance', text: 'Room 117 — AC making noise', color: '#6a9e6a' }
+    },
+  ];
+
+  const simMessages = document.getElementById('simMessages');
+  const simAlert    = document.getElementById('simAlert');
+  const simClock    = document.getElementById('simClock');
+  const simAmPm     = document.getElementById('simAmPm');
+  const reduced     = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let scenarioIndex = 0;
+
+  function el(cls, text) {
+    const d = document.createElement('div');
+    d.className = cls;
+    d.textContent = text;
+    return d;
   }
 
+  function playScenario() {
+    const s = scenarios[scenarioIndex % scenarios.length];
+    scenarioIndex++;
+
+    simClock.textContent = s.clock[0];
+    simAmPm.textContent  = s.clock[1];
+    simMessages.innerHTML = '';
+    simAlert.classList.remove('shown');
+
+    if (reduced) {
+      s.msgs.forEach(m => {
+        const msg = el('sim-msg sim-msg-' + (m.who === 'guest' ? 'guest' : 'ai') + ' shown', m.text);
+        simMessages.appendChild(msg);
+      });
+      if (s.alert) showAlert(s.alert);
+      setTimeout(playScenario, 7000);
+      return;
+    }
+
+    // Guest message
+    setTimeout(() => {
+      const g = el('sim-msg sim-msg-guest', s.msgs[0].text);
+      simMessages.appendChild(g);
+      requestAnimationFrame(() => requestAnimationFrame(() => g.classList.add('shown')));
+    }, 700);
+
+    // Typing indicator
+    const typing = document.createElement('div');
+    typing.className = 'sim-typing';
+    typing.innerHTML = '<span></span><span></span><span></span>';
+    setTimeout(() => { simMessages.appendChild(typing); typing.classList.add('shown'); }, 1900);
+
+    // AI reply
+    setTimeout(() => {
+      typing.remove();
+      const a = el('sim-msg sim-msg-ai', s.msgs[1].text);
+      simMessages.appendChild(a);
+      requestAnimationFrame(() => requestAnimationFrame(() => a.classList.add('shown')));
+    }, 3600);
+
+    // Staff alert
+    if (s.alert) {
+      setTimeout(() => showAlert(s.alert), 4600);
+    }
+
+    setTimeout(playScenario, 9000);
+  }
+
+  function showAlert(alert) {
+    document.getElementById('simAlertLabel').textContent = alert.dept;
+    document.getElementById('simAlertText').textContent  = alert.text;
+    simAlert.style.borderLeftColor = alert.color;
+    document.querySelector('.sim-alert-label').style.color = alert.color;
+    simAlert.classList.add('shown');
+  }
+
+  playScenario();
+
+  /* ── Night feed cycle ── */
+  const feedCards = document.querySelectorAll('.feed-card');
+  let feedIndex = 0;
+  function cycleFeed() {
+    feedCards.forEach(c => c.classList.remove('active'));
+    feedCards[feedIndex % feedCards.length].classList.add('active');
+    feedIndex++;
+  }
+  cycleFeed();
+  setInterval(cycleFeed, 2400);
+
+  /* ── Contact form ── */
+  async function sendContact() {
+    const name    = document.getElementById('cfName').value.trim();
+    const hotel   = document.getElementById('cfHotel').value.trim();
+    const email   = document.getElementById('cfEmail').value.trim();
+    const message = document.getElementById('cfMessage').value.trim();
+    const status  = document.getElementById('cfStatus');
+    const btn     = document.getElementById('cfBtn');
+
+    status.className = 'cform-status';
+
+    if (!name || !email || !message) {
+      status.textContent = 'Please fill in your name, email, and message.';
+      status.classList.add('err');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+
+    try {
+      const r = await fetch('/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, hotel, email, message })
+      });
+      const data = await r.json();
+      if (data.success) {
+        status.textContent = "Message sent — we'll get back to you shortly.";
+        status.classList.add('ok');
+        document.getElementById('contactForm').reset();
+      } else {
+        status.textContent = 'Something went wrong. Please email hello@favvi.ai instead.';
+        status.classList.add('err');
+      }
+    } catch (e) {
+      status.textContent = 'Network error. Please email hello@favvi.ai instead.';
+      status.classList.add('err');
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Send Message';
+  }
+
+  /* ── Auto-redirect if already logged in ── */
+  const savedSlug = localStorage.getItem('favvi_hotel_slug');
+  if (savedSlug) {
+    window.location.href = `/portal/${savedSlug}`;
+  }
 </script>
 </body>
 </html>

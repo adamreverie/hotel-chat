@@ -196,6 +196,33 @@ def signup_success(): return send_from_directory('.', 'signup-success.html')
 @app.route('/terms')
 def terms_page(): return send_from_directory('.', 'terms.html')
 
+@app.route('/contact', methods=['POST'])
+def contact():
+    data    = request.json
+    name    = data.get('name', '').strip()
+    hotel   = data.get('hotel', '').strip()
+    email   = data.get('email', '').strip()
+    message = data.get('message', '').strip()
+
+    if not name or not email or not message:
+        return jsonify({"success": False, "error": "Missing fields"})
+
+    try:
+        resend.Emails.send({
+            "from": "hello@favvi.ai",
+            "to": "hello@favvi.ai",
+            "reply_to": email,
+            "subject": f"Landing page enquiry — {name}" + (f" ({hotel})" if hotel else ""),
+            "html": f"""<h2>New Contact Form Message</h2>
+            <p><strong>Name:</strong> {name}</p>
+            <p><strong>Hotel:</strong> {hotel or '—'}</p>
+            <p><strong>Email:</strong> {email}</p><hr>
+            <p>{message}</p>"""
+        })
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
 @app.route('/privacy')
 def privacy_page(): return send_from_directory('.', 'privacy.html')
 
