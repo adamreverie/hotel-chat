@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="icon" href="/favicon.ico">
+    <title>Favvi Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', sans-serif; background: #f0efe9; min-height: 100vh; }
+
+        .header {
+            background: #1a1a2e;
+            padding: 22px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; color: #f8f4ee; letter-spacing: 3px; }
+        .logo span { color: #c9a84c; }
+        .header-right { display: flex; align-items: center; gap: 16px; }
+        .admin-badge { font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: rgba(201,168,76,0.6); border: 1px solid rgba(201,168,76,0.2); padding: 4px 10px; border-radius: 2px; }
+        .logout { background: transparent; color: rgba(248,244,238,0.4); border: 1px solid rgba(248,244,238,0.12); padding: 8px 20px; border-radius: 2px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 300; transition: all 0.3s; }
+        .logout:hover { border-color: rgba(201,168,76,0.5); color: #c9a84c; }
+
+        .body { padding: 48px 40px; max-width: 1100px; margin: 0 auto; }
+
+        .page-title { font-family: 'Cormorant Garamond', serif; font-size: 38px; font-weight: 600; color: #1a1a2e; margin-bottom: 8px; }
+        .page-title em { font-style: italic; color: #c9a84c; font-weight: 400; }
+        .page-subtitle { font-size: 13px; font-weight: 300; color: rgba(26,26,46,0.4); margin-bottom: 40px; }
+
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 40px; }
+        .stat-card { background: white; border-radius: 3px; padding: 24px; box-shadow: 0 1px 4px rgba(26,26,46,0.06); border-left: 3px solid #c9a84c; }
+        .stat-value { font-family: 'Cormorant Garamond', serif; font-size: 42px; font-weight: 600; color: #1a1a2e; line-height: 1; margin-bottom: 6px; }
+        .stat-label { font-size: 11px; font-weight: 300; color: rgba(26,26,46,0.4); letter-spacing: 0.5px; }
+
+        .section-title { font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: rgba(26,26,46,0.3); margin-bottom: 16px; }
+
+        .hotel-table { width: 100%; border-collapse: collapse; }
+        .hotel-table th { text-align: left; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(26,26,46,0.3); padding: 0 16px 12px; border-bottom: 1px solid rgba(26,26,46,0.08); }
+        .hotel-table td { padding: 16px; border-bottom: 1px solid rgba(26,26,46,0.05); font-size: 13px; font-weight: 300; color: rgba(26,26,46,0.7); vertical-align: middle; }
+        .hotel-table tr:hover td { background: rgba(26,26,46,0.02); }
+
+        .hotel-name-cell { font-weight: 500; color: #1a1a2e; }
+        .hotel-slug { font-size: 11px; color: rgba(26,26,46,0.3); margin-top: 2px; }
+
+        .status-badge { display: inline-block; padding: 3px 10px; border-radius: 2px; font-size: 10px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; }
+        .status-trial { background: rgba(201,168,76,0.1); color: #8a6e2a; }
+        .status-active { background: rgba(106,158,106,0.1); color: #3d6e3d; }
+        .status-expired { background: rgba(229,115,115,0.1); color: #c62828; }
+        .status-cancelled { background: rgba(26,26,46,0.08); color: rgba(26,26,46,0.4); }
+
+        .days-remaining { font-size: 12px; }
+        .days-ok { color: #3d6e3d; }
+        .days-warning { color: #8a6e2a; }
+        .days-expired { color: #c62828; }
+
+        .action-btn { background: transparent; border: 1px solid rgba(26,26,46,0.12); padding: 6px 12px; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 400; cursor: pointer; transition: all 0.2s; margin-right: 6px; color: rgba(26,26,46,0.6); }
+        .action-btn:hover { border-color: #c9a84c; color: #c9a84c; }
+        .action-btn-danger:hover { border-color: #e57373; color: #e57373; }
+        .action-btn-primary { background: #1a1a2e; color: #f8f4ee; border-color: #1a1a2e; }
+        .action-btn-primary:hover { background: #c9a84c; border-color: #c9a84c; color: #1a1a2e; }
+
+        /* Login screen */
+        .login-screen { min-height: 100vh; background: #1a1a2e; display: flex; justify-content: center; align-items: center; padding: 40px 20px; }
+        .login-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(201,168,76,0.15); border-radius: 4px; padding: 52px 44px; width: 100%; max-width: 400px; text-align: center; }
+        .login-logo { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; color: #f8f4ee; letter-spacing: 3px; margin-bottom: 8px; }
+        .login-logo span { color: #c9a84c; }
+        .login-title { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300; color: #f8f4ee; margin-bottom: 6px; }
+        .login-sub { font-size: 13px; font-weight: 300; color: rgba(248,244,238,0.3); margin-bottom: 32px; }
+        .login-input { width: 100%; padding: 13px 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 300; color: #f8f4ee; outline: none; margin-bottom: 12px; transition: border-color 0.2s; }
+        .login-input:focus { border-color: rgba(201,168,76,0.4); }
+        .login-btn { width: 100%; padding: 14px; background: #c9a84c; color: #1a1a2e; border: none; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+        .login-btn:hover { background: #e8c97a; }
+        .login-error { color: #e57373; font-size: 12px; margin-top: 10px; display: none; }
+
+        /* Modal */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(26,26,46,0.5); z-index: 100; justify-content: center; align-items: center; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: white; border-radius: 4px; padding: 36px; width: 100%; max-width: 380px; }
+        .modal h3 { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 600; color: #1a1a2e; margin-bottom: 8px; }
+        .modal p { font-size: 13px; font-weight: 300; color: rgba(26,26,46,0.5); margin-bottom: 24px; line-height: 1.6; }
+        .modal input { width: 100%; padding: 12px 14px; border: 1px solid rgba(26,26,46,0.12); border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; margin-bottom: 16px; }
+        .modal input:focus { border-color: #c9a84c; }
+        .modal-btns { display: flex; gap: 10px; }
+        .modal-btn { flex: 1; padding: 12px; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: background 0.2s; }
+        .modal-btn-cancel { background: rgba(26,26,46,0.06); color: rgba(26,26,46,0.6); }
+        .modal-btn-confirm { background: #1a1a2e; color: #f8f4ee; }
+        .modal-btn-confirm:hover { background: #c9a84c; color: #1a1a2e; }
+        .modal-btn-danger { background: #e57373; color: white; }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: rgba(26,26,46,0.3); font-size: 13px; }
+
+        @media (max-width: 768px) {
+            .header { padding: 18px 20px; }
+            .body { padding: 28px 16px; }
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-card">
+            <div class="login-logo">fav<span>vi</span></div>
+            <div class="login-title">Admin Panel</div>
+            <p class="login-sub">Enter your admin email to continue</p>
+            <input class="login-input" type="email" id="adminEmail" placeholder="hello@favvi.ai" />
+            <button class="login-btn" onclick="adminLogin()">Access Admin Panel</button>
+            <p class="login-error" id="loginError">Unauthorised. Admin access only.</p>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" style="display:none;">
+        <div class="header">
+            <div>
+                <div class="logo">fav<span>vi</span></div>
+            </div>
+            <div class="header-right">
+                <div class="admin-badge">Admin</div>
+                <button class="logout" onclick="adminLogout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="body">
+            <div class="page-title">Admin <em>Panel</em></div>
+            <p class="page-subtitle">All hotels, trials, and subscriptions at a glance.</p>
+
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-value" id="statTotal">—</div>
+                    <div class="stat-label">Total Hotels</div>
+                </div>
+                <div class="stat-card" style="border-color:#c9a84c;">
+                    <div class="stat-value" id="statTrial">—</div>
+                    <div class="stat-label">On Trial</div>
+                </div>
+                <div class="stat-card" style="border-color:#6a9e6a;">
+                    <div class="stat-value" id="statActive">—</div>
+                    <div class="stat-label">Active Paid</div>
+                </div>
+                <div class="stat-card" style="border-color:#e57373;">
+                    <div class="stat-value" id="statExpired">—</div>
+                    <div class="stat-label">Expired</div>
+                </div>
+            </div>
+
+            <div class="section-title">All Hotels</div>
+            <table class="hotel-table">
+                <thead>
+                    <tr>
+                        <th>Hotel</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Trial / Expiry</th>
+                        <th>Signed Up</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="hotelsTableBody">
+                    <tr><td colspan="6" class="empty-state">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Extend Trial Modal -->
+    <div class="modal-overlay" id="extendModal">
+        <div class="modal">
+            <h3>Extend Trial</h3>
+            <p id="extendModalDesc">Extend the trial for this hotel.</p>
+            <input type="number" id="extendDays" value="14" min="1" max="90" />
+            <div class="modal-btns">
+                <button class="modal-btn modal-btn-cancel" onclick="closeModal('extendModal')">Cancel</button>
+                <button class="modal-btn modal-btn-confirm" onclick="confirmExtend()">Extend Trial</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal">
+            <h3>Delete Hotel</h3>
+            <p id="deleteModalDesc">This will permanently delete the hotel and all its data. This cannot be undone.</p>
+            <div class="modal-btns">
+                <button class="modal-btn modal-btn-cancel" onclick="closeModal('deleteModal')">Cancel</button>
+                <button class="modal-btn modal-btn-danger" onclick="confirmDelete()">Delete Permanently</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let adminEmail = '';
+        let selectedSlug = '';
+        let hotelsData = [];
+
+        function adminLogin() {
+            const email = document.getElementById('adminEmail').value.trim();
+            if (!email) return;
+            adminEmail = email;
+            loadAdminData();
+        }
+
+        function adminLogout() {
+            adminEmail = '';
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('adminEmail').value = '';
+        }
+
+        document.getElementById('adminEmail').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') adminLogin();
+        });
+
+        async function loadAdminData() {
+            try {
+                const response = await fetch(`/admin-data?email=${encodeURIComponent(adminEmail)}`);
+                if (response.status === 403) {
+                    document.getElementById('loginError').style.display = 'block';
+                    return;
+                }
+                const data = await response.json();
+                hotelsData = data.hotels;
+
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+
+                renderStats(hotelsData);
+                renderTable(hotelsData);
+            } catch(e) {
+                document.getElementById('loginError').style.display = 'block';
+            }
+        }
+
+        function renderStats(hotels) {
+            const total = hotels.length;
+            const trial = hotels.filter(h => h.subscription_status === 'trial' && h.days_remaining > 0).length;
+            const active = hotels.filter(h => h.subscription_status === 'active').length;
+            const expired = hotels.filter(h => h.days_remaining !== null && h.days_remaining <= 0 && h.subscription_status !== 'active').length;
+
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statTrial').textContent = trial;
+            document.getElementById('statActive').textContent = active;
+            document.getElementById('statExpired').textContent = expired;
+        }
+
+        function renderTable(hotels) {
+            const tbody = document.getElementById('hotelsTableBody');
+            if (hotels.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No hotels yet.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = hotels.map(h => {
+                const statusClass = h.subscription_status === 'active' ? 'status-active' :
+                                    h.days_remaining <= 0 ? 'status-expired' :
+                                    h.subscription_status === 'cancelled' ? 'status-cancelled' : 'status-trial';
+                const statusLabel = h.subscription_status === 'active' ? 'Active' :
+                                    h.days_remaining <= 0 ? 'Expired' :
+                                    h.subscription_status === 'cancelled' ? 'Cancelled' : 'Trial';
+
+                const daysClass = h.days_remaining > 7 ? 'days-ok' :
+                                  h.days_remaining > 0 ? 'days-warning' : 'days-expired';
+                const daysLabel = h.days_remaining === null ? '—' :
+                                  h.days_remaining <= 0 ? 'Expired' :
+                                  `${h.days_remaining} days left`;
+
+                return `<tr>
+                    <td>
+                        <div class="hotel-name-cell">${h.name}</div>
+                        <div class="hotel-slug">${h.slug}</div>
+                    </td>
+                    <td>${h.email}</td>
+                    <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+                    <td><span class="days-remaining ${daysClass}">${daysLabel}</span></td>
+                    <td>${h.date_created ? h.date_created.substring(0, 10) : '—'}</td>
+                    <td>
+                        <button class="action-btn action-btn-primary" onclick="openExtendModal('${h.slug}', '${h.name}')">Extend Trial</button>
+                        <button class="action-btn action-btn-danger" onclick="openDeleteModal('${h.slug}', '${h.name}')">Delete</button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function openExtendModal(slug, name) {
+            selectedSlug = slug;
+            document.getElementById('extendModalDesc').textContent = `Extend the trial for ${name}. How many days?`;
+            document.getElementById('extendModal').classList.add('active');
+        }
+
+        function openDeleteModal(slug, name) {
+            selectedSlug = slug;
+            document.getElementById('deleteModalDesc').textContent = `This will permanently delete "${name}" and all its data. This cannot be undone.`;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+            selectedSlug = '';
+        }
+
+        async function confirmExtend() {
+            const days = parseInt(document.getElementById('extendDays').value);
+            const response = await fetch('/admin-extend-trial', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: adminEmail, slug: selectedSlug, days })
+            });
+            const data = await response.json();
+            if (data.success) {
+                closeModal('extendModal');
+                loadAdminData();
+            }
+        }
+
+        async function confirmDelete() {
+            const response = await fetch('/admin-delete-hotel', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: adminEmail, slug: selectedSlug })
+            });
+            const data = await response.json();
+            if (data.success) {
+                closeModal('deleteModal');
+                loadAdminData();
+            }
+        }
+    </script>
+</body>
+</html>

@@ -804,5 +804,84 @@ def lemon_webhook():
         print(f"Webhook error: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
+ADMIN_EMAIL = "hello@favvi.ai"
+
+@app.route('/admin')
+def admin_page():
+    return send_from_directory('.', 'admin.html')
+
+@app.route('/admin-data')
+def admin_data():
+    email = request.args.get('email', '')
+    if email != ADMIN_EMAIL:
+        return jsonify({"error": "Unauthorised"}), 403
+
+    conn = get_conn(); c = conn.cursor()
+    c.execute('SELECT id, name, slug, email, date_created, trial_ends_at, subscription_status, lemon_customer_id, lemon_subscription_id FROM hotels ORDER BY date_created DESC')
+    rows = c.fetchall(); conn.close()
+
+    hotels = []
+    for row in rows:
+        from datetime import datetime
+        trial_ends_at = row[5]
+        days_remaining = None
+        if trial_ends_at:
+            try:
+                trial_end = datetime.strptime(trial_ends_at, "%Y-%m-%d")
+                days_remaining = (trial_end - datetime.now()).days
+            except:
+                pass
+        hotels.append({
+            "id": row[0],
+            "name": row[1],
+            "slug": row[2],
+            "email": row[3],
+            "date_created": row[4],
+            "trial_ends_at": trial_ends_at,
+            "days_remaining": days_remaining,
+            "subscription_status": row[6] or "trial",
+            "lemon_customer_id": row[7],
+            "lemon_subscription_id": row[8],
+        })
+    return jsonify({"hotels": hotels})
+
+
+@app.route('/admin-extend-trial', methods=['POST'])
+def admin_extend_trial():
+    data = request.json
+    email = data.get('email', '')
+    if email != ADMIN_EMAIL:
+        return jsonify({"error": "Unauthorised"}), 403
+
+    slug = data.get('slug')
+    days = data.get('days', 14)
+
+    from datetime import datetime, timedelta
+    new_trial_end = (datetime.now() + timedelta(days=days)).strftime("%Y-%m-%d")
+
+    ph = placeholder()
+    conn = get_conn(); c = conn.cursor()
+    c.execute(f"UPDATE hotels SET trial_ends_at = {ph}, subscription_status = 'trial' WHERE slug = {ph}",
+              (new_trial_end, slug))
+    conn.commit(); conn.close()
+    return jsonify({"success": True, "new_trial_end": new_trial_end})
+
+
+@app.route('/admin-delete-hotel', methods=['POST'])
+def admin_delete_hotel():
+    data = request.json
+    email = data.get('email', '')
+    if email != ADMIN_EMAIL:
+        return jsonify({"error": "Unauthorised"}), 403
+
+    slug = data.get('slug')
+    ph = placeholder()
+    conn = get_conn(); c = conn.cursor()
+    c.execute(f"DELETE FROM hotels WHERE slug = {ph}", (slug,))
+    c.execute(f"DELETE FROM requests WHERE hotel_slug = {ph}", (slug,))
+    c.execute(f"DELETE FROM push_subscriptions WHERE hotel_slug = {ph}", (slug,))
+    conn.commit(); conn.close()
+    return jsonify({"success": True})
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
