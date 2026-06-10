@@ -805,6 +805,10 @@ def lemon_webhook():
         return jsonify({"success": False, "error": str(e)}), 500
 
 ADMIN_EMAIL = "hello@favvi.ai"
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
+
+def is_admin(email, password):
+    return email == ADMIN_EMAIL and password == ADMIN_PASSWORD and ADMIN_PASSWORD != ""
 
 @app.route('/admin')
 def admin_page():
@@ -813,7 +817,8 @@ def admin_page():
 @app.route('/admin-data')
 def admin_data():
     email = request.args.get('email', '')
-    if email != ADMIN_EMAIL:
+    password = request.args.get('password', '')
+    if not is_admin(email, password):
         return jsonify({"error": "Unauthorised"}), 403
 
     conn = get_conn(); c = conn.cursor()
@@ -850,7 +855,8 @@ def admin_data():
 def admin_extend_trial():
     data = request.json
     email = data.get('email', '')
-    if email != ADMIN_EMAIL:
+    password = data.get('password', '')
+    if not is_admin(email, password):
         return jsonify({"error": "Unauthorised"}), 403
 
     slug = data.get('slug')
@@ -871,7 +877,8 @@ def admin_extend_trial():
 def admin_delete_hotel():
     data = request.json
     email = data.get('email', '')
-    if email != ADMIN_EMAIL:
+    password = data.get('password', '')
+    if not is_admin(email, password):
         return jsonify({"error": "Unauthorised"}), 403
 
     slug = data.get('slug')

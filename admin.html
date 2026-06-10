@@ -4,219 +4,407 @@
     <link rel="icon" href="/favicon.ico">
     <title>Favvi Admin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'DM Sans', sans-serif; background: #f0efe9; min-height: 100vh; }
+        body { font-family: 'Inter', sans-serif; background: #f6f7f9; min-height: 100vh; color: #1a1d23; }
 
-        .header {
-            background: #1a1a2e;
-            padding: 22px 40px;
+        /* ── TOP BAR ── */
+        .topbar {
+            background: white;
+            border-bottom: 1px solid #e5e8ec;
+            padding: 0 32px;
+            height: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        .topbar-left { display: flex; align-items: center; gap: 12px; }
+        .logo { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+        .logo span { color: #c9a84c; }
+        .divider-v { width: 1px; height: 20px; background: #e5e8ec; }
+        .topbar-title { font-size: 13px; font-weight: 500; color: #6b7280; }
+        .logout-btn {
+            background: white;
+            border: 1px solid #e5e8ec;
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .logout-btn:hover { border-color: #d1d5db; color: #1a1d23; }
+
+        .container { max-width: 1080px; margin: 0 auto; padding: 32px; }
+
+        /* ── STATS ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .stat {
+            background: white;
+            border: 1px solid #e5e8ec;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .stat-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #6b7280;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .stat-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .stat-value { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+
+        /* ── TABLE CARD ── */
+        .table-card {
+            background: white;
+            border: 1px solid #e5e8ec;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .table-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e8ec;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .logo { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; color: #f8f4ee; letter-spacing: 3px; }
-        .logo span { color: #c9a84c; }
-        .header-right { display: flex; align-items: center; gap: 16px; }
-        .admin-badge { font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: rgba(201,168,76,0.6); border: 1px solid rgba(201,168,76,0.2); padding: 4px 10px; border-radius: 2px; }
-        .logout { background: transparent; color: rgba(248,244,238,0.4); border: 1px solid rgba(248,244,238,0.12); padding: 8px 20px; border-radius: 2px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 300; transition: all 0.3s; }
-        .logout:hover { border-color: rgba(201,168,76,0.5); color: #c9a84c; }
+        .table-title { font-size: 14px; font-weight: 600; }
+        .table-count {
+            font-size: 12px;
+            font-weight: 500;
+            color: #6b7280;
+            background: #f3f4f6;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
 
-        .body { padding: 48px 40px; max-width: 1100px; margin: 0 auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #9ca3af;
+            padding: 12px 20px;
+            background: #fafbfc;
+            border-bottom: 1px solid #e5e8ec;
+        }
+        td {
+            padding: 14px 20px;
+            border-bottom: 1px solid #f0f2f4;
+            font-size: 13px;
+            vertical-align: middle;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #fafbfc; }
 
-        .page-title { font-family: 'Cormorant Garamond', serif; font-size: 38px; font-weight: 600; color: #1a1a2e; margin-bottom: 8px; }
-        .page-title em { font-style: italic; color: #c9a84c; font-weight: 400; }
-        .page-subtitle { font-size: 13px; font-weight: 300; color: rgba(26,26,46,0.4); margin-bottom: 40px; }
+        .hotel-name { font-weight: 600; font-size: 13px; }
+        .hotel-slug { font-size: 12px; color: #9ca3af; margin-top: 1px; }
+        .hotel-email { color: #6b7280; }
 
-        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 40px; }
-        .stat-card { background: white; border-radius: 3px; padding: 24px; box-shadow: 0 1px 4px rgba(26,26,46,0.06); border-left: 3px solid #c9a84c; }
-        .stat-value { font-family: 'Cormorant Garamond', serif; font-size: 42px; font-weight: 600; color: #1a1a2e; line-height: 1; margin-bottom: 6px; }
-        .stat-label { font-size: 11px; font-weight: 300; color: rgba(26,26,46,0.4); letter-spacing: 0.5px; }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
+        .badge-trial { background: #fef9ec; color: #b45309; }
+        .badge-trial::before { background: #f59e0b; }
+        .badge-active { background: #ecfdf5; color: #047857; }
+        .badge-active::before { background: #10b981; }
+        .badge-expired { background: #fef2f2; color: #b91c1c; }
+        .badge-expired::before { background: #ef4444; }
+        .badge-cancelled { background: #f3f4f6; color: #6b7280; }
+        .badge-cancelled::before { background: #9ca3af; }
 
-        .section-title { font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: rgba(26,26,46,0.3); margin-bottom: 16px; }
+        .days { font-size: 12px; font-weight: 500; }
+        .days-ok { color: #047857; }
+        .days-warning { color: #b45309; }
+        .days-expired { color: #b91c1c; }
+        .date-cell { color: #6b7280; font-size: 12px; }
 
-        .hotel-table { width: 100%; border-collapse: collapse; }
-        .hotel-table th { text-align: left; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(26,26,46,0.3); padding: 0 16px 12px; border-bottom: 1px solid rgba(26,26,46,0.08); }
-        .hotel-table td { padding: 16px; border-bottom: 1px solid rgba(26,26,46,0.05); font-size: 13px; font-weight: 300; color: rgba(26,26,46,0.7); vertical-align: middle; }
-        .hotel-table tr:hover td { background: rgba(26,26,46,0.02); }
+        .btn {
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+            border: 1px solid #e5e8ec;
+            background: white;
+            color: #374151;
+        }
+        .btn:hover { border-color: #d1d5db; background: #fafbfc; }
+        .btn + .btn { margin-left: 6px; }
+        .btn-danger { color: #b91c1c; }
+        .btn-danger:hover { border-color: #fca5a5; background: #fef2f2; }
 
-        .hotel-name-cell { font-weight: 500; color: #1a1a2e; }
-        .hotel-slug { font-size: 11px; color: rgba(26,26,46,0.3); margin-top: 2px; }
+        .empty {
+            text-align: center;
+            padding: 48px 20px;
+            color: #9ca3af;
+            font-size: 13px;
+        }
 
-        .status-badge { display: inline-block; padding: 3px 10px; border-radius: 2px; font-size: 10px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; }
-        .status-trial { background: rgba(201,168,76,0.1); color: #8a6e2a; }
-        .status-active { background: rgba(106,158,106,0.1); color: #3d6e3d; }
-        .status-expired { background: rgba(229,115,115,0.1); color: #c62828; }
-        .status-cancelled { background: rgba(26,26,46,0.08); color: rgba(26,26,46,0.4); }
-
-        .days-remaining { font-size: 12px; }
-        .days-ok { color: #3d6e3d; }
-        .days-warning { color: #8a6e2a; }
-        .days-expired { color: #c62828; }
-
-        .action-btn { background: transparent; border: 1px solid rgba(26,26,46,0.12); padding: 6px 12px; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 400; cursor: pointer; transition: all 0.2s; margin-right: 6px; color: rgba(26,26,46,0.6); }
-        .action-btn:hover { border-color: #c9a84c; color: #c9a84c; }
-        .action-btn-danger:hover { border-color: #e57373; color: #e57373; }
-        .action-btn-primary { background: #1a1a2e; color: #f8f4ee; border-color: #1a1a2e; }
-        .action-btn-primary:hover { background: #c9a84c; border-color: #c9a84c; color: #1a1a2e; }
-
-        /* Login screen */
-        .login-screen { min-height: 100vh; background: #1a1a2e; display: flex; justify-content: center; align-items: center; padding: 40px 20px; }
-        .login-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(201,168,76,0.15); border-radius: 4px; padding: 52px 44px; width: 100%; max-width: 400px; text-align: center; }
-        .login-logo { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; color: #f8f4ee; letter-spacing: 3px; margin-bottom: 8px; }
+        /* ── LOGIN ── */
+        .login-wrap {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f6f7f9;
+            padding: 20px;
+        }
+        .login-box {
+            background: white;
+            border: 1px solid #e5e8ec;
+            border-radius: 12px;
+            padding: 40px;
+            width: 100%;
+            max-width: 380px;
+        }
+        .login-logo { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 4px; }
         .login-logo span { color: #c9a84c; }
-        .login-title { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300; color: #f8f4ee; margin-bottom: 6px; }
-        .login-sub { font-size: 13px; font-weight: 300; color: rgba(248,244,238,0.3); margin-bottom: 32px; }
-        .login-input { width: 100%; padding: 13px 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 300; color: #f8f4ee; outline: none; margin-bottom: 12px; transition: border-color 0.2s; }
-        .login-input:focus { border-color: rgba(201,168,76,0.4); }
-        .login-btn { width: 100%; padding: 14px; background: #c9a84c; color: #1a1a2e; border: none; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
-        .login-btn:hover { background: #e8c97a; }
-        .login-error { color: #e57373; font-size: 12px; margin-top: 10px; display: none; }
+        .login-sub { font-size: 13px; color: #6b7280; margin-bottom: 28px; }
+        .input-label { font-size: 12px; font-weight: 500; color: #374151; margin-bottom: 6px; display: block; }
+        .login-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e5e8ec;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            outline: none;
+            margin-bottom: 16px;
+            transition: border-color 0.15s;
+        }
+        .login-input:focus { border-color: #c9a84c; box-shadow: 0 0 0 3px rgba(201,168,76,0.1); }
+        .login-submit {
+            width: 100%;
+            padding: 11px;
+            background: #1a1d23;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .login-submit:hover { background: #374151; }
+        .login-error {
+            color: #b91c1c;
+            font-size: 13px;
+            margin-top: 12px;
+            text-align: center;
+            display: none;
+        }
 
-        /* Modal */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(26,26,46,0.5); z-index: 100; justify-content: center; align-items: center; }
-        .modal-overlay.active { display: flex; }
-        .modal { background: white; border-radius: 4px; padding: 36px; width: 100%; max-width: 380px; }
-        .modal h3 { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 600; color: #1a1a2e; margin-bottom: 8px; }
-        .modal p { font-size: 13px; font-weight: 300; color: rgba(26,26,46,0.5); margin-bottom: 24px; line-height: 1.6; }
-        .modal input { width: 100%; padding: 12px 14px; border: 1px solid rgba(26,26,46,0.12); border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; margin-bottom: 16px; }
+        /* ── MODAL ── */
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(17,24,39,0.4);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .overlay.active { display: flex; }
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 28px;
+            width: 100%;
+            max-width: 380px;
+        }
+        .modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+        .modal p { font-size: 13px; color: #6b7280; margin-bottom: 20px; line-height: 1.5; }
+        .modal input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e5e8ec;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            outline: none;
+            margin-bottom: 16px;
+        }
         .modal input:focus { border-color: #c9a84c; }
-        .modal-btns { display: flex; gap: 10px; }
-        .modal-btn { flex: 1; padding: 12px; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: background 0.2s; }
-        .modal-btn-cancel { background: rgba(26,26,46,0.06); color: rgba(26,26,46,0.6); }
-        .modal-btn-confirm { background: #1a1a2e; color: #f8f4ee; }
-        .modal-btn-confirm:hover { background: #c9a84c; color: #1a1a2e; }
-        .modal-btn-danger { background: #e57373; color: white; }
-
-        .empty-state { text-align: center; padding: 60px 20px; color: rgba(26,26,46,0.3); font-size: 13px; }
+        .modal-btns { display: flex; gap: 8px; }
+        .modal-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.15s;
+        }
+        .mb-cancel { background: #f3f4f6; color: #374151; }
+        .mb-cancel:hover { background: #e5e8ec; }
+        .mb-confirm { background: #1a1d23; color: white; }
+        .mb-confirm:hover { background: #374151; }
+        .mb-danger { background: #dc2626; color: white; }
+        .mb-danger:hover { background: #b91c1c; }
 
         @media (max-width: 768px) {
-            .header { padding: 18px 20px; }
-            .body { padding: 28px 16px; }
-            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .container { padding: 16px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .topbar { padding: 0 16px; }
+            table { font-size: 12px; }
+            th, td { padding: 10px 12px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Login Screen -->
-    <div class="login-screen" id="loginScreen">
-        <div class="login-card">
+    <!-- LOGIN -->
+    <div class="login-wrap" id="loginScreen">
+        <div class="login-box">
             <div class="login-logo">fav<span>vi</span></div>
-            <div class="login-title">Admin Panel</div>
-            <p class="login-sub">Enter your admin email to continue</p>
+            <p class="login-sub">Admin panel — authorised access only</p>
+            <label class="input-label">Email</label>
             <input class="login-input" type="email" id="adminEmail" placeholder="hello@favvi.ai" />
-            <button class="login-btn" onclick="adminLogin()">Access Admin Panel</button>
-            <p class="login-error" id="loginError">Unauthorised. Admin access only.</p>
+            <label class="input-label">Password</label>
+            <input class="login-input" type="password" id="adminPassword" placeholder="••••••••••" />
+            <button class="login-submit" onclick="adminLogin()">Sign in</button>
+            <p class="login-error" id="loginError">Unauthorised — check your email and password.</p>
         </div>
     </div>
 
-    <!-- Admin Panel -->
+    <!-- ADMIN PANEL -->
     <div id="adminPanel" style="display:none;">
-        <div class="header">
-            <div>
+        <div class="topbar">
+            <div class="topbar-left">
                 <div class="logo">fav<span>vi</span></div>
+                <div class="divider-v"></div>
+                <div class="topbar-title">Admin Panel</div>
             </div>
-            <div class="header-right">
-                <div class="admin-badge">Admin</div>
-                <button class="logout" onclick="adminLogout()">Logout</button>
-            </div>
+            <button class="logout-btn" onclick="adminLogout()">Sign out</button>
         </div>
 
-        <div class="body">
-            <div class="page-title">Admin <em>Panel</em></div>
-            <p class="page-subtitle">All hotels, trials, and subscriptions at a glance.</p>
-
-            <div class="stats-row">
-                <div class="stat-card">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat">
+                    <div class="stat-label"><span class="stat-dot" style="background:#6b7280"></span>Total Hotels</div>
                     <div class="stat-value" id="statTotal">—</div>
-                    <div class="stat-label">Total Hotels</div>
                 </div>
-                <div class="stat-card" style="border-color:#c9a84c;">
+                <div class="stat">
+                    <div class="stat-label"><span class="stat-dot" style="background:#f59e0b"></span>On Trial</div>
                     <div class="stat-value" id="statTrial">—</div>
-                    <div class="stat-label">On Trial</div>
                 </div>
-                <div class="stat-card" style="border-color:#6a9e6a;">
+                <div class="stat">
+                    <div class="stat-label"><span class="stat-dot" style="background:#10b981"></span>Active Paid</div>
                     <div class="stat-value" id="statActive">—</div>
-                    <div class="stat-label">Active Paid</div>
                 </div>
-                <div class="stat-card" style="border-color:#e57373;">
+                <div class="stat">
+                    <div class="stat-label"><span class="stat-dot" style="background:#ef4444"></span>Expired</div>
                     <div class="stat-value" id="statExpired">—</div>
-                    <div class="stat-label">Expired</div>
                 </div>
             </div>
 
-            <div class="section-title">All Hotels</div>
-            <table class="hotel-table">
-                <thead>
-                    <tr>
-                        <th>Hotel</th>
-                        <th>Email</th>
-                        <th>Status</th>
-                        <th>Trial / Expiry</th>
-                        <th>Signed Up</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="hotelsTableBody">
-                    <tr><td colspan="6" class="empty-state">Loading...</td></tr>
-                </tbody>
-            </table>
+            <div class="table-card">
+                <div class="table-header">
+                    <div class="table-title">All Hotels</div>
+                    <div class="table-count" id="tableCount">0</div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Hotel</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Trial</th>
+                            <th>Signed Up</th>
+                            <th style="text-align:right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hotelsTableBody">
+                        <tr><td colspan="6" class="empty">Loading…</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <!-- Extend Trial Modal -->
-    <div class="modal-overlay" id="extendModal">
+    <!-- EXTEND MODAL -->
+    <div class="overlay" id="extendModal">
         <div class="modal">
-            <h3>Extend Trial</h3>
+            <h3>Extend trial</h3>
             <p id="extendModalDesc">Extend the trial for this hotel.</p>
             <input type="number" id="extendDays" value="14" min="1" max="90" />
             <div class="modal-btns">
-                <button class="modal-btn modal-btn-cancel" onclick="closeModal('extendModal')">Cancel</button>
-                <button class="modal-btn modal-btn-confirm" onclick="confirmExtend()">Extend Trial</button>
+                <button class="modal-btn mb-cancel" onclick="closeModal('extendModal')">Cancel</button>
+                <button class="modal-btn mb-confirm" onclick="confirmExtend()">Extend</button>
             </div>
         </div>
     </div>
 
-    <!-- Delete Modal -->
-    <div class="modal-overlay" id="deleteModal">
+    <!-- DELETE MODAL -->
+    <div class="overlay" id="deleteModal">
         <div class="modal">
-            <h3>Delete Hotel</h3>
+            <h3>Delete hotel</h3>
             <p id="deleteModalDesc">This will permanently delete the hotel and all its data. This cannot be undone.</p>
             <div class="modal-btns">
-                <button class="modal-btn modal-btn-cancel" onclick="closeModal('deleteModal')">Cancel</button>
-                <button class="modal-btn modal-btn-danger" onclick="confirmDelete()">Delete Permanently</button>
+                <button class="modal-btn mb-cancel" onclick="closeModal('deleteModal')">Cancel</button>
+                <button class="modal-btn mb-danger" onclick="confirmDelete()">Delete</button>
             </div>
         </div>
     </div>
 
     <script>
         let adminEmail = '';
+        let adminPassword = '';
         let selectedSlug = '';
         let hotelsData = [];
 
         function adminLogin() {
-            const email = document.getElementById('adminEmail').value.trim();
-            if (!email) return;
-            adminEmail = email;
+            adminEmail = document.getElementById('adminEmail').value.trim();
+            adminPassword = document.getElementById('adminPassword').value;
+            if (!adminEmail || !adminPassword) return;
             loadAdminData();
         }
 
         function adminLogout() {
             adminEmail = '';
+            adminPassword = '';
             document.getElementById('adminPanel').style.display = 'none';
             document.getElementById('loginScreen').style.display = 'flex';
-            document.getElementById('adminEmail').value = '';
+            document.getElementById('adminPassword').value = '';
         }
 
-        document.getElementById('adminEmail').addEventListener('keypress', function(e) {
+        document.getElementById('adminPassword').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') adminLogin();
         });
 
         async function loadAdminData() {
             try {
-                const response = await fetch(`/admin-data?email=${encodeURIComponent(adminEmail)}`);
+                const response = await fetch(`/admin-data?email=${encodeURIComponent(adminEmail)}&password=${encodeURIComponent(adminPassword)}`);
                 if (response.status === 403) {
                     document.getElementById('loginError').style.display = 'block';
                     return;
@@ -235,50 +423,53 @@
         }
 
         function renderStats(hotels) {
-            const total = hotels.length;
-            const trial = hotels.filter(h => h.subscription_status === 'trial' && h.days_remaining > 0).length;
-            const active = hotels.filter(h => h.subscription_status === 'active').length;
+            const total   = hotels.length;
+            const trial   = hotels.filter(h => h.subscription_status === 'trial' && h.days_remaining > 0).length;
+            const active  = hotels.filter(h => h.subscription_status === 'active').length;
             const expired = hotels.filter(h => h.days_remaining !== null && h.days_remaining <= 0 && h.subscription_status !== 'active').length;
 
-            document.getElementById('statTotal').textContent = total;
-            document.getElementById('statTrial').textContent = trial;
-            document.getElementById('statActive').textContent = active;
+            document.getElementById('statTotal').textContent   = total;
+            document.getElementById('statTrial').textContent   = trial;
+            document.getElementById('statActive').textContent  = active;
             document.getElementById('statExpired').textContent = expired;
+            document.getElementById('tableCount').textContent  = total;
         }
 
         function renderTable(hotels) {
             const tbody = document.getElementById('hotelsTableBody');
             if (hotels.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No hotels yet.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="empty">No hotels yet.</td></tr>';
                 return;
             }
 
             tbody.innerHTML = hotels.map(h => {
-                const statusClass = h.subscription_status === 'active' ? 'status-active' :
-                                    h.days_remaining <= 0 ? 'status-expired' :
-                                    h.subscription_status === 'cancelled' ? 'status-cancelled' : 'status-trial';
-                const statusLabel = h.subscription_status === 'active' ? 'Active' :
-                                    h.days_remaining <= 0 ? 'Expired' :
-                                    h.subscription_status === 'cancelled' ? 'Cancelled' : 'Trial';
+                const isExpired = h.days_remaining !== null && h.days_remaining <= 0 && h.subscription_status !== 'active';
+
+                const badgeClass = h.subscription_status === 'active' ? 'badge-active' :
+                                   isExpired ? 'badge-expired' :
+                                   h.subscription_status === 'cancelled' ? 'badge-cancelled' : 'badge-trial';
+                const badgeLabel = h.subscription_status === 'active' ? 'Active' :
+                                   isExpired ? 'Expired' :
+                                   h.subscription_status === 'cancelled' ? 'Cancelled' : 'Trial';
 
                 const daysClass = h.days_remaining > 7 ? 'days-ok' :
                                   h.days_remaining > 0 ? 'days-warning' : 'days-expired';
                 const daysLabel = h.days_remaining === null ? '—' :
                                   h.days_remaining <= 0 ? 'Expired' :
-                                  `${h.days_remaining} days left`;
+                                  `${h.days_remaining}d left`;
 
                 return `<tr>
                     <td>
-                        <div class="hotel-name-cell">${h.name}</div>
-                        <div class="hotel-slug">${h.slug}</div>
+                        <div class="hotel-name">${h.name}</div>
+                        <div class="hotel-slug">/${h.slug}</div>
                     </td>
-                    <td>${h.email}</td>
-                    <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
-                    <td><span class="days-remaining ${daysClass}">${daysLabel}</span></td>
-                    <td>${h.date_created ? h.date_created.substring(0, 10) : '—'}</td>
-                    <td>
-                        <button class="action-btn action-btn-primary" onclick="openExtendModal('${h.slug}', '${h.name}')">Extend Trial</button>
-                        <button class="action-btn action-btn-danger" onclick="openDeleteModal('${h.slug}', '${h.name}')">Delete</button>
+                    <td class="hotel-email">${h.email}</td>
+                    <td><span class="badge ${badgeClass}">${badgeLabel}</span></td>
+                    <td><span class="days ${daysClass}">${daysLabel}</span></td>
+                    <td class="date-cell">${h.date_created ? h.date_created.substring(0, 10) : '—'}</td>
+                    <td style="text-align:right;">
+                        <button class="btn" onclick="openExtendModal('${h.slug}', '${h.name}')">Extend</button>
+                        <button class="btn btn-danger" onclick="openDeleteModal('${h.slug}', '${h.name}')">Delete</button>
                     </td>
                 </tr>`;
             }).join('');
@@ -286,7 +477,7 @@
 
         function openExtendModal(slug, name) {
             selectedSlug = slug;
-            document.getElementById('extendModalDesc').textContent = `Extend the trial for ${name}. How many days?`;
+            document.getElementById('extendModalDesc').textContent = `Extend the trial for ${name}. How many days from today?`;
             document.getElementById('extendModal').classList.add('active');
         }
 
@@ -306,7 +497,7 @@
             const response = await fetch('/admin-extend-trial', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: adminEmail, slug: selectedSlug, days })
+                body: JSON.stringify({ email: adminEmail, password: adminPassword, slug: selectedSlug, days })
             });
             const data = await response.json();
             if (data.success) {
@@ -319,7 +510,7 @@
             const response = await fetch('/admin-delete-hotel', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: adminEmail, slug: selectedSlug })
+                body: JSON.stringify({ email: adminEmail, password: adminPassword, slug: selectedSlug })
             });
             const data = await response.json();
             if (data.success) {
