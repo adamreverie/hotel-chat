@@ -249,7 +249,7 @@
 
         <div class="logo">fav<span>vi</span></div>
         <div class="headline">Get started <em>free.</em></div>
-        <p class="subline">Your hotel portal is ready in 60 seconds. No card required.</p>
+        <p class="subline">Your hotel portal is ready in 60 seconds. 14 days free.</p>
 
         <div id="signupForm">
             <div class="section-label">Hotel Details</div>
@@ -288,6 +288,14 @@
                 Staff use one password, managers use another to access analytics
             </div>
 
+            <label style="display:flex; align-items:flex-start; gap:10px; margin: 4px 0 16px; cursor:pointer;">
+                <input type="checkbox" id="agreeTerms" style="margin-top:3px; accent-color:#c9a84c; width:15px; height:15px; flex-shrink:0;" />
+                <span style="font-size:12px; font-weight:300; color:rgba(248,244,238,0.4); line-height:1.5;">
+                    I agree to the <a href="/terms" target="_blank" style="color:#c9a84c; text-decoration:none;">Terms of Service</a>
+                    and <a href="/privacy" target="_blank" style="color:#c9a84c; text-decoration:none;">Privacy Policy</a>
+                </span>
+            </label>
+
             <button class="signup-btn" id="signupBtn" onclick="signup()">
                 Create My Hotel Portal
             </button>
@@ -295,7 +303,7 @@
             <p class="error" id="errorMsg"></p>
 
             <p class="trial-note">
-                <span>Free trial</span> — no credit card needed.<br>
+                <span>14-day free trial</span> — cancel anytime before it ends and pay nothing.<br>
                 Set up takes less than 2 minutes.
             </p>
 
@@ -325,6 +333,11 @@
 
             if (!hotelName || !email || !password) {
                 errEl.textContent = 'Please fill in hotel name, email and password.';
+                errEl.style.display = 'block';
+                return;
+            }
+            if (!document.getElementById('agreeTerms').checked) {
+                errEl.textContent = 'Please agree to the Terms of Service and Privacy Policy.';
                 errEl.style.display = 'block';
                 return;
             }

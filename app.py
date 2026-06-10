@@ -193,6 +193,12 @@ def signup_page(): return send_from_directory('.', 'signup.html')
 @app.route('/signup-success')
 def signup_success(): return send_from_directory('.', 'signup-success.html')
 
+@app.route('/terms')
+def terms_page(): return send_from_directory('.', 'terms.html')
+
+@app.route('/privacy')
+def privacy_page(): return send_from_directory('.', 'privacy.html')
+
 @app.route('/login')
 def login_page(): return send_from_directory('.', 'login.html')
 
@@ -887,6 +893,7 @@ def admin_delete_hotel():
     c.execute(f"DELETE FROM hotels WHERE slug = {ph}", (slug,))
     c.execute(f"DELETE FROM requests WHERE hotel_slug = {ph}", (slug,))
     c.execute(f"DELETE FROM push_subscriptions WHERE hotel_slug = {ph}", (slug,))
+    c.execute(f"DELETE FROM feedback WHERE hotel_slug = {ph}", (slug,))
     conn.commit(); conn.close()
     return jsonify({"success": True})
 
