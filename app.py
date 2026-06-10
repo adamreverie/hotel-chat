@@ -555,6 +555,18 @@ def get_hotel(slug):
     c.execute(f'SELECT * FROM hotels WHERE slug = {placeholder()}', (slug,))
     hotel = c.fetchone(); conn.close()
     if not hotel: return jsonify({"error": "Not found"}), 404
+
+    # Check trial/subscription status
+    subscription_status = hotel[14] if len(hotel) > 14 and hotel[14] else 'trial'
+    trial_ends_at = hotel[13] if len(hotel) > 13 and hotel[13] else None
+
+    if subscription_status not in ['active', 'on_trial']:
+        if trial_ends_at:
+            from datetime import datetime
+            trial_end = datetime.strptime(trial_ends_at, "%Y-%m-%d")
+            if datetime.now() > trial_end:
+                return jsonify({"error": "Trial expired", "expired": True}), 403
+
     return jsonify({
         "id": hotel[0], "name": hotel[1], "slug": hotel[2], "email": hotel[3],
         "staff_password": hotel[6], "manager_password": hotel[7],
@@ -563,6 +575,8 @@ def get_hotel(slug):
         "manager_email":   hotel[11] if len(hotel) > 11 and hotel[11] else hotel[3],
         "staff_knowledge": hotel[12] if len(hotel) > 12 and hotel[12] else "",
         "location":        HOTEL_LOCATION,
+        "subscription_status": subscription_status,
+        "trial_ends_at": trial_ends_at,
     })
 
 
@@ -789,23 +803,6 @@ def lemon_webhook():
     except Exception as e:
         print(f"Webhook error: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
-
-@app.route('/run-migration')
-def run_migration():
-    try:
-        conn = get_conn(); c = conn.cursor()
-        migrations = [
-            "ALTER TABLE hotels ADD COLUMN IF NOT EXISTS trial_ends_at TEXT",
-            "ALTER TABLE hotels ADD COLUMN IF NOT EXISTS subscription_status TEXT DEFAULT 'trial'",
-            "ALTER TABLE hotels ADD COLUMN IF NOT EXISTS lemon_customer_id TEXT",
-            "ALTER TABLE hotels ADD COLUMN IF NOT EXISTS lemon_subscription_id TEXT",
-        ]
-        for sql in migrations:
-            c.execute(sql)
-        conn.commit(); conn.close()
-        return jsonify({"success": True, "message": "Migration complete"})
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
