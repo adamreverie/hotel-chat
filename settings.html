@@ -92,11 +92,7 @@
         <div class="login-card">
             <div class="login-logo">fav<span>vi</span></div>
             <h2>Settings</h2>
-            <p id="loginDesc">Choose your role to continue</p>
-            <div class="role-tabs">
-                <button class="role-tab active" onclick="setRole('manager')" id="tab-manager">Manager</button>
-                <button class="role-tab" onclick="setRole('staff')" id="tab-staff">Staff</button>
-            </div>
+            <p id="loginDesc">Enter your manager password to continue</p>
             <div class="field" id="nameFieldWrap" style="display:none;">
                 <label>Your Name</label>
                 <input type="text" id="staffNameInput" placeholder="Enter your name" />
@@ -309,7 +305,7 @@
             if (!hotelConfig) await loadConfig();
             const pw = document.getElementById('passwordInput').value;
             const errEl = document.getElementById('loginError');
-            const correctPw = currentRole === 'manager' ? hotelConfig.manager_password : hotelConfig.staff_password;
+            const correctPw = hotelConfig.manager_password;
             if (pw !== correctPw) { errEl.style.display = 'block'; return; }
             if (currentRole === 'staff') {
                 const name = document.getElementById('staffNameInput').value.trim();

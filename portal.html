@@ -1,187 +1,254 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <link rel="icon" href="/favicon.ico">
     <title>Favvi Portal</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'DM Sans', sans-serif; background: #f0efe9; min-height: 100vh; }
+        :root {
+            --navy: #1a1a2e;
+            --gold: #c9a84c;
+            --gold-light: #e8c97a;
+            --gold-dark: #8a6e2a;
+            --linen: #f0efe9;
+            --white: #ffffff;
+            --cream: #f8f4ee;
+            --ink: #1a1a2e;
+            --ink-60: rgba(26,26,46,0.6);
+            --ink-40: rgba(26,26,46,0.4);
+            --ink-25: rgba(26,26,46,0.25);
+            --line: rgba(26,26,46,0.1);
+            --blue: #4a7fa5;
+            --green: #6a9e6a;
+            --purple: #9b7bb8;
+            --teal: #2e8b7a;
+        }
 
-        .header {
-            background: #1a1a2e;
-            padding: 22px 40px;
-            display: flex;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--linen);
+            color: var(--ink);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── TOP BAR ── */
+        .topbar {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(240,239,233,0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--line);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 24px; height: 64px;
+        }
+        .topbar-left { display: flex; align-items: baseline; gap: 14px; min-width: 0; }
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 23px; font-weight: 600;
+            color: var(--ink); letter-spacing: 3px; text-decoration: none;
+            flex-shrink: 0;
+        }
+        .logo span { color: var(--gold); }
+        .hotel-name {
+            font-size: 11px; font-weight: 400; color: var(--ink-40);
+            letter-spacing: 1.5px; text-transform: uppercase;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .logout {
+            background: transparent; color: var(--ink-60);
+            border: 1px solid var(--line);
+            padding: 8px 18px; border-radius: 2px;
+            font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 400;
+            cursor: pointer; transition: all 0.25s; flex-shrink: 0;
+        }
+        .logout:hover { border-color: var(--gold); color: var(--gold-dark); }
+
+        /* ── BODY ── */
+        .body { max-width: 880px; margin: 0 auto; padding: 44px 24px 72px; }
+
+        .welcome-row {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            margin-bottom: 36px; padding-bottom: 26px;
+            border-bottom: 1px solid var(--line);
+            gap: 12px;
+        }
+        .welcome {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 40px; font-weight: 600; line-height: 1.05;
+        }
+        .welcome em { font-style: italic; color: var(--gold-dark); font-weight: 400; }
+        .subtitle { font-size: 12px; font-weight: 300; color: var(--ink-40); letter-spacing: 0.5px; text-align: right; }
+
+        /* ── SETUP BANNER ── */
+        .setup-banner {
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-left: 3px solid var(--gold);
+            border-radius: 4px;
+            padding: 16px 20px;
+            display: none;
             justify-content: space-between;
             align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 4px rgba(26,26,46,0.05);
         }
-        .logo { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; color: #f8f4ee; letter-spacing: 3px; }
-        .logo span { color: #c9a84c; }
-        .hotel-name { font-size: 11px; font-weight: 300; color: rgba(248,244,238,0.35); letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
-        .logout { background: transparent; color: rgba(248,244,238,0.4); border: 1px solid rgba(248,244,238,0.12); padding: 8px 20px; border-radius: 2px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 300; transition: all 0.3s; }
-        .logout:hover { border-color: rgba(201,168,76,0.5); color: #c9a84c; }
+        .setup-banner-text { font-size: 13px; font-weight: 300; color: var(--ink-60); line-height: 1.5; }
+        .setup-banner-text strong { font-weight: 500; color: var(--ink); }
+        .setup-banner-btn {
+            background: var(--navy); color: var(--cream);
+            padding: 10px 18px; border-radius: 2px;
+            font-size: 12px; font-weight: 500;
+            text-decoration: none; white-space: nowrap;
+            transition: all 0.25s;
+        }
+        .setup-banner-btn:hover { background: var(--gold); color: var(--navy); }
 
-        .body { padding: 48px 40px; max-width: 860px; margin: 0 auto; }
-
-        .welcome-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; padding-bottom: 28px; border-bottom: 1px solid rgba(26,26,46,0.08); }
-        .welcome { font-family: 'Cormorant Garamond', serif; font-size: 38px; font-weight: 600; color: #1a1a2e; line-height: 1.1; }
-        .welcome em { font-style: italic; color: #c9a84c; font-weight: 400; }
-        .subtitle { font-size: 12px; font-weight: 300; color: rgba(26,26,46,0.4); letter-spacing: 0.5px; text-align: right; }
-
+        /* ── GRID ── */
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
 
         .card {
-            background: white;
-            border-radius: 3px;
-            padding: 32px 28px 28px;
+            background: var(--white);
+            border-radius: 4px;
+            border-top: 3px solid var(--gold);
+            padding: 30px 28px 26px;
             text-decoration: none;
             color: inherit;
             display: block;
-            border-left: 3px solid transparent;
-            box-shadow: 0 1px 4px rgba(26,26,46,0.06);
-            transition: all 0.25s;
+            position: relative;
+            box-shadow: 0 1px 4px rgba(26,26,46,0.05);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
-        .card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(26,26,46,0.1); }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 16px 36px rgba(26,26,46,0.1); }
 
-        .card-ai       { border-color: #c9a84c; }
-        .card-staff    { border-color: #4a7fa5; }
-        .card-analytics{ border-color: #6a9e6a; }
-        .card-settings { border-color: #9b7bb8; }
-        .card-links { border-color: #2e8b7a; }
+        .card.c-blue   { border-top-color: var(--blue); }
+        .card.c-gold   { border-top-color: var(--gold); }
+        .card.c-green  { border-top-color: var(--green); }
+        .card.c-teal   { border-top-color: var(--teal); }
+        .card.c-purple { border-top-color: var(--purple); }
 
-        .card-label { font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
-        .card-ai .card-label        { color: #c9a84c; }
-        .card-staff .card-label     { color: #4a7fa5; }
-        .card-analytics .card-label { color: #6a9e6a; }
-        .card-settings .card-label  { color: #9b7bb8; }
-        .card-links .card-label     { color: #2e8b7a; }
-        .card-links h3              { color: #2e8b7a; }
+        .card-label {
+            font-size: 9px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
+            margin-bottom: 12px;
+            display: flex; align-items: center; gap: 7px;
+        }
+        .c-blue   .card-label { color: var(--blue); }
+        .c-gold   .card-label { color: var(--gold-dark); }
+        .c-green  .card-label { color: var(--green); }
+        .c-teal   .card-label { color: var(--teal); }
+        .c-purple .card-label { color: var(--purple); }
 
-        .card h3 { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; margin-bottom: 10px; line-height: 1.15; }
-        .card-ai h3        { color: #8a6e2a; }
-        .card-staff h3     { color: #2e5f80; }
-        .card-analytics h3 { color: #3d6e3d; }
-        .card-settings h3  { color: #6b4d8a; }
-        .card-links h3 { color: #2e8b7a; }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+        .c-blue   .status-dot { background: var(--blue); animation: pulse 2s infinite; }
+        .c-gold   .status-dot { background: var(--gold); }
+        .c-green  .status-dot { background: var(--green); }
+        .c-teal   .status-dot { background: var(--teal); }
+        .c-purple .status-dot { background: var(--purple); }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
 
-        .card p { font-size: 13px; font-weight: 300; color: rgba(26,26,46,0.5); line-height: 1.65; }
+        .card h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 27px; font-weight: 600; line-height: 1.15;
+            margin-bottom: 9px;
+        }
+        .card p { font-size: 13px; font-weight: 300; color: var(--ink-60); line-height: 1.65; }
 
-        .card-arrow { position: absolute; top: 28px; right: 28px; font-size: 16px; color: rgba(26,26,46,0.15); transition: all 0.3s; }
-        .card { position: relative; overflow: hidden; }
-        .card:hover .card-arrow { color: rgba(26,26,46,0.4); transform: translate(2px,-2px); }
+        .card-arrow {
+            position: absolute; top: 26px; right: 26px;
+            font-size: 15px; color: var(--ink-25);
+            transition: all 0.3s;
+        }
+        .card:hover .card-arrow { color: var(--gold-dark); transform: translate(2px,-2px); }
 
-        .status-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; vertical-align: middle; position: relative; top: -1px; }
-        .card-ai .status-dot        { background: #c9a84c; }
-        .card-staff .status-dot     { background: #4a7fa5; animation: pulse 2s infinite; }
-        .card-analytics .status-dot { background: #6a9e6a; }
-        .card-settings .status-dot  { background: #9b7bb8; }
-        .card-links .status-dot     { background: #2e8b7a; }
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        .card-footer {
+            margin-top: 18px; padding-top: 14px;
+            border-top: 1px solid var(--line);
+            font-size: 11px; font-weight: 300; color: var(--ink-40);
+        }
 
-        .card-footer { margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(26,26,46,0.06); font-size: 11px; font-weight: 300; color: rgba(26,26,46,0.3); }
-
-            .setup-banner {
-                background: rgba(201,168,76,0.1);
-                border: 1px solid rgba(201,168,76,0.3);
-                border-radius: 3px;
-                padding: 14px 20px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                gap: 20px;
-                margin-bottom: 24px;
-            }
-            .setup-banner-text {
-                font-size: 13px;
-                font-weight: 400;
-                color: #c9a84c;
-            }
-            .setup-banner-btn {
-                background: #c9a84c;
-                color: #1a1a2e;
-                padding: 8px 18px;
-                border-radius: 2px;
-                font-size: 12px;
-                font-weight: 500;
-                text-decoration: none;
-                white-space: nowrap;
-                transition: background 0.2s;
-            }
-            .setup-banner-btn:hover { background: #e8c97a; }
-
-        @media (max-width: 600px) {
-            .header { padding: 18px 20px; }
-            .body { padding: 28px 16px; }
-            .grid { grid-template-columns: 1fr; }
-            .welcome { font-size: 30px; }
-            .welcome-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+        /* ── MOBILE ── */
+        @media (max-width: 640px) {
+            .topbar { padding: 0 16px; height: 58px; }
+            .hotel-name { display: none; }
+            .body { padding: 28px 16px 56px; }
+            .welcome { font-size: 32px; }
+            .welcome-row { flex-direction: column; align-items: flex-start; gap: 8px; margin-bottom: 28px; padding-bottom: 20px; }
             .subtitle { text-align: left; }
+            .grid { grid-template-columns: 1fr; gap: 12px; }
+            .card { padding: 24px 20px 22px; }
+            .card h3 { font-size: 24px; }
+            .setup-banner { flex-direction: column; align-items: stretch; text-align: left; }
+            .setup-banner-btn { text-align: center; }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div>
-            <div class="logo">fav<span>vi</span></div>
-            <div class="hotel-name" id="hotelName">Loading...</div>
+    <div class="topbar">
+        <div class="topbar-left">
+            <a class="logo" href="#" onclick="return false;">fav<span>vi</span></a>
+            <div class="hotel-name" id="hotelName">Loading…</div>
         </div>
-        <button class="logout" onclick="localStorage.removeItem('favvi_hotel_email'); localStorage.removeItem('favvi_hotel_password'); localStorage.removeItem('favvi_hotel_slug'); window.location.href='/login'">Logout</button>
+        <button class="logout" onclick="localStorage.removeItem('favvi_hotel_email'); localStorage.removeItem('favvi_hotel_password'); localStorage.removeItem('favvi_hotel_slug'); window.location.href='/login'">Log out</button>
     </div>
 
     <div class="body">
-        <div class="setup-banner" id="setupBanner" style="display:none;">
-        <div class="setup-banner-text">
-            Your hotel info isn't configured yet — set it up so the AI knows what to say to guests.
+        <div class="setup-banner" id="setupBanner">
+            <div class="setup-banner-text">
+                <strong>Finish setting up.</strong> Add your hotel info so the AI knows what to tell your guests.
+            </div>
+            <a class="setup-banner-btn" id="setupBannerBtn" href="#">Set Up Now →</a>
         </div>
-        <a class="setup-banner-btn" id="setupBannerBtn" href="#">Set Up Now →</a>
-    </div>
 
-    <div class="welcome-row">
-        <div class="welcome">Welcome <em>back.</em></div>
-        <div class="subtitle" id="hotelSubtitle">Loading...</div>
-    </div>
+        <div class="welcome-row">
+            <div class="welcome">Welcome <em>back.</em></div>
+            <div class="subtitle" id="hotelSubtitle">Loading…</div>
+        </div>
+
         <div class="grid">
-            <a class="card card-ai" id="staffChatLink" href="#">
+            <a class="card c-blue" id="staffLink" href="#">
+                <div class="card-label"><span class="status-dot"></span>Live</div>
+                <div class="card-arrow">↗</div>
+                <h3>Staff Dashboard</h3>
+                <p>Guest requests colour-coded by department. Claim and complete tasks in real time.</p>
+                <div class="card-footer">Updates every 10 seconds</div>
+            </a>
+            <a class="card c-gold" id="staffChatLink" href="#">
                 <div class="card-label"><span class="status-dot"></span>AI Assistant</div>
                 <div class="card-arrow">↗</div>
                 <h3>Staff Assistant</h3>
                 <p>Ask anything about hotel procedures, policies, and handling guest situations.</p>
                 <div class="card-footer">Powered by Claude AI</div>
             </a>
-            <a class="card card-staff" id="staffLink" href="#">
-                <div class="card-label"><span class="status-dot"></span>Live</div>
-                <div class="card-arrow">↗</div>
-                <h3>Staff Dashboard</h3>
-                <p>Guest requests colour coded by department. Claim and complete tasks in real time.</p>
-                <div class="card-footer">Updates every 10 seconds</div>
-            </a>
-            <a class="card card-analytics" id="dashboardLink" href="#">
+            <a class="card c-green" id="dashboardLink" href="#">
                 <div class="card-label"><span class="status-dot"></span>Analytics</div>
                 <div class="card-arrow">↗</div>
                 <h3>Manager Analytics</h3>
                 <p>Average ratings, recent guest feedback, and satisfaction trends over time.</p>
                 <div class="card-footer">From post-checkout feedback</div>
             </a>
-            <a class="card card-links" id="linksLink" href="#">
+            <a class="card c-teal" id="linksLink" href="#">
                 <div class="card-label"><span class="status-dot"></span>QR Codes</div>
                 <div class="card-arrow">↗</div>
                 <h3>Links & QR Codes</h3>
                 <p>Copy your guest chat and feedback links, and download print-ready QR codes for guest rooms.</p>
                 <div class="card-footer">Ready to print</div>
             </a>
-            <a class="card card-settings" id="settingsLink" href="#">
+            <a class="card c-purple" id="settingsLink" href="#">
                 <div class="card-label"><span class="status-dot"></span>Configuration</div>
                 <div class="card-arrow">↗</div>
                 <h3>Settings</h3>
                 <p>Update hotel info, current offers, and staff or manager passwords.</p>
-                <div class="card-footer">Manager access required</div>
+                <div class="card-footer">Manager access only</div>
             </a>
         </div>
     </div>
 
     <script>
         const slug = window.location.pathname.split('/')[2];
+
         async function loadHotel() {
             const response = await fetch(`/get-hotel/${slug}`);
 
@@ -206,15 +273,14 @@
             document.getElementById('hotelSubtitle').textContent = hotel.name + ' — Favvi Portal';
             document.title = hotel.name + ' — Favvi';
 
-            document.getElementById('staffChatLink').href  = `/portal/${slug}/staffchat`;
             document.getElementById('staffLink').href      = `/portal/${slug}/staff`;
+            document.getElementById('staffChatLink').href  = `/portal/${slug}/staffchat`;
             document.getElementById('dashboardLink').href  = `/portal/${slug}/dashboard`;
             document.getElementById('linksLink').href      = `/portal/${slug}/links`;
             document.getElementById('settingsLink').href   = `/portal/${slug}/settings`;
 
             document.getElementById('setupBannerBtn').href = `/portal/${slug}/settings`;
 
-            // Show setup banner if hotel info is empty
             if (!hotel.hotel_info || hotel.hotel_info.trim() === '') {
                 document.getElementById('setupBanner').style.display = 'flex';
             }

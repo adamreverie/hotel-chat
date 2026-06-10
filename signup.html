@@ -1,108 +1,101 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <link rel="icon" href="/favicon.ico">
     <title>Get Started — Favvi</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --navy: #1a1a2e;
+            --gold: #c9a84c;
+            --gold-light: #e8c97a;
+            --gold-dark: #8a6e2a;
+            --linen: #f0efe9;
+            --white: #ffffff;
+            --cream: #f8f4ee;
+            --ink: #1a1a2e;
+            --ink-60: rgba(26,26,46,0.6);
+            --ink-40: rgba(26,26,46,0.4);
+            --ink-25: rgba(26,26,46,0.25);
+            --line: rgba(26,26,46,0.1);
+        }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'DM Sans', sans-serif;
-            background: #1a1a2e;
+            background: var(--linen);
+            color: var(--ink);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            padding: 60px 20px;
-            position: relative;
-            overflow-y: auto;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: -200px; right: -200px;
-            width: 600px; height: 600px;
-            background: radial-gradient(circle, rgba(201,168,76,0.07) 0%, transparent 70%);
-            pointer-events: none;
-        }
-        body::after {
-            content: '';
-            position: fixed;
-            bottom: -200px; left: -200px;
-            width: 500px; height: 500px;
-            background: radial-gradient(circle, rgba(201,168,76,0.04) 0%, transparent 70%);
-            pointer-events: none;
+            padding: 48px 20px 64px;
+            -webkit-font-smoothing: antialiased;
         }
 
         .card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(201,168,76,0.15);
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-top: 3px solid var(--gold);
             border-radius: 4px;
-            padding: 52px 44px;
+            padding: 46px 40px 40px;
             width: 100%;
             max-width: 480px;
-            position: relative;
-            z-index: 1;
+            box-shadow: 0 16px 48px rgba(26,26,46,0.08);
         }
 
         .back-link {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 300;
-            color: rgba(248,244,238,0.3);
+            color: var(--ink-40);
             text-decoration: none;
-            letter-spacing: 0.5px;
-            margin-bottom: 32px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 28px;
             transition: color 0.2s;
         }
-        .back-link:hover { color: #c9a84c; }
+        .back-link:hover { color: var(--gold-dark); }
 
         .logo {
             font-family: 'Cormorant Garamond', serif;
             font-size: 28px;
             font-weight: 600;
-            color: #f8f4ee;
+            color: var(--ink);
             letter-spacing: 3px;
             margin-bottom: 8px;
         }
-        .logo span { color: #c9a84c; }
+        .logo span { color: var(--gold); }
 
         .headline {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 32px;
-            font-weight: 300;
-            color: #f8f4ee;
-            line-height: 1.2;
-            margin-bottom: 6px;
+            font-size: 34px;
+            font-weight: 600;
+            line-height: 1.15;
+            margin-bottom: 8px;
         }
-        .headline em { font-style: italic; color: #c9a84c; }
+        .headline em { font-style: italic; color: var(--gold-dark); font-weight: 400; }
 
         .subline {
             font-size: 13px;
             font-weight: 300;
-            color: rgba(248,244,238,0.35);
-            margin-bottom: 36px;
+            color: var(--ink-60);
+            margin-bottom: 32px;
             line-height: 1.6;
         }
 
-        .divider {
-            height: 1px;
-            background: rgba(201,168,76,0.1);
-            margin: 24px 0;
-        }
+        .divider { height: 1px; background: var(--line); margin: 24px 0; }
 
         .section-label {
             font-size: 9px;
             font-weight: 500;
             letter-spacing: 2px;
             text-transform: uppercase;
-            color: rgba(248,244,238,0.25);
-            margin-bottom: 16px;
+            color: var(--ink-40);
+            margin-bottom: 14px;
         }
 
         .field { margin-bottom: 14px; }
@@ -112,24 +105,24 @@
             font-weight: 500;
             letter-spacing: 1.5px;
             text-transform: uppercase;
-            color: rgba(248,244,238,0.35);
+            color: var(--ink-40);
             margin-bottom: 7px;
         }
         .field input {
             width: 100%;
-            padding: 13px 16px;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
+            padding: 13px 15px;
+            background: var(--white);
+            border: 1px solid var(--line);
             border-radius: 2px;
             font-family: 'DM Sans', sans-serif;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 300;
-            color: #f8f4ee;
+            color: var(--ink);
             outline: none;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
-        .field input::placeholder { color: rgba(248,244,238,0.15); }
-        .field input:focus { border-color: rgba(201,168,76,0.4); }
+        .field input::placeholder { color: var(--ink-25); }
+        .field input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.12); }
 
         .field-row {
             display: grid;
@@ -140,16 +133,39 @@
         .field-hint {
             font-size: 11px;
             font-weight: 300;
-            color: rgba(248,244,238,0.2);
+            color: var(--ink-40);
             margin-top: 5px;
             line-height: 1.4;
         }
 
+        .terms-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin: 6px 0 16px;
+            cursor: pointer;
+        }
+        .terms-row input {
+            margin-top: 3px;
+            accent-color: var(--navy);
+            width: 15px; height: 15px;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        .terms-text {
+            font-size: 12px;
+            font-weight: 300;
+            color: var(--ink-60);
+            line-height: 1.5;
+        }
+        .terms-text a { color: var(--gold-dark); text-decoration: none; font-weight: 400; }
+        .terms-text a:hover { text-decoration: underline; }
+
         .signup-btn {
             width: 100%;
-            padding: 14px;
-            background: #c9a84c;
-            color: #1a1a2e;
+            padding: 15px;
+            background: var(--navy);
+            color: var(--cream);
             border: none;
             border-radius: 2px;
             font-family: 'DM Sans', sans-serif;
@@ -157,14 +173,13 @@
             font-weight: 500;
             letter-spacing: 0.5px;
             cursor: pointer;
-            margin-top: 8px;
-            transition: background 0.2s, transform 0.15s;
+            transition: all 0.25s;
         }
-        .signup-btn:hover { background: #e8c97a; transform: translateY(-1px); }
-        .signup-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .signup-btn:hover { background: var(--gold); color: var(--navy); }
+        .signup-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
         .error {
-            color: #e57373;
+            color: #c0392b;
             font-size: 12px;
             margin-top: 12px;
             display: none;
@@ -174,72 +189,28 @@
         .trial-note {
             font-size: 11px;
             font-weight: 300;
-            color: rgba(248,244,238,0.2);
+            color: var(--ink-40);
             text-align: center;
             margin-top: 16px;
             line-height: 1.5;
         }
-        .trial-note span { color: rgba(201,168,76,0.6); }
+        .trial-note span { color: var(--gold-dark); font-weight: 400; }
 
         .login-link {
             font-size: 12px;
             font-weight: 300;
-            color: rgba(248,244,238,0.25);
+            color: var(--ink-40);
             text-align: center;
-            margin-top: 24px;
+            margin-top: 22px;
         }
-        .login-link a {
-            color: #c9a84c;
-            text-decoration: none;
-        }
+        .login-link a { color: var(--gold-dark); text-decoration: none; font-weight: 400; }
         .login-link a:hover { text-decoration: underline; }
 
-        /* Success state */
-        .success-state {
-            display: none;
-            text-align: center;
-            padding: 20px 0;
-        }
-        .success-mark {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 56px;
-            font-weight: 300;
-            color: #c9a84c;
-            line-height: 1;
-            margin-bottom: 20px;
-        }
-        .success-state h3 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 30px;
-            font-weight: 600;
-            color: #f8f4ee;
-            margin-bottom: 10px;
-        }
-        .success-state p {
-            font-size: 13px;
-            font-weight: 300;
-            color: rgba(248,244,238,0.4);
-            line-height: 1.7;
-            margin-bottom: 28px;
-        }
-        .portal-btn {
-            display: inline-block;
-            background: #c9a84c;
-            color: #1a1a2e;
-            padding: 13px 32px;
-            border-radius: 2px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 13px;
-            font-weight: 500;
-            text-decoration: none;
-            letter-spacing: 0.5px;
-            transition: background 0.2s;
-        }
-        .portal-btn:hover { background: #e8c97a; }
-
         @media (max-width: 500px) {
-            .card { padding: 36px 24px; }
+            body { padding: 28px 16px 48px; }
+            .card { padding: 34px 22px 30px; }
             .field-row { grid-template-columns: 1fr; }
+            .headline { font-size: 30px; }
         }
     </style>
 </head>
@@ -281,18 +252,18 @@
                 </div>
                 <div class="field">
                     <label>Manager Password</label>
-                    <input type="password" id="managerPassword" placeholder="For analytics" />
+                    <input type="password" id="managerPassword" placeholder="For settings & analytics" />
                 </div>
             </div>
-            <div class="field-hint" style="margin-top: -8px; margin-bottom: 20px;">
-                Staff use one password, managers use another to access analytics
+            <div class="field-hint" style="margin-top: -6px; margin-bottom: 18px;">
+                Staff use one password for the dashboard; managers use another for settings and analytics
             </div>
 
-            <label style="display:flex; align-items:flex-start; gap:10px; margin: 4px 0 16px; cursor:pointer;">
-                <input type="checkbox" id="agreeTerms" style="margin-top:3px; accent-color:#c9a84c; width:15px; height:15px; flex-shrink:0;" />
-                <span style="font-size:12px; font-weight:300; color:rgba(248,244,238,0.4); line-height:1.5;">
-                    I agree to the <a href="/terms" target="_blank" style="color:#c9a84c; text-decoration:none;">Terms of Service</a>
-                    and <a href="/privacy" target="_blank" style="color:#c9a84c; text-decoration:none;">Privacy Policy</a>
+            <label class="terms-row">
+                <input type="checkbox" id="agreeTerms" />
+                <span class="terms-text">
+                    I agree to the <a href="/terms" target="_blank">Terms of Service</a>
+                    and <a href="/privacy" target="_blank">Privacy Policy</a>
                 </span>
             </label>
 
@@ -311,25 +282,17 @@
                 Already have an account? <a href="/login">Log in</a>
             </p>
         </div>
-
-        <div class="success-state" id="successState">
-            <div class="success-mark">✦</div>
-            <h3>You're live.</h3>
-            <p>Your portal is ready. We've sent your login details to your email.<br>
-            Start by pasting your hotel info in Settings.</p>
-            <a class="portal-btn" id="portalBtn" href="#">Go to My Portal</a>
-        </div>
     </div>
 
     <script>
         async function signup() {
-            const hotelName     = document.getElementById('hotelName').value.trim();
-            const email         = document.getElementById('email').value.trim();
-            const password      = document.getElementById('password').value.trim();
-            const staffPassword = document.getElementById('staffPassword').value.trim();
+            const hotelName       = document.getElementById('hotelName').value.trim();
+            const email           = document.getElementById('email').value.trim();
+            const password        = document.getElementById('password').value.trim();
+            const staffPassword   = document.getElementById('staffPassword').value.trim();
             const managerPassword = document.getElementById('managerPassword').value.trim();
-            const errEl         = document.getElementById('errorMsg');
-            const btn           = document.getElementById('signupBtn');
+            const errEl           = document.getElementById('errorMsg');
+            const btn             = document.getElementById('signupBtn');
 
             if (!hotelName || !email || !password) {
                 errEl.textContent = 'Please fill in hotel name, email and password.';
@@ -348,7 +311,7 @@
             }
 
             btn.disabled = true;
-            btn.textContent = 'Creating your portal...';
+            btn.textContent = 'Creating your portal…';
             errEl.style.display = 'none';
 
             try {

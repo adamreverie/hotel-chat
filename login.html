@@ -1,98 +1,122 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <link rel="icon" href="/favicon.ico">
-    <title>favvi — Hotel Login</title>
+    <title>Log In — Favvi</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: #1a1a2e;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            overflow: hidden;
+        :root {
+            --navy: #1a1a2e;
+            --gold: #c9a84c;
+            --gold-light: #e8c97a;
+            --gold-dark: #8a6e2a;
+            --linen: #f0efe9;
+            --white: #ffffff;
+            --cream: #f8f4ee;
+            --ink: #1a1a2e;
+            --ink-60: rgba(26,26,46,0.6);
+            --ink-40: rgba(26,26,46,0.4);
+            --ink-25: rgba(26,26,46,0.25);
+            --line: rgba(26,26,46,0.1);
         }
 
-        /* Subtle background orb */
-        body::before {
-            content: '';
-            position: fixed;
-            top: -200px;
-            right: -200px;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
-            pointer-events: none;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--linen);
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 32px 20px;
+            -webkit-font-smoothing: antialiased;
         }
 
         .card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(201,168,76,0.15);
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-top: 3px solid var(--gold);
             border-radius: 4px;
-            padding: 52px 44px;
-            width: 380px;
-            position: relative;
-            z-index: 1;
+            padding: 46px 40px 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 16px 48px rgba(26,26,46,0.08);
         }
 
         .logo {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 32px;
-            font-weight: 300;
-            color: #f8f4ee;
+            font-size: 30px;
+            font-weight: 600;
+            color: var(--ink);
             letter-spacing: 3px;
-            margin-bottom: 6px;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 4px;
         }
-        .logo span { color: #c9a84c; }
+        .logo span { color: var(--gold); }
 
         .tagline {
-            font-size: 12px;
-            font-weight: 300;
-            color: rgba(248,244,238,0.35);
-            letter-spacing: 1px;
+            font-size: 11px;
+            font-weight: 400;
+            color: var(--ink-40);
+            letter-spacing: 1.5px;
             text-transform: uppercase;
-            margin-bottom: 44px;
+            margin-bottom: 36px;
         }
 
-        .field {
-            margin-bottom: 16px;
-        }
+        .field { margin-bottom: 16px; }
         .field label {
             display: block;
             font-size: 10px;
             font-weight: 500;
             letter-spacing: 1.5px;
             text-transform: uppercase;
-            color: rgba(248,244,238,0.4);
-            margin-bottom: 8px;
+            color: var(--ink-40);
+            margin-bottom: 7px;
         }
         .field input {
             width: 100%;
-            padding: 13px 16px;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.1);
+            padding: 13px 15px;
+            background: var(--white);
+            border: 1px solid var(--line);
             border-radius: 2px;
             font-family: 'DM Sans', sans-serif;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 300;
-            color: #f8f4ee;
+            color: var(--ink);
             outline: none;
-            transition: border-color 0.3s;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
-        .field input::placeholder { color: rgba(248,244,238,0.2); }
-        .field input:focus { border-color: rgba(201,168,76,0.5); }
+        .field input::placeholder { color: var(--ink-25); }
+        .field input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.12); }
+
+        .stay-row {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            margin-bottom: 18px;
+            padding: 13px 14px;
+            background: var(--linen);
+            border-radius: 2px;
+            border: 1px solid var(--line);
+        }
+        .stay-row input {
+            width: 16px; height: 16px;
+            accent-color: var(--navy);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .stay-title { font-size: 13px; font-weight: 500; color: var(--ink); cursor: pointer; display: block; }
+        .stay-sub { font-size: 11px; font-weight: 300; color: var(--ink-40); }
 
         .login-btn {
             width: 100%;
-            padding: 14px;
-            background: #c9a84c;
-            color: #1a1a2e;
+            padding: 15px;
+            background: var(--navy);
+            color: var(--cream);
             border: none;
             border-radius: 2px;
             font-family: 'DM Sans', sans-serif;
@@ -100,39 +124,51 @@
             font-weight: 500;
             letter-spacing: 0.5px;
             cursor: pointer;
-            margin-top: 8px;
-            transition: background 0.3s, transform 0.15s;
+            transition: all 0.25s;
         }
-        .login-btn:hover {
-            background: #e8c97a;
-            transform: translateY(-1px);
-        }
+        .login-btn:hover { background: var(--gold); color: var(--navy); }
+        .login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
         .error {
-            color: #e57373;
+            color: #c0392b;
             font-size: 12px;
             margin-top: 12px;
             display: none;
             text-align: center;
         }
 
-        .divider {
-            height: 1px;
-            background: rgba(201,168,76,0.1);
-            margin: 36px 0 0;
-        }
+        .divider { height: 1px; background: var(--line); margin: 30px 0 0; }
         .footer-text {
-            font-size: 11px;
-            color: rgba(248,244,238,0.2);
+            font-size: 12px;
+            font-weight: 300;
+            color: var(--ink-40);
             text-align: center;
             margin-top: 20px;
+        }
+        .footer-text a { color: var(--gold-dark); text-decoration: none; font-weight: 400; }
+        .footer-text a:hover { text-decoration: underline; }
+
+        .back-home {
+            font-size: 11px;
+            font-weight: 300;
+            color: var(--ink-25);
+            text-decoration: none;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 24px;
+            transition: color 0.2s;
+        }
+        .back-home:hover { color: var(--gold-dark); }
+
+        @media (max-width: 440px) {
+            .card { padding: 36px 24px 32px; }
         }
     </style>
 </head>
 <body>
     <div class="card">
-        <a href="/" class="logo" style="text-decoration:none;">fav<span>vi</span></a>
-        <p class="tagline">Hotel Management Portal</p>
+        <a href="/" class="logo">fav<span>vi</span></a>
+        <p class="tagline">Hotel Portal</p>
 
         <div class="field">
             <label>Email Address</label>
@@ -152,88 +188,101 @@
                 onkeypress="if(event.key==='Enter') login()"
             />
         </div>
-        <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px; padding:12px 14px; background:#f8f6f1; border-radius:2px; border:1px solid #e8e8e8;">
-                <input type="checkbox" id="staySignedIn" checked
-                    style="width:16px; height:16px; accent-color:#1a1a2e; cursor:pointer; flex-shrink:0;" />
-                <div>
-                    <label for="staySignedIn" style="font-size:13px; font-weight:500; color:#1a1a2e; cursor:pointer; display:block;">
-                        Stay signed in
-                    </label>
-                    <span style="font-size:11px; font-weight:300; color:rgba(26,26,46,0.4);">
-                        Skip login next time you open Favvi
-                    </span>
-                </div>
+
+        <div class="stay-row">
+            <input type="checkbox" id="staySignedIn" checked />
+            <div>
+                <label for="staySignedIn" class="stay-title">Stay signed in</label>
+                <span class="stay-sub">Skip login next time you open Favvi</span>
             </div>
-        <button class="login-btn" onclick="login()">Login to Portal</button>
+        </div>
+
+        <button class="login-btn" id="loginBtn" onclick="login()">Log In to Portal</button>
         <p class="error" id="error">Incorrect email or password.</p>
 
         <div class="divider"></div>
-        <p class="footer-text">Don't have an account? <a href="/signup" style="color: #c9a84c; text-decoration: none;">Start free trial</a></p>
+        <p class="footer-text">Don't have an account? <a href="/signup">Start free trial</a></p>
     </div>
+
+    <a class="back-home" href="/">← Back to favvi.ai</a>
 
     <script>
         // Auto-redirect if already logged in
-            const savedSlug = localStorage.getItem('favvi_hotel_slug');
-            if (savedSlug) {
-                window.location.href = `/portal/${savedSlug}`;
-            }
+        const savedSlug = localStorage.getItem('favvi_hotel_slug');
+        if (savedSlug) {
+            window.location.href = `/portal/${savedSlug}`;
+        }
 
         async function login() {
-            const email = document.getElementById('email').value;
+            const email    = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+            const errEl    = document.getElementById('error');
+            const btn      = document.getElementById('loginBtn');
 
             if (!email || !password) {
-                document.getElementById('error').textContent = 'Please fill in all fields.';
-                document.getElementById('error').style.display = 'block';
+                errEl.textContent = 'Please fill in all fields.';
+                errEl.style.display = 'block';
                 return;
             }
 
-            const response = await fetch('/hotel-login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
+            btn.disabled = true;
+            btn.textContent = 'Logging in…';
+            errEl.style.display = 'none';
 
-            const data = await response.json();
+            try {
+                const response = await fetch('/hotel-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await response.json();
 
-            if (data.success) {
-                if (document.getElementById('staySignedIn').checked) {
-                    localStorage.setItem('favvi_hotel_slug', data.slug);
-                    localStorage.setItem('favvi_hotel_email', email);
-                    localStorage.setItem('favvi_hotel_pw', btoa(password));
+                if (data.success) {
+                    if (document.getElementById('staySignedIn').checked) {
+                        localStorage.setItem('favvi_hotel_slug', data.slug);
+                        localStorage.setItem('favvi_hotel_email', email);
+                        localStorage.setItem('favvi_hotel_password', btoa(password));
+                    }
+                    window.location.href = `/portal/${data.slug}`;
+                } else {
+                    errEl.textContent = 'Incorrect email or password.';
+                    errEl.style.display = 'block';
+                    btn.disabled = false;
+                    btn.textContent = 'Log In to Portal';
                 }
-                window.location.href = `/portal/${data.slug}`;
-            } else {
-                document.getElementById('error').style.display = 'block';
+            } catch(e) {
+                errEl.textContent = 'Network error. Please try again.';
+                errEl.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Log In to Portal';
             }
         }
 
         async function checkSavedLogin() {
-                const savedEmail = localStorage.getItem('favvi_hotel_email');
-                const savedPw    = localStorage.getItem('favvi_hotel_password');
-                const savedSlug  = localStorage.getItem('favvi_hotel_slug');
+            const savedEmail = localStorage.getItem('favvi_hotel_email');
+            const savedPw    = localStorage.getItem('favvi_hotel_password');
+            const slugSaved  = localStorage.getItem('favvi_hotel_slug');
 
-                if (!savedEmail || !savedPw || !savedSlug) return;
+            if (!savedEmail || !savedPw || !slugSaved) return;
 
-                try {
-                    const r = await fetch('/hotel-login', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: savedEmail, password: atob(savedPw) })
-                    });
-                    const data = await r.json();
-                    if (data.success) {
-                        window.location.href = `/portal/${data.slug}`;
-                    } else {
-                        localStorage.removeItem('favvi_hotel_email');
-                        localStorage.removeItem('favvi_hotel_password');
-                        localStorage.removeItem('favvi_hotel_slug');
-                    }
-                } catch(e) {}
-            }
+            try {
+                const r = await fetch('/hotel-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: savedEmail, password: atob(savedPw) })
+                });
+                const data = await r.json();
+                if (data.success) {
+                    window.location.href = `/portal/${data.slug}`;
+                } else {
+                    localStorage.removeItem('favvi_hotel_email');
+                    localStorage.removeItem('favvi_hotel_password');
+                    localStorage.removeItem('favvi_hotel_slug');
+                }
+            } catch(e) {}
+        }
 
-            checkSavedLogin();
-
+        checkSavedLogin();
     </script>
 </body>
 </html>
