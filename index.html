@@ -1,447 +1,472 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <link rel="icon" href="/favicon.ico">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
-    <title>Hotel Assistant</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.8/purify.min.js"></script>
+    <title>Concierge</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --navy: #1a1a2e;
+            --navy2: #16213e;
+            --gold: #c9a84c;
+            --gold-light: #e8c97a;
+            --gold-dark: #8a6e2a;
+            --linen: #f0efe9;
+            --white: #ffffff;
+            --cream: #f8f4ee;
+            --ink: #1a1a2e;
+            --ink-60: rgba(26,26,46,0.6);
+            --ink-40: rgba(26,26,46,0.4);
+            --ink-25: rgba(26,26,46,0.25);
+            --line: rgba(26,26,46,0.09);
+            --accent: var(--gold);
+            --accent-dark: var(--gold-dark);
+            --bubble-user-bg: var(--gold);
+            --bubble-user-ink: var(--navy);
+            --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --smooth: cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body {
             height: 100%;
             height: 100dvh;
             overflow: hidden;
             font-family: 'DM Sans', sans-serif;
-            background: #0e0e1a;
+            background: var(--navy);
+            -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* ── OUTER SHELL — desktop only ── */
         .shell {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 100%;
+            display: flex; justify-content: center; align-items: center;
+            width: 100%; height: 100%;
         }
 
-        /* ── CHAT CONTAINER ── */
-        .chat-container {
-            width: 420px;
-            height: 760px;
+        .chat {
+            width: 430px; height: 780px;
             max-height: 100dvh;
-            background: #f8f6f1;
+            background: var(--linen);
             border-radius: 24px;
-            box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            position: relative;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column;
+            overflow: hidden; position: relative;
         }
 
-        /* ── HEADER — always visible, never moves ── */
+        /* ─── HEADER ─── */
         .header {
-            flex-shrink: 0;
-            position: relative;
-            overflow: hidden;
-            z-index: 10;
+            flex-shrink: 0; position: relative; overflow: hidden; z-index: 10;
+            background: var(--navy);
         }
-
-        .header-bg {
-            position: absolute; inset: 0;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
-            background-size: 400% 400%;
-            animation: gradientShift 12s ease infinite;
+        .header::before {
+            content: '';
+            position: absolute; top: -120px; right: -120px;
+            width: 320px; height: 320px;
+            background: radial-gradient(circle, rgba(201,168,76,0.13) 0%, transparent 70%);
+            pointer-events: none;
         }
-        @keyframes gradientShift {
-            0%   { background-position: 0% 50%; }
-            50%  { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        .header-pattern {
-            position: absolute; inset: 0; opacity: 0.05;
-            background-image:
-                repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(201,168,76,1) 20px, rgba(201,168,76,1) 21px),
-                repeating-linear-gradient(-45deg, transparent, transparent 20px, rgba(201,168,76,1) 20px, rgba(201,168,76,1) 21px);
-        }
-
-        .header-shimmer {
+        .header::after {
+            content: '';
             position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
-            background: linear-gradient(90deg, transparent, #c9a84c, transparent);
-            animation: shimmer 3s ease infinite;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            animation: shimmer 3.5s ease infinite;
         }
-        @keyframes shimmer { 0%,100%{opacity:0.4} 50%{opacity:1} }
+        @keyframes shimmer { 0%,100%{opacity:0.35} 50%{opacity:1} }
 
         .header-content {
             position: relative; z-index: 1;
-            padding: 20px 20px 18px;
+            padding: 18px 20px 16px;
+            padding-top: max(18px, env(safe-area-inset-top));
+            display: flex; justify-content: space-between; align-items: center; gap: 12px;
         }
-
-        .concierge-label {
+        .header-left { min-width: 0; }
+        .eyebrow {
             font-size: 9px; font-weight: 500;
             letter-spacing: 3px; text-transform: uppercase;
-            color: #c9a84c; margin-bottom: 6px; opacity: 0.9;
+            color: var(--gold); margin-bottom: 5px; opacity: 0.92;
         }
-
         .hotel-title {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 24px; font-weight: 600;
-            color: #f8f4ee; letter-spacing: 0.5px;
-            line-height: 1.1; margin-bottom: 10px;
+            font-size: 23px; font-weight: 600;
+            color: var(--cream); letter-spacing: 0.5px;
+            line-height: 1.12;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
-
-        .status-row { display: flex; align-items: center; gap: 10px; }
-
         .online-pill {
+            flex-shrink: 0;
             display: inline-flex; align-items: center; gap: 6px;
-            background: rgba(76,175,80,0.15);
+            background: rgba(76,175,80,0.12);
             border: 1px solid rgba(76,175,80,0.25);
-            padding: 4px 10px; border-radius: 20px;
+            padding: 5px 12px; border-radius: 20px;
             font-size: 9px; font-weight: 500;
-            color: #81c784; letter-spacing: 1px; text-transform: uppercase;
+            color: #82c98c; letter-spacing: 1px; text-transform: uppercase;
         }
         .online-dot { width: 5px; height: 5px; background: #4CAF50; border-radius: 50%; animation: pulse 2s ease infinite; }
-        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.45;transform:scale(0.8)} }
 
-        .response-time { font-size: 9px; font-weight: 300; color: rgba(248,244,238,0.25); }
-
-        /* ── MESSAGES ── */
+        /* ─── MESSAGES ─── */
         .messages {
             flex: 1;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 16px 14px 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            background: #f8f6f1;
+            overflow-y: auto; overflow-x: hidden;
+            padding: 18px 16px 10px;
+            display: flex; flex-direction: column; gap: 10px;
             -webkit-overflow-scrolling: touch;
-            scroll-behavior: smooth;
         }
         .messages::-webkit-scrollbar { width: 3px; }
         .messages::-webkit-scrollbar-track { background: transparent; }
-        .messages::-webkit-scrollbar-thumb { background: rgba(26,26,46,0.1); border-radius: 2px; }
+        .messages::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
+
+        /* Welcome moment */
+        .welcome {
+            text-align: center;
+            padding: 22px 18px 10px;
+            animation: welcomeIn 0.7s var(--smooth) both;
+        }
+        @keyframes welcomeIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+        .welcome-mark {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 34px; font-weight: 300; color: var(--accent);
+            line-height: 1; margin-bottom: 12px;
+            animation: markGlow 3s ease infinite;
+        }
+        @keyframes markGlow { 0%,100%{opacity:0.85} 50%{opacity:1; text-shadow: 0 0 18px rgba(201,168,76,0.4);} }
+        .welcome-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 27px; font-weight: 600; color: var(--ink);
+            line-height: 1.15; margin-bottom: 6px;
+        }
+        .welcome-title em { font-style: italic; color: var(--accent-dark); font-weight: 400; }
+        .welcome-sub {
+            font-size: 12px; font-weight: 300; color: var(--ink-40);
+            line-height: 1.6; max-width: 270px; margin: 0 auto;
+        }
 
         .message {
-            max-width: 80%;
-            padding: 11px 14px;
+            max-width: 82%;
+            padding: 11px 15px;
             font-size: 14px;
             line-height: 1.6;
-            animation: msgIn 0.25s ease both;
             word-wrap: break-word;
+            animation: msgIn 0.45s var(--spring) both;
         }
-        @keyframes msgIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes msgIn {
+            from { opacity: 0; transform: translateY(12px) scale(0.96); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
 
         .agent {
-            background: white;
-            color: #1a1a2e;
+            background: var(--white);
+            color: var(--ink);
             align-self: flex-start;
             border-radius: 4px 16px 16px 16px;
-            box-shadow: 0 1px 8px rgba(26,26,46,0.08);
+            box-shadow: 0 1px 8px rgba(26,26,46,0.07);
             font-weight: 300;
             position: relative;
+            overflow: hidden;
         }
         .agent::before {
             content: '';
-            position: absolute; left: 0; top: 8px; bottom: 8px;
-            width: 2px;
-            background: linear-gradient(to bottom, #c9a84c, transparent);
-            border-radius: 2px;
+            position: absolute; left: 0; top: 0; bottom: 0;
+            width: 2.5px;
+            background: linear-gradient(to bottom, var(--accent), transparent 85%);
+            animation: accentDraw 0.6s var(--smooth) both 0.1s;
+            transform-origin: top;
         }
+        @keyframes accentDraw { from { transform: scaleY(0); } to { transform: scaleY(1); } }
 
         .user {
-            background: #1a1a2e;
-            color: #f8f4ee;
+            background: var(--bubble-user-bg);
+            color: var(--bubble-user-ink);
             align-self: flex-end;
             border-radius: 16px 4px 16px 16px;
-            font-weight: 400;
-            box-shadow: 0 3px 12px rgba(26,26,46,0.2);
+            font-weight: 500;
+            box-shadow: 0 3px 14px rgba(201,168,76,0.3);
         }
 
-        .agent h1, .agent h2, .agent h3 { font-family: 'Cormorant Garamond', serif; font-size: 15px; font-weight: 600; margin: 6px 0 3px; }
+        .agent h1, .agent h2, .agent h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 16px; font-weight: 600; margin: 7px 0 3px;
+        }
         .agent p { margin: 3px 0; }
         .agent ul, .agent ol { margin: 4px 0; padding-left: 16px; }
         .agent li { margin: 2px 0; }
         .agent strong { font-weight: 500; }
+        .agent a { color: var(--accent-dark); }
 
-        /* ── TYPING ── */
+        /* ─── TYPING ─── */
         .typing-wrap {
             flex-shrink: 0;
-            padding: 0 14px 4px;
-            min-height: 32px;
-            display: flex;
-            align-items: center;
-            background: #f8f6f1;
+            padding: 0 16px 4px;
+            min-height: 34px;
+            display: flex; align-items: center;
         }
         .typing-bubble {
-            background: white;
+            background: var(--white);
             border-radius: 4px 16px 16px 16px;
-            padding: 10px 14px;
-            box-shadow: 0 1px 8px rgba(26,26,46,0.08);
-            display: none;
-            align-items: center;
-            gap: 4px;
+            padding: 11px 15px;
+            box-shadow: 0 1px 8px rgba(26,26,46,0.07);
+            display: none; align-items: center; gap: 5px;
+            animation: msgIn 0.35s var(--spring) both;
         }
         .typing-bubble.visible { display: flex; }
-        .typing-dot { width: 5px; height: 5px; background: #c9a84c; border-radius: 50%; animation: tdot 1.4s ease infinite; }
-        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        .typing-dot { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; animation: tdot 1.3s ease infinite; }
+        .typing-dot:nth-child(2) { animation-delay: 0.18s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.36s; }
         @keyframes tdot { 0%,60%,100%{transform:translateY(0);opacity:0.4} 30%{transform:translateY(-5px);opacity:1} }
 
-        /* ── QUICK REPLIES ── */
-        .quick-replies {
+        /* ─── QUICK CHIPS ─── */
+        .chips {
             flex-shrink: 0;
-            display: flex;
-            gap: 7px;
-            padding: 8px 14px 6px;
+            display: flex; gap: 7px;
+            padding: 8px 16px 6px;
             overflow-x: auto;
-            background: #f8f6f1;
             scrollbar-width: none;
         }
-        .quick-replies::-webkit-scrollbar { display: none; }
-
-        .quick-reply {
+        .chips::-webkit-scrollbar { display: none; }
+        .chip {
             white-space: nowrap;
-            background: white;
-            border: 1px solid rgba(201,168,76,0.25);
-            color: rgba(26,26,46,0.7);
-            padding: 6px 14px;
-            border-radius: 20px;
+            background: var(--white);
+            border: 1.5px solid var(--line);
+            color: var(--ink-60);
+            padding: 9px 16px; border-radius: 20px;
             font-family: 'DM Sans', sans-serif;
             font-size: 12px; font-weight: 400;
             cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 1px 3px rgba(26,26,46,0.05);
-            -webkit-tap-highlight-color: transparent;
+            transition: all 0.25s var(--spring);
+            opacity: 0; transform: translateY(8px);
+            animation: chipIn 0.5s var(--spring) forwards;
         }
-        .quick-reply:hover, .quick-reply:active {
-            background: #1a1a2e;
-            color: #c9a84c;
-            border-color: #1a1a2e;
-        }
+        .chip:nth-child(1) { animation-delay: 0.25s; }
+        .chip:nth-child(2) { animation-delay: 0.34s; }
+        .chip:nth-child(3) { animation-delay: 0.43s; }
+        .chip:nth-child(4) { animation-delay: 0.52s; }
+        .chip:nth-child(5) { animation-delay: 0.61s; }
+        @keyframes chipIn { to { opacity: 1; transform: translateY(0); } }
+        .chip:active { transform: scale(0.93); }
+        .chip:hover { border-color: var(--accent); color: var(--accent-dark); }
 
-        /* ── INPUT AREA ── */
+        /* ─── INPUT ─── */
         .input-area {
             flex-shrink: 0;
-            padding: 10px 14px 14px;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            background: #f8f6f1;
-            border-top: 1px solid rgba(26,26,46,0.06);
-            /* Safe area for iPhone home indicator */
-            padding-bottom: max(14px, env(safe-area-inset-bottom));
+            display: flex; gap: 9px; align-items: center;
+            padding: 8px 14px max(12px, env(safe-area-inset-bottom));
+            background: var(--linen);
         }
-
         .input-wrap {
             flex: 1;
-            background: white;
-            border: 1.5px solid rgba(26,26,46,0.1);
-            border-radius: 22px;
-            display: flex;
-            align-items: center;
-            padding: 0 14px;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            background: var(--white);
+            border: 1.5px solid var(--line);
+            border-radius: 24px;
+            display: flex; align-items: center;
+            padding: 0 16px;
+            transition: border-color 0.25s, box-shadow 0.25s;
         }
         .input-wrap:focus-within {
-            border-color: rgba(201,168,76,0.5);
-            box-shadow: 0 0 0 3px rgba(201,168,76,0.07);
+            border-color: rgba(201,168,76,0.55);
+            box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
         }
-
         input[type="text"] {
             flex: 1;
-            border: none;
-            outline: none;
+            border: none; outline: none;
             font-family: 'DM Sans', sans-serif;
-            font-size: 16px; /* 16px prevents iOS zoom on focus */
+            font-size: 16px; /* prevents iOS zoom */
             font-weight: 300;
-            color: #1a1a2e;
+            color: var(--ink);
             background: transparent;
-            padding: 11px 0;
-            appearance: none;
-            -webkit-appearance: none;
+            padding: 12px 0;
+            appearance: none; -webkit-appearance: none;
         }
-        input[type="text"]::placeholder { color: rgba(26,26,46,0.25); }
+        input[type="text"]::placeholder { color: var(--ink-25); }
 
         .send-btn {
             flex-shrink: 0;
-            width: 44px; height: 44px;
-            background: #1a1a2e;
+            width: 46px; height: 46px;
+            background: var(--navy);
             border: none; border-radius: 50%;
             cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            transition: all 0.2s;
-            box-shadow: 0 3px 10px rgba(26,26,46,0.2);
-            -webkit-tap-highlight-color: transparent;
+            transition: all 0.25s var(--spring);
+            box-shadow: 0 3px 12px rgba(26,26,46,0.22);
         }
-        .send-btn:hover  { background: #c9a84c; box-shadow: 0 4px 14px rgba(201,168,76,0.3); }
-        .send-btn:active { transform: scale(0.93); }
-        .send-btn svg { width: 17px; height: 17px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-        .send-btn:hover svg { stroke: #1a1a2e; }
+        .send-btn:hover  { background: var(--accent); box-shadow: 0 5px 16px rgba(201,168,76,0.35); }
+        .send-btn:active { transform: scale(0.88); }
+        .send-btn:disabled { opacity: 0.55; cursor: default; transform: none; }
+        .send-btn svg { width: 17px; height: 17px; fill: none; stroke: var(--cream); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.2s; }
+        .send-btn:hover svg { stroke: var(--navy); }
 
-        /* ── MOBILE — full screen, header stays fixed ── */
+        /* ─── MOBILE ─── */
         @media (max-width: 768px) {
-            html, body {
-                height: 100%;
-                height: 100dvh;
-                background: #f8f6f1;
+            html, body { background: var(--linen); }
+            .shell { align-items: flex-start; }
+            .chat {
+                width: 100%; height: 100%;
+                height: 100dvh; max-height: 100dvh;
+                border-radius: 0; box-shadow: none;
             }
-            .shell {
-                align-items: flex-start;
-            }
-            .chat-container {
-                width: 100%;
-                height: 100%;
-                height: 100dvh;
-                border-radius: 0;
-                box-shadow: none;
-                /* Key: use dvh so keyboard shrinks the container properly */
-                max-height: 100dvh;
-            }
-            .header-content { padding: 16px 16px 14px; }
+            .header-content { padding: 14px 16px 13px; padding-top: max(14px, env(safe-area-inset-top)); }
             .hotel-title { font-size: 21px; }
-            .messages { padding: 14px 12px 6px; }
-            .quick-replies { padding: 6px 12px 4px; }
-            .input-area { padding: 8px 12px max(12px, env(safe-area-inset-bottom)); }
+            .messages { padding: 16px 13px 8px; }
+            .chips { padding: 6px 13px 4px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+            .chip { opacity: 1; transform: none; }
         }
     </style>
 </head>
 <body>
-    <div class="shell">
-        <div class="chat-container">
+<div class="shell">
+    <div class="chat">
 
-            <div class="header">
-                <div class="header-bg"></div>
-                <div class="header-pattern"></div>
-                <div class="header-shimmer"></div>
-                <div class="header-content">
-                    <div class="concierge-label">Personal Concierge</div>
-                    <div class="hotel-title hotel-name">Loading...</div>
-                    <div class="status-row">
-                        <div class="online-pill">
-                            <div class="online-dot"></div>
-                            Available 24/7
-                        </div>
-                        <span class="response-time">Replies instantly</span>
-                    </div>
+        <div class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <div class="eyebrow">Personal Concierge</div>
+                    <div class="hotel-title hotel-name">Loading…</div>
                 </div>
+                <div class="online-pill"><div class="online-dot"></div>Always On</div>
             </div>
-
-            <div class="messages" id="messages"></div>
-
-            <div class="typing-wrap">
-                <div class="typing-bubble" id="typingBubble">
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                </div>
-            </div>
-
-            <div class="quick-replies" id="quickReplies">
-                <button class="quick-reply" onclick="sendQuick('WiFi password please')">WiFi Password</button>
-                <button class="quick-reply" onclick="sendQuick('What time is breakfast?')">Breakfast times</button>
-                <button class="quick-reply" onclick="sendQuick('I\'d like to order room service')">Room service</button>
-                <button class="quick-reply" onclick="sendQuick('What are the pool hours?')">Pool hours</button>
-                <button class="quick-reply" onclick="sendQuick('Can you make up my room please?')">Housekeeping</button>
-            </div>
-
-            <div class="input-area">
-                <div class="input-wrap">
-                    <input
-                        type="text"
-                        id="userInput"
-                        placeholder="Ask anything..."
-                        onkeypress="handleKey(event)"
-                        autocomplete="off"
-                        autocorrect="on"
-                        autocapitalize="sentences"
-                    />
-                </div>
-                <button class="send-btn" onclick="sendMessage()">
-                    <svg viewBox="0 0 24 24">
-                        <line x1="22" y1="2" x2="11" y2="13"></line>
-                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                    </svg>
-                </button>
-            </div>
-
         </div>
+
+        <div class="messages" id="messages">
+            <div class="welcome" id="welcome">
+                <div class="welcome-mark">✦</div>
+                <div class="welcome-title">Welcome to <em class="hotel-name">…</em></div>
+                <p class="welcome-sub" id="welcomeSub">Your concierge is here — any question, any request, any hour.</p>
+            </div>
+        </div>
+
+        <div class="typing-wrap">
+            <div class="typing-bubble" id="typingBubble">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        </div>
+
+        <div class="chips" id="chips">
+            <button class="chip" onclick="sendQuick('WiFi password please')">WiFi password</button>
+            <button class="chip" onclick="sendQuick('What time is breakfast?')">Breakfast times</button>
+            <button class="chip" onclick="sendQuick('I&#39;d like to order room service')">Room service</button>
+            <button class="chip" onclick="sendQuick('Can you make up my room please?')">Housekeeping</button>
+            <button class="chip" onclick="sendQuick('What do you recommend nearby?')">Local tips</button>
+        </div>
+
+        <div class="input-area">
+            <div class="input-wrap">
+                <input type="text" id="userInput" placeholder="Ask anything…"
+                       onkeypress="handleKey(event)"
+                       autocomplete="off" autocorrect="on" autocapitalize="sentences" />
+            </div>
+            <button class="send-btn" id="sendBtn" onclick="sendMessage()" aria-label="Send">
+                <svg viewBox="0 0 24 24">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </div>
+
     </div>
+</div>
 
-    <script>
-        const slug = window.location.pathname.split('/')[2] || '';
-        let conversationHistory = [];
+<script>
+    const slug = window.location.pathname.split('/')[2] || '';
+    let conversationHistory = [];
+    let sending = false;
 
-        async function loadConfig() {
-            const url = slug ? `/get-hotel/${slug}` : '/hotel-config';
-            const r = await fetch(url);
-            const config = await r.json();
-            document.querySelectorAll('.hotel-name').forEach(el => el.textContent = config.name);
-            document.title = config.name + ' — Concierge';
-            return config;
+    function renderMarkdown(text) {
+        const raw = marked.parse(text || '', { breaks: true });
+        return (window.DOMPurify) ? DOMPurify.sanitize(raw) : raw;
+    }
+
+    async function loadConfig() {
+        const url = slug ? `/get-hotel/${slug}` : '/hotel-config';
+        const r = await fetch(url);
+        const config = await r.json();
+        document.querySelectorAll('.hotel-name').forEach(el => el.textContent = config.name || '');
+        document.title = (config.name || 'Concierge') + ' — Concierge';
+        return config;
+    }
+
+    window.onload = async function() {
+        let config = { name: '' };
+        try { config = await loadConfig(); } catch(e) {}
+        const h = new Date().getHours();
+        const word = h < 5 ? 'Good evening' : h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+        document.getElementById('welcomeSub').textContent =
+            `${word} — your concierge is here. Any question, any request, any hour.`;
+        // Seed history so the AI knows it has greeted the guest
+        const welcomeMsg = `Welcome to ${config.name}. I'm your personal concierge — here to help with anything you need, any time of day. How can I make your stay more comfortable?`;
+        conversationHistory = [{ role: 'assistant', content: welcomeMsg }];
+    };
+
+    function handleKey(e) { if (e.key === 'Enter') sendMessage(); }
+
+    function sendQuick(text) {
+        document.getElementById('userInput').value = text;
+        sendMessage();
+    }
+
+    async function sendMessage() {
+        if (sending) return;
+        const input = document.getElementById('userInput');
+        const message = input.value.trim();
+        if (!message) return;
+
+        sending = true;
+        document.getElementById('sendBtn').disabled = true;
+
+        addMessage(message, 'user');
+        input.value = '';
+        try { if (navigator.vibrate) navigator.vibrate(10); } catch(e) {}
+
+        document.getElementById('typingBubble').classList.add('visible');
+        scrollToBottom();
+
+        try {
+            const r = await fetch('/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message, slug, history: conversationHistory })
+            });
+            const data = await r.json();
+            conversationHistory = data.history || conversationHistory;
+            document.getElementById('typingBubble').classList.remove('visible');
+            addMessage(data.response, 'agent');
+        } catch(e) {
+            document.getElementById('typingBubble').classList.remove('visible');
+            addMessage('I apologise — something went wrong. Please try again.', 'agent');
         }
 
-        window.onload = async function() {
-            const config = await loadConfig();
-            const welcomeMsg = `Welcome to ${config.name}. 🌟\n\nI'm your personal concierge — here to help with anything you need, any time of day. How can I make your stay more comfortable?`;
-            addMessage(welcomeMsg, 'agent');
-            conversationHistory = [{ role: 'assistant', content: welcomeMsg }];
-        }
+        sending = false;
+        document.getElementById('sendBtn').disabled = false;
+    }
 
-        function handleKey(e) { if (e.key === 'Enter') sendMessage(); }
+    function addMessage(text, sender) {
+        const messages = document.getElementById('messages');
+        const div = document.createElement('div');
+        div.className = `message ${sender}`;
+        if (sender === 'agent') div.innerHTML = renderMarkdown(text);
+        else div.textContent = text;
+        messages.appendChild(div);
+        scrollToBottom();
+    }
 
-        function sendQuick(text) {
-            document.getElementById('userInput').value = text;
-            sendMessage();
-        }
+    function scrollToBottom() {
+        const messages = document.getElementById('messages');
+        requestAnimationFrame(() => { messages.scrollTop = messages.scrollHeight; });
+        setTimeout(() => { messages.scrollTop = messages.scrollHeight; }, 120);
+    }
 
-        async function sendMessage() {
-            const input = document.getElementById('userInput');
-            const message = input.value.trim();
-            if (!message) return;
-
-            document.getElementById('quickReplies').style.opacity = '0.35';
-            addMessage(message, 'user');
-            input.value = '';
-            input.blur(); // dismiss keyboard after send on mobile
-
-            document.getElementById('typingBubble').classList.add('visible');
-            scrollToBottom();
-
-            try {
-                const r = await fetch('/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message, slug, history: conversationHistory })
-                });
-                const data = await r.json();
-                conversationHistory = data.history;
-                document.getElementById('typingBubble').classList.remove('visible');
-                addMessage(data.response, 'agent');
-            } catch(e) {
-                document.getElementById('typingBubble').classList.remove('visible');
-                addMessage('I apologise — something went wrong. Please try again.', 'agent');
-            }
-        }
-
-        function addMessage(text, sender) {
-            const messages = document.getElementById('messages');
-            const div = document.createElement('div');
-            div.className = `message ${sender}`;
-            if (sender === 'agent') div.innerHTML = marked.parse(text);
-            else div.textContent = text;
-            messages.appendChild(div);
-            scrollToBottom();
-        }
-
-        function scrollToBottom() {
-            const messages = document.getElementById('messages');
-            setTimeout(() => messages.scrollTop = messages.scrollHeight, 50);
-        }
-    </script>
+    // Keep view pinned to bottom when the mobile keyboard opens
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', scrollToBottom);
+    }
+</script>
 </body>
 </html>
