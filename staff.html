@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <link rel="icon" href="/favicon.ico">
     <title>Staff Dashboard — Favvi</title>
@@ -10,187 +10,307 @@
     <link rel="manifest" href="/manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --navy: #1a1a2e;
+            --gold: #c9a84c;
+            --gold-dark: #8a6e2a;
+            --linen: #f0efe9;
+            --white: #ffffff;
+            --cream: #f8f4ee;
+            --ink: #1a1a2e;
+            --ink-60: rgba(26,26,46,0.6);
+            --ink-40: rgba(26,26,46,0.4);
+            --ink-25: rgba(26,26,46,0.25);
+            --line: rgba(26,26,46,0.1);
+            --red: #c0392b;
+            --amber: #d68910;
+            --blue: #2980b9;
+            --green: #27ae60;
+            --staff-blue: #4a7fa5;
+            --staff-blue-dark: #2e5f80;
+        }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { -webkit-text-size-adjust: 100%; }
         body {
             font-family: 'DM Sans', sans-serif;
-            background: #f0efe9;
+            background: var(--linen);
             min-height: 100vh;
-            color: #1a1a2e;
+            color: var(--ink);
+            -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent;
         }
 
+        /* ── HEADER ── */
         .header {
-            background: #1a1a2e;
-            padding: 14px 20px;
-            display: flex;
+            background: var(--navy);
+            padding: 0 16px;
+            padding-top: env(safe-area-inset-top);
+            height: calc(56px + env(safe-area-inset-top));
+            display: none;
             justify-content: space-between;
             align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            position: sticky; top: 0; z-index: 100;
         }
-        .header-left { display: flex; align-items: center; gap: 12px; }
-        .logo { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: #f8f4ee; letter-spacing: 3px; text-decoration: none; }
-        .logo span { color: #c9a84c; }
-        .divider-v { width: 1px; height: 18px; background: rgba(255,255,255,0.1); }
-        .header-title { font-size: 12px; font-weight: 400; color: rgba(248,244,238,0.5); }
-        .header-right { display: flex; align-items: center; gap: 10px; }
-        .staff-tag { background: rgba(201,168,76,0.15); border: 1px solid rgba(201,168,76,0.25); color: #c9a84c; font-size: 11px; font-weight: 500; padding: 4px 12px; border-radius: 20px; }
-        .live-pill { display: flex; align-items: center; gap: 5px; font-size: 10px; color: rgba(76,175,80,0.9); }
+        .header-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .logo { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: var(--cream); letter-spacing: 3px; text-decoration: none; flex-shrink: 0; }
+        .logo span { color: var(--gold); }
+        .divider-v { width: 1px; height: 18px; background: rgba(255,255,255,0.12); flex-shrink: 0; }
+        .header-title { font-size: 11px; font-weight: 400; color: rgba(248,244,238,0.5); letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .staff-tag {
+            background: rgba(201,168,76,0.15); border: 1px solid rgba(201,168,76,0.3);
+            color: var(--gold); font-size: 11px; font-weight: 500;
+            padding: 5px 12px; border-radius: 20px;
+            max-width: 110px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .live-pill { display: flex; align-items: center; gap: 5px; font-size: 10px; color: rgba(130,201,140,0.95); font-weight: 500; }
         .live-dot { width: 6px; height: 6px; background: #4CAF50; border-radius: 50%; animation: blink 1.5s infinite; }
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        .logout-btn {
+            background: transparent; border: 1px solid rgba(255,255,255,0.12);
+            color: rgba(248,244,238,0.45);
+            font-family: 'DM Sans', sans-serif; font-size: 10px;
+            padding: 6px 12px; border-radius: 2px; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .logout-btn:hover { border-color: rgba(201,168,76,0.5); color: var(--gold); }
 
+        /* ── LOGIN ── */
         .overlay {
-            position: fixed; inset: 0;
-            background: #f0efe9;
+            position: fixed; inset: 0; background: var(--linen);
             display: flex; justify-content: center; align-items: center;
             z-index: 200; padding: 20px;
+            overflow-y: auto;
         }
         .login-card {
-            background: white; border-radius: 3px;
-            padding: 40px 36px; width: 100%; max-width: 380px;
-            box-shadow: 0 4px 24px rgba(26,26,46,0.08);
-            border-left: 3px solid #4a7fa5;
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-top: 3px solid var(--staff-blue);
+            border-radius: 4px;
+            padding: 40px 34px 34px;
+            width: 100%; max-width: 390px;
+            box-shadow: 0 16px 48px rgba(26,26,46,0.08);
+            margin: auto;
         }
-        .login-logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: #1a1a2e; letter-spacing: 3px; margin-bottom: 4px; }
-        .login-logo span { color: #c9a84c; }
-        .login-card h2 { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; color: #2e5f80; margin-bottom: 6px; }
-        .login-card p { font-size: 12px; font-weight: 300; color: rgba(26,26,46,0.4); margin-bottom: 24px; }
+        .login-logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; letter-spacing: 3px; margin-bottom: 4px; }
+        .login-logo span { color: var(--gold); }
+        .login-card h2 { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 600; color: var(--staff-blue-dark); margin-bottom: 4px; }
+        .login-card > p { font-size: 12px; font-weight: 300; color: var(--ink-40); margin-bottom: 24px; }
 
-        .field { margin-bottom: 14px; }
-        .field label { display: block; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(26,26,46,0.4); margin-bottom: 7px; }
+        .field { margin-bottom: 15px; }
+        .field label { display: block; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-40); margin-bottom: 7px; }
         .field input {
-            width: 100%; padding: 12px 14px;
-            border: 1px solid #e8e8e8; border-radius: 2px;
-            font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 300;
-            color: #1a1a2e; background: #fafafa; outline: none;
-            transition: border-color 0.2s; -webkit-appearance: none; appearance: none;
+            width: 100%; padding: 13px 15px;
+            border: 1px solid var(--line); border-radius: 2px;
+            font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 300;
+            color: var(--ink); background: var(--white); outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            -webkit-appearance: none; appearance: none;
         }
-        .field input:focus { border-color: #4a7fa5; background: white; }
+        .field input::placeholder { color: var(--ink-25); }
+        .field input:focus { border-color: var(--staff-blue); box-shadow: 0 0 0 3px rgba(74,127,165,0.12); }
 
         .dept-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 4px; }
         .dept-option {
-            padding: 10px 12px; border: 1.5px solid #e8e8e8; border-radius: 2px;
-            background: #fafafa; font-family: 'DM Sans', sans-serif;
-            font-size: 12px; font-weight: 400; color: rgba(26,26,46,0.6);
+            padding: 12px 10px; border: 1.5px solid var(--line); border-radius: 2px;
+            background: var(--white); font-family: 'DM Sans', sans-serif;
+            font-size: 12px; font-weight: 400; color: var(--ink-60);
             cursor: pointer; text-align: center; transition: all 0.2s;
+            min-height: 44px; display: flex; align-items: center; justify-content: center;
         }
-        .dept-option.selected { border-color: #1a1a2e; background: #1a1a2e; color: white; font-weight: 500; }
-        .dept-option.selected.dept-hk    { background: #c0392b; border-color: #c0392b; }
-        .dept-option.selected.dept-rs    { background: #d68910; border-color: #d68910; }
-        .dept-option.selected.dept-maint { background: #2980b9; border-color: #2980b9; }
-        .dept-option.selected.dept-conc  { background: #27ae60; border-color: #27ae60; }
+        .dept-option.selected { border-color: var(--navy); background: var(--navy); color: white; font-weight: 500; }
+        .dept-option.selected.dept-hk    { background: var(--red);   border-color: var(--red); }
+        .dept-option.selected.dept-rs    { background: var(--amber); border-color: var(--amber); }
+        .dept-option.selected.dept-maint { background: var(--blue);  border-color: var(--blue); }
+        .dept-option.selected.dept-conc  { background: var(--green); border-color: var(--green); }
+
+        .stay-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+        .stay-row input { width: 16px; height: 16px; accent-color: var(--navy); cursor: pointer; flex-shrink: 0; }
+        .stay-row label { font-size: 12px; font-weight: 300; color: var(--ink-60); cursor: pointer; }
 
         .login-btn {
-            width: 100%; padding: 13px;
-            background: #1a1a2e; color: white;
+            width: 100%; padding: 15px;
+            background: var(--navy); color: white;
             border: none; border-radius: 2px;
             font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
-            cursor: pointer; margin-top: 6px; transition: opacity 0.2s;
+            letter-spacing: 0.5px; cursor: pointer; transition: all 0.25s;
         }
-        .login-btn:hover { opacity: 0.85; }
-        .login-error { color: #e57373; font-size: 12px; margin-top: 10px; display: none; }
+        .login-btn:hover { background: var(--staff-blue-dark); }
+        .login-error { color: var(--red); font-size: 12px; margin-top: 10px; display: none; }
 
-        /* Notification banner */
+        /* ── NOTIFICATION BANNER ── */
         .notif-banner {
-            background: rgba(74,127,165,0.08);
-            border: 1px solid rgba(74,127,165,0.2);
-            border-radius: 3px;
-            padding: 12px 16px; margin: 12px 20px 0;
-            display: flex; justify-content: space-between; align-items: center; gap: 12px;
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-left: 3px solid var(--staff-blue);
+            border-radius: 4px;
+            padding: 13px 16px; margin: 12px 16px 0;
+            display: none; justify-content: space-between; align-items: center; gap: 12px;
+            max-width: 728px;
+            box-shadow: 0 1px 4px rgba(26,26,46,0.05);
         }
-        .notif-banner-text { font-size: 12px; font-weight: 300; color: #2e5f80; line-height: 1.5; }
+        @media (min-width: 760px) { .notif-banner { margin: 12px auto 0; } }
+        .notif-banner-text { font-size: 12px; font-weight: 300; color: var(--staff-blue-dark); line-height: 1.5; }
         .notif-banner-btn {
-            background: #4a7fa5; color: white; border: none; border-radius: 2px;
-            padding: 8px 14px; font-family: 'DM Sans', sans-serif;
+            background: var(--staff-blue); color: white; border: none; border-radius: 2px;
+            padding: 10px 16px; font-family: 'DM Sans', sans-serif;
             font-size: 11px; font-weight: 500; cursor: pointer; white-space: nowrap;
+            min-height: 38px; transition: background 0.2s;
         }
-        .notif-banner-btn.enabled { background: #27ae60; }
-        .notif-banner-btn.denied  { background: #888; cursor: default; }
+        .notif-banner-btn.enabled { background: var(--green); }
+        .notif-banner-btn.denied  { background: #999; cursor: default; }
 
-        .body { padding: 16px 20px 40px; max-width: 760px; margin: 0 auto; }
+        /* ── BODY ── */
+        .body {
+            padding: 14px 16px 56px;
+            padding-bottom: calc(56px + env(safe-area-inset-bottom));
+            max-width: 760px; margin: 0 auto;
+            display: none;
+        }
 
-        .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 20px; }
-        .stat-pill { background: white; border-radius: 3px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; border-left: 3px solid transparent; box-shadow: 0 1px 4px rgba(26,26,46,0.06); }
-        .stat-pill.new-stat  { border-color: #c0392b; }
-        .stat-pill.prog-stat { border-color: #d68910; }
-        .stat-pill.done-stat { border-color: #27ae60; }
-        .stat-pill.hist-stat { border-color: #bbb; }
-        .stat-num { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; line-height: 1; }
-        .stat-pill.new-stat  .stat-num { color: #c0392b; }
-        .stat-pill.prog-stat .stat-num { color: #d68910; }
-        .stat-pill.done-stat .stat-num { color: #27ae60; }
-        .stat-pill.hist-stat .stat-num { color: #bbb; }
-        .stat-lbl { font-size: 9px; font-weight: 300; color: rgba(26,26,46,0.4); line-height: 1.4; }
+        /* ── STATS ── */
+        .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 16px; }
+        .stat-pill {
+            background: var(--white); border-radius: 4px;
+            border: 1px solid var(--line);
+            padding: 12px 8px;
+            text-align: center;
+            box-shadow: 0 1px 4px rgba(26,26,46,0.04);
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .stat-pill:active { transform: scale(0.97); }
+        .stat-num { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 600; line-height: 1; margin-bottom: 4px; transition: all 0.3s; }
+        .stat-pill.new-stat  .stat-num { color: var(--red); }
+        .stat-pill.prog-stat .stat-num { color: var(--amber); }
+        .stat-pill.done-stat .stat-num { color: var(--green); }
+        .stat-pill.hist-stat .stat-num { color: var(--ink-25); }
+        .stat-num.bump { animation: bump 0.4s ease; }
+        @keyframes bump { 0%{transform:scale(1)} 40%{transform:scale(1.25)} 100%{transform:scale(1)} }
+        .stat-lbl { font-size: 9px; font-weight: 400; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-40); }
 
-        .dept-filter { display: flex; gap: 6px; margin-bottom: 20px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+        /* ── FILTERS ── */
+        .dept-filter {
+            display: flex; gap: 7px; margin-bottom: 18px;
+            overflow-x: auto; scrollbar-width: none;
+            padding: 2px 0 4px;
+            -webkit-overflow-scrolling: touch;
+        }
         .dept-filter::-webkit-scrollbar { display: none; }
         .filter-btn {
-            white-space: nowrap; padding: 6px 14px; border-radius: 20px;
-            border: 1.5px solid #e8e8e8; background: white;
-            font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 400;
-            color: rgba(26,26,46,0.5); cursor: pointer; transition: all 0.2s;
+            white-space: nowrap; padding: 9px 16px; border-radius: 20px;
+            border: 1.5px solid var(--line); background: var(--white);
+            font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 400;
+            color: var(--ink-60); cursor: pointer; transition: all 0.2s;
+            min-height: 38px;
         }
-        .filter-btn.active { border-color: #1a1a2e; background: #1a1a2e; color: white; font-weight: 500; }
-        .filter-btn.active.f-hk    { background: #c0392b; border-color: #c0392b; }
-        .filter-btn.active.f-rs    { background: #d68910; border-color: #d68910; }
-        .filter-btn.active.f-maint { background: #2980b9; border-color: #2980b9; }
-        .filter-btn.active.f-conc  { background: #27ae60; border-color: #27ae60; }
+        .filter-btn.active { border-color: var(--navy); background: var(--navy); color: white; font-weight: 500; }
+        .filter-btn.active.f-hk    { background: var(--red);   border-color: var(--red); }
+        .filter-btn.active.f-rs    { background: var(--amber); border-color: var(--amber); }
+        .filter-btn.active.f-maint { background: var(--blue);  border-color: var(--blue); }
+        .filter-btn.active.f-conc  { background: var(--green); border-color: var(--green); }
 
-        .section { margin-bottom: 20px; }
-        .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(26,26,46,0.06); cursor: pointer; }
-        .section-bar { width: 3px; height: 14px; border-radius: 2px; flex-shrink: 0; }
-        .bar-new  { background: #c0392b; }
-        .bar-prog { background: #d68910; }
-        .bar-done { background: #27ae60; }
-        .bar-hist { background: #ccc; }
+        /* ── SECTIONS ── */
+        .section { margin-bottom: 22px; }
+        .section-header {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 10px; padding-bottom: 9px;
+            border-bottom: 1px solid var(--line);
+        }
+        .section-header.clickable { cursor: pointer; }
+        .section-bar { width: 3px; height: 15px; border-radius: 2px; flex-shrink: 0; }
+        .bar-new  { background: var(--red); }
+        .bar-prog { background: var(--amber); }
+        .bar-done { background: var(--green); }
+        .bar-hist { background: var(--ink-25); }
         .section-title-text { font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; }
-        .new-title  { color: #c0392b; }
-        .prog-title { color: #d68910; }
-        .done-title { color: #27ae60; }
-        .hist-title { color: rgba(26,26,46,0.3); }
-        .section-arrow { margin-left: auto; font-size: 10px; color: rgba(26,26,46,0.25); transition: transform 0.3s; }
-
-        .request-card {
-            background: white; border-radius: 3px; padding: 14px 16px; margin-bottom: 7px;
-            border-left: 3px solid #eee; box-shadow: 0 1px 4px rgba(26,26,46,0.05);
-            transition: opacity 0.2s, box-shadow 0.15s;
+        .new-title  { color: var(--red); }
+        .prog-title { color: var(--amber); }
+        .done-title { color: var(--green); }
+        .hist-title { color: var(--ink-40); }
+        .section-count {
+            font-size: 10px; font-weight: 500;
+            background: var(--white); border: 1px solid var(--line);
+            color: var(--ink-40);
+            padding: 1px 8px; border-radius: 10px;
         }
-        .request-card:hover { box-shadow: 0 3px 10px rgba(26,26,46,0.08); }
-        .request-card.new        { border-color: #c0392b; }
-        .request-card.inprogress { border-color: #d68910; }
-        .request-card.done       { border-color: #27ae60; opacity: 0.7; }
-        .request-card.history-card { border-color: #ddd; opacity: 0.5; }
-        .request-card.updating   { opacity: 0.3; pointer-events: none; }
+        .section-arrow { margin-left: auto; font-size: 10px; color: var(--ink-25); transition: transform 0.3s; }
 
-        .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; }
-        .dept-badge { font-size: 9px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 2px 8px; border-radius: 2px; }
-        .dept-housekeeping { background: #fdecea; color: #c0392b; }
-        .dept-roomservice  { background: #fef9e7; color: #d68910; }
-        .dept-maintenance  { background: #eaf4fb; color: #2980b9; }
-        .dept-concierge    { background: #eafaf1; color: #27ae60; }
+        /* ── CARDS ── */
+        .request-card {
+            background: var(--white); border-radius: 4px;
+            border: 1px solid var(--line);
+            border-left: 3px solid #eee;
+            padding: 15px 16px; margin-bottom: 8px;
+            box-shadow: 0 1px 4px rgba(26,26,46,0.04);
+            transition: opacity 0.2s, box-shadow 0.2s, transform 0.2s;
+            animation: cardIn 0.3s ease;
+        }
+        @keyframes cardIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .request-card:hover { box-shadow: 0 4px 14px rgba(26,26,46,0.08); }
+        .request-card.new        { border-left-color: var(--red); }
+        .request-card.inprogress { border-left-color: var(--amber); }
+        .request-card.done       { border-left-color: var(--green); opacity: 0.75; }
+        .request-card.history-card { border-left-color: var(--line); opacity: 0.55; }
+        .request-card.updating   { opacity: 0.45; pointer-events: none; }
+
+        .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; }
+        .dept-badge { font-size: 9px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 3px 9px; border-radius: 2px; white-space: nowrap; }
+        .dept-housekeeping { background: #fdecea; color: var(--red); }
+        .dept-roomservice  { background: #fef9e7; color: var(--amber); }
+        .dept-maintenance  { background: #eaf4fb; color: var(--blue); }
+        .dept-concierge    { background: #eafaf1; color: var(--green); }
         .dept-general      { background: #f4f4f4; color: #888; }
 
-        .room-tag { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 600; color: #1a1a2e; }
-        .request-details { font-size: 13px; font-weight: 300; color: rgba(26,26,46,0.65); line-height: 1.5; margin-bottom: 10px; }
-        .card-bottom { display: flex; justify-content: space-between; align-items: center; }
-        .meta { font-size: 10px; font-weight: 300; color: rgba(26,26,46,0.3); }
-        .claimed-by { font-size: 10px; font-weight: 400; color: #d68910; margin-top: 2px; }
+        .room-tag { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: var(--ink); white-space: nowrap; }
+        .request-details { font-size: 14px; font-weight: 300; color: var(--ink-60); line-height: 1.55; margin-bottom: 12px; word-break: break-word; }
+        .card-bottom { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
+        .meta { font-size: 11px; font-weight: 400; color: var(--ink-40); }
+        .claimed-by { font-size: 11px; font-weight: 500; color: var(--amber); margin-top: 2px; }
 
-        .btn-row { display: flex; gap: 6px; }
-        .btn { padding: 7px 14px; border: none; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500; cursor: pointer; transition: opacity 0.15s, transform 0.1s; }
+        .btn-row { display: flex; gap: 8px; }
+        .btn {
+            padding: 10px 18px; border: none; border-radius: 2px;
+            font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500;
+            cursor: pointer; transition: opacity 0.15s, transform 0.1s;
+            min-height: 40px;
+        }
         .btn:active { transform: scale(0.95); }
-        .btn-claim { background: #1a1a2e; color: white; }
-        .btn-done  { background: #27ae60; color: white; }
-        .btn-undo  { background: #f0efe9; color: #666; }
+        .btn-claim { background: var(--navy); color: white; }
+        .btn-done  { background: var(--green); color: white; }
+        .btn-undo  { background: var(--linen); color: var(--ink-60); border: 1px solid var(--line); }
 
-        .empty-state { background: white; border-radius: 3px; padding: 18px; text-align: center; font-size: 12px; font-weight: 300; color: rgba(26,26,46,0.3); border: 1px solid rgba(26,26,46,0.04); }
+        .empty-state {
+            background: var(--white); border: 1px dashed var(--line); border-radius: 4px;
+            padding: 20px; text-align: center;
+            font-size: 12px; font-weight: 300; color: var(--ink-40);
+        }
+
+        /* ── TOAST ── */
+        .toast {
+            position: fixed;
+            top: calc(64px + env(safe-area-inset-top)); left: 50%;
+            transform: translateX(-50%) translateY(-12px);
+            background: var(--navy); color: var(--cream);
+            border-left: 3px solid var(--gold);
+            border-radius: 4px;
+            padding: 13px 20px;
+            font-size: 13px; font-weight: 400;
+            box-shadow: 0 12px 32px rgba(26,26,46,0.3);
+            z-index: 300;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            white-space: nowrap;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
         @media (max-width: 600px) {
-            .body { padding: 12px 14px 40px; }
-            .header { padding: 12px 14px; }
-            .stats-row { grid-template-columns: repeat(2,1fr); gap: 6px; }
+            .stats-row { gap: 6px; }
+            .stat-pill { padding: 10px 4px; }
+            .stat-num { font-size: 26px; }
             .header-title { display: none; }
+            .divider-v { display: none; }
         }
     </style>
 </head>
@@ -201,7 +321,7 @@
         <div class="login-card">
             <div class="login-logo">fav<span>vi</span></div>
             <h2>Staff Dashboard</h2>
-            <p id="hotelNameLogin">Loading...</p>
+            <p id="hotelNameLogin">Loading…</p>
 
             <div class="field">
                 <label>Your Name</label>
@@ -225,21 +345,20 @@
                 <label>Staff Password</label>
                 <input type="password" id="staffPassword" placeholder="Enter password"
                        onkeypress="if(event.key==='Enter') checkPassword()" />
-            </div> 
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">
-                <input type="checkbox" id="staySignedIn" checked
-                    style="width:16px; height:16px; accent-color:#1a1a2e; cursor:pointer;" />
-                <label for="staySignedIn" style="font-size:12px; font-weight:300; color:rgba(26,26,46,0.5); cursor:pointer;">
-                    Stay signed in
-                </label>
             </div>
+
+            <div class="stay-row">
+                <input type="checkbox" id="staySignedIn" checked />
+                <label for="staySignedIn">Stay signed in</label>
+            </div>
+
             <button class="login-btn" onclick="checkPassword()">Enter Dashboard</button>
             <p class="login-error" id="loginError">Incorrect password. Try again.</p>
         </div>
     </div>
 
     <!-- HEADER -->
-    <div class="header" id="mainHeader" style="display:none;">
+    <div class="header" id="mainHeader">
         <div class="header-left">
             <a class="logo" id="backLink" href="#">fav<span>vi</span></a>
             <div class="divider-v"></div>
@@ -248,38 +367,42 @@
         <div class="header-right">
             <span class="staff-tag" id="staffGreeting"></span>
             <div class="live-pill"><div class="live-dot"></div>Live</div>
-            <button onclick="logout()" style="background:transparent; border:1px solid rgba(255,255,255,0.1); color:rgba(248,244,238,0.4); font-family:'DM Sans',sans-serif; font-size:10px; padding:4px 10px; border-radius:2px; cursor:pointer;">Logout</button>
+            <button class="logout-btn" onclick="logout()">Logout</button>
         </div>
     </div>
 
     <!-- NOTIFICATION BANNER -->
-    <div class="notif-banner" id="notifBanner" style="display:none;">
+    <div class="notif-banner" id="notifBanner">
         <div class="notif-banner-text">Get notified instantly when a new request arrives.</div>
         <button class="notif-banner-btn" id="notifBtn" onclick="requestNotificationPermission()">Enable Alerts</button>
     </div>
 
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
     <!-- BODY -->
-    <div class="body" id="mainBody" style="display:none;">
+    <div class="body" id="mainBody">
 
         <div class="stats-row">
-            <div class="stat-pill new-stat"><div class="stat-num" id="countNew">0</div><div class="stat-lbl">New</div></div>
-            <div class="stat-pill prog-stat"><div class="stat-num" id="countProgress">0</div><div class="stat-lbl">In Progress</div></div>
-            <div class="stat-pill done-stat"><div class="stat-num" id="countDone">0</div><div class="stat-lbl">Done Today</div></div>
-            <div class="stat-pill hist-stat"><div class="stat-num" id="countHistory">0</div><div class="stat-lbl">48hr History</div></div>
+            <div class="stat-pill new-stat"  onclick="scrollToSection('newRequests')"><div class="stat-num" id="countNew">0</div><div class="stat-lbl">New</div></div>
+            <div class="stat-pill prog-stat" onclick="scrollToSection('inProgressRequests')"><div class="stat-num" id="countProgress">0</div><div class="stat-lbl">In Progress</div></div>
+            <div class="stat-pill done-stat" onclick="scrollToSection('doneRequests')"><div class="stat-num" id="countDone">0</div><div class="stat-lbl">Done Today</div></div>
+            <div class="stat-pill hist-stat" onclick="scrollToSection('historyRequests')"><div class="stat-num" id="countHistory">0</div><div class="stat-lbl">History</div></div>
         </div>
 
         <div class="dept-filter">
-            <button class="filter-btn active"    data-filter="all"          onclick="setFilter('all', this)">All</button>
-            <button class="filter-btn f-hk"      data-filter="housekeeping" onclick="setFilter('housekeeping', this)">Housekeeping</button>
-            <button class="filter-btn f-rs"      data-filter="roomservice"  onclick="setFilter('roomservice', this)">Room Service</button>
-            <button class="filter-btn f-maint"   data-filter="maintenance"  onclick="setFilter('maintenance', this)">Maintenance</button>
-            <button class="filter-btn f-conc"    data-filter="concierge"    onclick="setFilter('concierge', this)">Concierge</button>
+            <button class="filter-btn active"  data-filter="all"          onclick="setFilter('all', this)">All</button>
+            <button class="filter-btn f-hk"    data-filter="housekeeping" onclick="setFilter('housekeeping', this)">Housekeeping</button>
+            <button class="filter-btn f-rs"    data-filter="roomservice"  onclick="setFilter('roomservice', this)">Room Service</button>
+            <button class="filter-btn f-maint" data-filter="maintenance"  onclick="setFilter('maintenance', this)">Maintenance</button>
+            <button class="filter-btn f-conc"  data-filter="concierge"    onclick="setFilter('concierge', this)">Concierge</button>
         </div>
 
         <div class="section">
             <div class="section-header">
                 <div class="section-bar bar-new"></div>
                 <span class="section-title-text new-title">New Requests</span>
+                <span class="section-count" id="badgeNew">0</span>
             </div>
             <div id="newRequests"></div>
         </div>
@@ -288,6 +411,7 @@
             <div class="section-header">
                 <div class="section-bar bar-prog"></div>
                 <span class="section-title-text prog-title">In Progress</span>
+                <span class="section-count" id="badgeProgress">0</span>
             </div>
             <div id="inProgressRequests"></div>
         </div>
@@ -296,12 +420,13 @@
             <div class="section-header">
                 <div class="section-bar bar-done"></div>
                 <span class="section-title-text done-title">Completed Today</span>
+                <span class="section-count" id="badgeDone">0</span>
             </div>
             <div id="doneRequests"></div>
         </div>
 
         <div class="section">
-            <div class="section-header" onclick="toggleHistory()">
+            <div class="section-header clickable" onclick="toggleHistory()">
                 <div class="section-bar bar-hist"></div>
                 <span class="section-title-text hist-title">History — Last 48 Hours</span>
                 <span class="section-arrow" id="historyArrow">▼</span>
@@ -316,15 +441,77 @@
         let staffDept    = 'all';
         let activeFilter = 'all';
         let isLoading    = false;
+        let lastRenderKey = '';
         const slug = window.location.pathname.split('/')[2] || '';
 
-        // Register service worker
+        // ── SERVICE WORKER ──
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js')
                 .then(() => console.log('SW registered'))
                 .catch(e => console.log('SW error:', e));
         }
 
+        // ── AUDIO: unlock on every interaction so the chime always works ──
+        function ensureAudio() {
+            try {
+                if (!window._audioCtx) {
+                    window._audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (window._audioCtx.state === 'suspended') {
+                    window._audioCtx.resume();
+                }
+                if (!window._audioUnlocked && window._audioCtx.state === 'running') {
+                    // Play a silent buffer once — unlocks audio on iOS
+                    const buf = window._audioCtx.createBuffer(1, 1, 22050);
+                    const src = window._audioCtx.createBufferSource();
+                    src.buffer = buf;
+                    src.connect(window._audioCtx.destination);
+                    src.start(0);
+                    window._audioUnlocked = true;
+                }
+            } catch(e) {}
+        }
+        ['touchstart','touchend','pointerdown','click','keydown'].forEach(evt => {
+            document.addEventListener(evt, ensureAudio, { passive: true });
+        });
+
+        function playChime() {
+            try {
+                ensureAudio();
+                const ctx = window._audioCtx;
+                if (!ctx || ctx.state !== 'running') return;
+                // Two rounds of a bright three-note chime — much harder to miss
+                [0, 0.7].forEach(offset => {
+                    const t = ctx.currentTime + offset;
+                    const osc = ctx.createOscillator(), gain = ctx.createGain();
+                    osc.connect(gain); gain.connect(ctx.destination);
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(880,  t);
+                    osc.frequency.setValueAtTime(1175, t + 0.12);
+                    osc.frequency.setValueAtTime(1047, t + 0.24);
+                    gain.gain.setValueAtTime(0.6, t);
+                    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
+                    osc.start(t); osc.stop(t + 0.55);
+                });
+            } catch(e) {}
+            // Vibration backup (Android)
+            try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch(e) {}
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // ── HOTEL / LOGIN ──
         async function loadHotelName() {
             try {
                 const url = slug ? `/get-hotel/${slug}` : '/hotel-config';
@@ -335,49 +522,48 @@
             } catch(e) {}
         }
 
-                async function checkSavedSession() {
-    const savedName = localStorage.getItem('favvi_staff_name');
-    const savedDept = localStorage.getItem('favvi_staff_dept');
-    const savedSlug = localStorage.getItem('favvi_staff_slug');
-    const savedPw   = localStorage.getItem('favvi_staff_pw_hash');
+        function enterDashboard() {
+            document.getElementById('overlay').style.display      = 'none';
+            document.getElementById('mainHeader').style.display   = 'flex';
+            document.getElementById('notifBanner').style.display  = 'flex';
+            document.getElementById('mainBody').style.display     = 'block';
+            document.getElementById('staffGreeting').textContent  = staffName;
 
-    if (!savedName || !savedDept || savedSlug !== slug) return;
+            const deptNames = { all:'All Departments', housekeeping:'Housekeeping', roomservice:'Room Service', maintenance:'Maintenance', concierge:'Concierge' };
+            document.getElementById('deptLabel').textContent = deptNames[staffDept] || 'All Departments';
 
-    try {
-        const url = slug ? `/get-hotel/${slug}` : '/hotel-config';
-        const r = await fetch(url);
-        const config = await r.json();
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === staffDept);
+            });
 
-        if (config.staff_password !== atob(savedPw)) return;
+            ensureAudio();
+            checkNotifStatus();
+            loadRequests(true);
+            setInterval(() => loadRequests(), 5000);
+        }
 
-        staffName    = savedName;
-        staffDept    = savedDept;
-        activeFilter = savedDept;
+        async function checkSavedSession() {
+            const savedName = localStorage.getItem('favvi_staff_name');
+            const savedDept = localStorage.getItem('favvi_staff_dept');
+            const savedSlug = localStorage.getItem('favvi_staff_slug');
+            const savedPw   = localStorage.getItem('favvi_staff_pw_hash');
 
-        document.getElementById('overlay').style.display     = 'none';
-        document.getElementById('mainHeader').style.display  = 'flex';
-        document.getElementById('notifBanner').style.display = 'flex';
-        document.getElementById('mainBody').style.display    = 'block';
-        document.getElementById('staffGreeting').textContent = staffName;
+            if (!savedName || !savedDept || savedSlug !== slug) return;
 
-        const deptNames = { all:'All Departments', housekeeping:'Housekeeping', roomservice:'Room Service', maintenance:'Maintenance', concierge:'Concierge' };
-        document.getElementById('deptLabel').textContent = deptNames[staffDept] || 'All Departments';
+            try {
+                const url = slug ? `/get-hotel/${slug}` : '/hotel-config';
+                const r = await fetch(url);
+                const config = await r.json();
 
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.filter === staffDept);
-        });
+                if (config.staff_password !== atob(savedPw)) return;
 
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            ctx.resume();
-            window._audioCtx = ctx;
-        } catch(e) {}
+                staffName    = savedName;
+                staffDept    = savedDept;
+                activeFilter = savedDept;
+                enterDashboard();
+            } catch(e) {}
+        }
 
-        checkNotifStatus();
-        loadRequests();
-        setInterval(loadRequests, 8000);
-    } catch(e) {}
-}
         loadHotelName();
         checkSavedSession();
 
@@ -406,32 +592,11 @@
                 localStorage.setItem('favvi_staff_pw_hash', btoa(pw));
             }
             activeFilter = staffDept;
-
-            document.getElementById('overlay').style.display    = 'none';
-            document.getElementById('mainHeader').style.display = 'flex';
-            document.getElementById('notifBanner').style.display = 'flex';
-            document.getElementById('mainBody').style.display   = 'block';
-            document.getElementById('staffGreeting').textContent = staffName;
-
-            const deptNames = { all:'All Departments', housekeeping:'Housekeeping', roomservice:'Room Service', maintenance:'Maintenance', concierge:'Concierge' };
-            document.getElementById('deptLabel').textContent = deptNames[staffDept] || 'All Departments';
-
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.filter === staffDept);
-            });
-
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                ctx.resume();
-                window._audioCtx = ctx;
-            } catch(e) {}
-
-            checkNotifStatus();
-            loadRequests();
-            setInterval(loadRequests, 8000);
+            errEl.style.display = 'none';
+            enterDashboard();
         }
 
-        // ── NOTIFICATIONS ──
+        // ── NOTIFICATIONS (unchanged logic — hard-won on iOS) ──
 
         function checkNotifStatus() {
             const btn = document.getElementById('notifBtn');
@@ -439,7 +604,6 @@
             const hasSW     = 'serviceWorker' in navigator;
             const hasPush   = 'PushManager' in window;
             const permission = hasNotif ? Notification.permission : 'N/A';
-            const standalone = window.navigator.standalone;
 
             if (!hasNotif || !hasSW || !hasPush) {
                 btn.textContent  = 'Not Supported';
@@ -459,8 +623,6 @@
         }
 
         async function requestNotificationPermission() {
-            const debug = document.getElementById('debugBox');
-
             if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
                 alert('Push notifications are not supported on this browser.\n\nOn iPhone: open in Safari and add to Home Screen first.');
                 return;
@@ -473,8 +635,6 @@
 
             try {
                 const permission = await Notification.requestPermission();
-               
-
                 const btn = document.getElementById('notifBtn');
                 if (permission === 'granted') {
                     btn.textContent = 'Alerts On — tap to disable';
@@ -485,31 +645,29 @@
                     btn.textContent = 'Blocked';
                     btn.className   = 'notif-banner-btn denied';
                 }
-            } catch(e) {
-               
-            }
+            } catch(e) {}
         }
 
         async function disableNotifications() {
-    try {
-        const reg = await navigator.serviceWorker.ready;
-        const sub = await reg.pushManager.getSubscription();
-        if (sub) await sub.unsubscribe();
+            try {
+                const reg = await navigator.serviceWorker.ready;
+                const sub = await reg.pushManager.getSubscription();
+                if (sub) await sub.unsubscribe();
 
-        await fetch('/push-unsubscribe', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ slug, name: staffName })
-        });
+                await fetch('/push-unsubscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ slug, name: staffName })
+                });
 
-        const btn = document.getElementById('notifBtn');
-        btn.textContent = 'Enable Alerts';
-        btn.className   = 'notif-banner-btn';
-        btn.onclick     = requestNotificationPermission;
-    } catch(e) {
-        console.log('Unsubscribe error:', e);
-    }
-}
+                const btn = document.getElementById('notifBtn');
+                btn.textContent = 'Enable Alerts';
+                btn.className   = 'notif-banner-btn';
+                btn.onclick     = requestNotificationPermission;
+            } catch(e) {
+                console.log('Unsubscribe error:', e);
+            }
+        }
 
         async function subscribeForPush() {
             try {
@@ -551,6 +709,7 @@
             activeFilter = filter;
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
+            lastRenderKey = '';
             renderAll(window._lastRequests || []);
         }
 
@@ -570,6 +729,20 @@
 
         function matchesFilter(req) {
             return activeFilter === 'all' || req.department === activeFilter;
+        }
+
+        function timeAgo(dateStr) {
+            if (!dateStr) return '';
+            try {
+                const then = new Date(dateStr.replace(' ', 'T'));
+                const mins = Math.floor((Date.now() - then.getTime()) / 60000);
+                if (isNaN(mins)) return dateStr;
+                if (mins < 1)   return 'Just now';
+                if (mins < 60)  return `${mins} min ago`;
+                const hrs = Math.floor(mins / 60);
+                if (hrs < 24)   return `${hrs}h ago`;
+                return dateStr.substring(0, 16);
+            } catch(e) { return dateStr; }
         }
 
         function renderCard(req, isHistory) {
@@ -595,6 +768,7 @@
             }
 
             const cardClass = isHistory ? 'history-card' : (isProgress ? 'inprogress' : isDone ? 'done' : 'new');
+            const timeLabel = isHistory ? (req.date || '') : timeAgo(req.date);
 
             return `<div class="request-card ${cardClass}" id="card-${req.id}">
                 <div class="card-top">
@@ -604,12 +778,22 @@
                 <div class="request-details">${req.details}</div>
                 <div class="card-bottom">
                     <div>
-                        <div class="meta">${req.date || ''}</div>
+                        <div class="meta">${timeLabel}</div>
                         ${req.claimed_by ? `<div class="claimed-by">${req.claimed_by}</div>` : ''}
                     </div>
                     ${buttons}
                 </div>
             </div>`;
+        }
+
+        function bumpStat(id, newVal) {
+            const el = document.getElementById(id);
+            if (el.textContent !== String(newVal)) {
+                el.textContent = newVal;
+                el.classList.remove('bump');
+                void el.offsetWidth;
+                el.classList.add('bump');
+            }
         }
 
         function renderAll(requests) {
@@ -625,18 +809,29 @@
                 return new Date(r.date.replace(' ', 'T')) >= ago48;
             });
 
-            document.getElementById('countNew').textContent      = all_new.length;
-            document.getElementById('countProgress').textContent = all_prog.length;
-            document.getElementById('countDone').textContent     = all_done.length;
-            document.getElementById('countHistory').textContent  = all_hist.length;
+            bumpStat('countNew',      all_new.length);
+            bumpStat('countProgress', all_prog.length);
+            bumpStat('countDone',     all_done.length);
+            bumpStat('countHistory',  all_hist.length);
 
             const f_new  = all_new.filter(matchesFilter);
             const f_prog = all_prog.filter(matchesFilter);
             const f_done = all_done.filter(matchesFilter);
             const f_hist = all_hist.filter(matchesFilter);
 
+            document.getElementById('badgeNew').textContent      = f_new.length;
+            document.getElementById('badgeProgress').textContent = f_prog.length;
+            document.getElementById('badgeDone').textContent     = f_done.length;
+
+            // Skip DOM rewrite if nothing visible changed — prevents flicker and lost taps
+            const renderKey = activeFilter + '|' + JSON.stringify([f_new, f_prog, f_done, f_hist].map(
+                arr => arr.map(r => [r.id, r.status, r.claimed_by])
+            ));
+            if (renderKey === lastRenderKey) return;
+            lastRenderKey = renderKey;
+
             document.getElementById('newRequests').innerHTML =
-                f_new.length  ? f_new.map(r  => renderCard(r, false)).join('') : '<div class="empty-state">No new requests — all clear</div>';
+                f_new.length  ? f_new.map(r  => renderCard(r, false)).join('') : '<div class="empty-state">No new requests — all clear ✦</div>';
             document.getElementById('inProgressRequests').innerHTML =
                 f_prog.length ? f_prog.map(r => renderCard(r, false)).join('') : '<div class="empty-state">Nothing in progress</div>';
             document.getElementById('doneRequests').innerHTML =
@@ -645,31 +840,24 @@
                 f_hist.length ? f_hist.map(r => renderCard(r, true)).join('')  : '<div class="empty-state">No history in the last 48 hours</div>';
         }
 
-        async function loadRequests() {
+        // ── DATA ──
+
+        async function loadRequests(force) {
             if (isLoading) return;
             isLoading = true;
             try {
                 const prevCount = (window._lastRequests || []).filter(r => r.status === 'new').length;
+                const hadData   = !!window._lastRequests;
                 const r = await fetch(`/get-requests?slug=${slug}`);
                 const requests = await r.json();
                 window._lastRequests = requests;
+                if (force) lastRenderKey = '';
                 renderAll(requests);
 
                 const newCount = requests.filter(r => r.status === 'new').length;
-                if (newCount > prevCount) {
-                    try {
-                        const ctx = window._audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-                        if (ctx.state === 'suspended') ctx.resume();
-                        const osc = ctx.createOscillator(), gain = ctx.createGain();
-                        osc.connect(gain); gain.connect(ctx.destination);
-                        osc.type = 'sine';
-                        osc.frequency.setValueAtTime(880,  ctx.currentTime);
-                        osc.frequency.setValueAtTime(1100, ctx.currentTime + 0.1);
-                        osc.frequency.setValueAtTime(980,  ctx.currentTime + 0.2);
-                        gain.gain.setValueAtTime(0.4, ctx.currentTime);
-                        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
-                        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.5);
-                    } catch(e) {}
+                if (hadData && newCount > prevCount) {
+                    playChime();
+                    showToast('✦ New guest request');
                 }
             } catch(e) {
                 console.error(e);
@@ -678,14 +866,28 @@
             }
         }
 
-        async function updateRequest(id, status, claimedBy) {
-            const card = document.getElementById(`card-${id}`);
-            if (card) card.classList.add('updating');
+        // Instant refresh when the app is reopened
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && window._lastRequests) {
+                loadRequests(true);
+            }
+        });
+
+        // ── ACTIONS: optimistic — card moves instantly, server syncs behind ──
+
+        function updateRequest(id, status, claimedBy) {
+            const reqs = window._lastRequests || [];
+            const req = reqs.find(r => r.id === id);
+            if (req) {
+                req.status = status;
+                req.claimed_by = claimedBy;
+                renderAll(reqs);
+            }
             fetch('/update-request', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id, status, claimed_by: claimedBy })
-            }).then(() => loadRequests()).catch(() => loadRequests());
+            }).then(() => loadRequests(true)).catch(() => loadRequests(true));
         }
 
         function claimRequest(id)    { updateRequest(id, 'inprogress', staffName); }
@@ -694,12 +896,12 @@
         function undoDone(id)        { updateRequest(id, 'inprogress', staffName); }
 
         function logout() {
-        localStorage.removeItem('favvi_staff_name');
-        localStorage.removeItem('favvi_staff_dept');
-        localStorage.removeItem('favvi_staff_slug');
-        localStorage.removeItem('favvi_staff_pw_hash');
-        location.reload();
-    }
+            localStorage.removeItem('favvi_staff_name');
+            localStorage.removeItem('favvi_staff_dept');
+            localStorage.removeItem('favvi_staff_slug');
+            localStorage.removeItem('favvi_staff_pw_hash');
+            location.reload();
+        }
 
         function toggleHistory() {
             const section = document.getElementById('historyRequests');
