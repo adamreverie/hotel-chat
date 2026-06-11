@@ -35,6 +35,9 @@
             --green-soft:#edf7f1;
             --staff:     #4a7fa5;
             --staff-dark:#2e5f80;
+            --health:     #9b7bb8;
+            --health-dark:#6b4d8a;
+            --health-soft:#f3eef8;
 
             --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
             --smooth: cubic-bezier(0.4, 0, 0.2, 1);
@@ -140,6 +143,7 @@
         .dept-opt.selected.d-rs  { background: var(--amber); border-color: var(--amber); }
         .dept-opt.selected.d-mt  { background: var(--blue);  border-color: var(--blue); }
         .dept-opt.selected.d-cn  { background: var(--green); border-color: var(--green); }
+        .dept-opt.selected.d-hl  { background: var(--health); border-color: var(--health); }
 
         .stay-row { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
         .stay-row input { width: 16px; height: 16px; accent-color: var(--navy); cursor: pointer; flex-shrink: 0; }
@@ -259,6 +263,7 @@
         .fchip.active.f-rs  { background: var(--amber); border-color: var(--amber); }
         .fchip.active.f-mt  { background: var(--blue);  border-color: var(--blue); }
         .fchip.active.f-cn  { background: var(--green); border-color: var(--green); }
+        .fchip.active.f-hl  { background: var(--health); border-color: var(--health); }
 
         /* ─── SECTIONS ─── */
         .section { margin-bottom: 30px; }
@@ -325,6 +330,7 @@
         .dt-rs { background: var(--amber-soft); color: var(--amber); }
         .dt-mt { background: var(--blue-soft);  color: var(--blue); }
         .dt-cn { background: var(--green-soft); color: var(--green); }
+        .dt-hl { background: var(--health-soft); color: var(--health-dark); }
         .dt-gn { background: var(--linen); color: var(--ink-40); }
 
         .room-num {
@@ -425,6 +431,7 @@
                 <div class="dept-opt d-rs"           data-dept="roomservice"  onclick="selectDept(this)">Room Service</div>
                 <div class="dept-opt d-mt"           data-dept="maintenance"  onclick="selectDept(this)">Maintenance</div>
                 <div class="dept-opt d-cn"           data-dept="concierge"    onclick="selectDept(this)">Concierge</div>
+                <div class="dept-opt d-hl"           data-dept="health"       onclick="selectDept(this)">Health & Spa</div>
             </div>
         </div>
 
@@ -503,6 +510,7 @@
         <button class="fchip f-rs"         data-f="roomservice"  onclick="setFilter('roomservice',this)">Room Service</button>
         <button class="fchip f-mt"         data-f="maintenance"  onclick="setFilter('maintenance',this)">Maintenance</button>
         <button class="fchip f-cn"         data-f="concierge"    onclick="setFilter('concierge',this)">Concierge</button>
+        <button class="fchip f-hl"         data-f="health"       onclick="setFilter('health',this)">Health & Spa</button>
     </div>
 
     <div class="section" id="sec-new">
@@ -549,6 +557,7 @@
     let isLoading = false;
     let _requests = [];
     let _resolvedThisSession = 0;
+    const _sessionDone = new Set();
     const MILESTONES = { 5: 'Five resolved — nice pace', 10: 'Ten resolved — superb shift', 20: 'Twenty resolved — unstoppable', 30: 'Thirty resolved — legendary' };
     const slug = window.location.pathname.split('/')[2] || '';
 
@@ -576,21 +585,24 @@
         try {
             ensureAudio();
             const ac = window._ac;
-            if (!ac || ac.state !== 'running') return;
-            [0, 0.65].forEach(offset => {
-                const t = ac.currentTime + offset;
+            if (!ac) return;
+            const fire = () => {
+                if (ac.state !== 'running') return;
+                const t = ac.currentTime;
                 const osc = ac.createOscillator(), g = ac.createGain();
                 osc.connect(g); g.connect(ac.destination);
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(880,  t);
-                osc.frequency.setValueAtTime(1175, t + 0.11);
-                osc.frequency.setValueAtTime(1047, t + 0.22);
-                g.gain.setValueAtTime(0.65, t);
-                g.gain.exponentialRampToValueAtTime(0.001, t + 0.52);
-                osc.start(t); osc.stop(t + 0.52);
-            });
+                osc.frequency.setValueAtTime(987,  t);        // B5
+                osc.frequency.setValueAtTime(1318, t + 0.09); // E6 — quick "new message" lift
+                g.gain.setValueAtTime(0.0001, t);
+                g.gain.exponentialRampToValueAtTime(0.35, t + 0.02);
+                g.gain.exponentialRampToValueAtTime(0.001, t + 0.38);
+                osc.start(t); osc.stop(t + 0.4);
+            };
+            if (ac.state === 'running') fire();
+            else ac.resume().then(() => setTimeout(fire, 60)).catch(() => {});
         } catch(e) {}
-        try { if (navigator.vibrate) navigator.vibrate([180,80,180]); } catch(e) {}
+        try { if (navigator.vibrate) navigator.vibrate(120); } catch(e) {}
     }
 
     /* a softer, satisfying "resolved" note */
@@ -787,6 +799,7 @@
         roomservice:  ['dt-rs','Room Service'],
         maintenance:  ['dt-mt','Maintenance'],
         concierge:    ['dt-cn','Concierge'],
+        health:       ['dt-hl','Health & Spa'],
     };
     function deptTag(d) {
         const [cls, lbl] = deptMeta[d] || ['dt-gn', d || 'General'];
@@ -843,8 +856,8 @@
 
         const all_new  = _requests.filter(r => r.status === 'new');
         const all_prog = _requests.filter(r => r.status === 'inprogress');
-        const all_done = _requests.filter(r => r.status === 'done' && r.date && r.date.startsWith(today));
-        const all_hist = _requests.filter(r => r.status === 'done' && r.date && !r.date.startsWith(today) && new Date(r.date.replace(' ','T')) >= ago48);
+        const all_done = _requests.filter(r => r.status === 'done' && ((r.date && r.date.startsWith(today)) || _sessionDone.has(r.id)));
+        const all_hist = _requests.filter(r => r.status === 'done' && !_sessionDone.has(r.id) && r.date && !r.date.startsWith(today) && new Date(r.date.replace(' ','T')) >= ago48);
 
         setCount('cnt-new',  all_new.length);
         setCount('cnt-prog', all_prog.length);
@@ -970,7 +983,7 @@
     }
 
     document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') loadRequests(true);
+        if (document.visibilityState === 'visible') { ensureAudio(); loadRequests(true); }
     });
 
     /* ─── ACTIONS (optimistic, with celebration) ─── */
@@ -978,6 +991,9 @@
         const req = _requests.find(r => r.id === id);
         const wasDone = req && req.status === 'done';
 
+        if (status === 'done') _sessionDone.add(id);
+        if (status === 'undone_placeholder') {} // no-op guard
+        if (status !== 'done') _sessionDone.delete(id);
         if (status === 'done' && req && !wasDone) {
             // Celebrate: sweep + sparkles + soft note + tally
             const card = document.getElementById('rc-' + id);

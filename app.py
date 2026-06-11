@@ -168,11 +168,19 @@ def get_system_prompt(slug=None):
 
 {current_offers}
 
-When a guest makes a REAL REQUEST (towels, room service, maintenance, housekeeping, spa booking):
+When a guest makes a REAL REQUEST (towels, room service, maintenance, housekeeping, spa booking, transport):
 1. Ask for their room number if you don't have it
 2. Confirm their request warmly
 3. Tell them the team has been notified
-4. End with exactly: STAFF_ALERT: Room [number] - [request details]
+4. End with exactly: STAFF_ALERT: [DEPARTMENT] Room [number] - [request details]
+
+[DEPARTMENT] must be exactly one of these words, chosen by what the request is about:
+- HOUSEKEEPING — cleaning, towels, linens, pillows, toiletries, tissues, amenity deliveries to the room
+- ROOMSERVICE — food, drinks, dining orders to the room
+- MAINTENANCE — anything broken or not working: AC, TV, wifi, plumbing, lights, noise issues
+- CONCIERGE — taxis, airport transfers, transport, tours, restaurant bookings, local recommendations
+- HEALTH — spa, massage, gym, fitness, pool, sauna, wellness bookings
+- GENERAL — anything that doesn't fit the above
 
 For simple questions answer directly and helpfully.
 If you don't have specific information about something, say so honestly and suggest the guest contact reception.
@@ -299,15 +307,29 @@ def chat():
         alert_line    = [line for line in assistant_message.split('\n') if 'STAFF_ALERT:' in line][0]
         alert_details = alert_line.replace('STAFF_ALERT:', '').strip()
 
+        # 1) Preferred: the AI tags the department itself
         department = "general"
-        if any(w in alert_details.lower() for w in ["towel","sheet","clean","housekeeping","linen"]):
-            department = "housekeeping"
-        elif any(w in alert_details.lower() for w in ["food","drink","room service","sandwich","breakfast","dinner","lunch","water"]):
-            department = "roomservice"
-        elif any(w in alert_details.lower() for w in ["ac","air","light","tv","broken","leak","maintenance","wifi","internet"]):
-            department = "maintenance"
-        elif any(w in alert_details.lower() for w in ["taxi","transfer","transport","tour","concierge","recommend"]):
-            department = "concierge"
+        import re as _re
+        dept_match = _re.match(r'\[?(HOUSEKEEPING|ROOMSERVICE|MAINTENANCE|CONCIERGE|HEALTH|GENERAL)\]?\s*',
+                               alert_details, _re.IGNORECASE)
+        if dept_match:
+            department = dept_match.group(1).lower()
+            alert_details = alert_details[dept_match.end():].strip()
+        else:
+            # 2) Fallback: whole-word keyword matching (no more "airport" → "air" bugs)
+            low = ' ' + alert_details.lower() + ' '
+            def has_word(words):
+                return any(_re.search(r'\b' + _re.escape(w) + r'\b', low) for w in words)
+            if has_word(["spa","massage","gym","fitness","sauna","pool","wellness","yoga"]):
+                department = "health"
+            elif has_word(["towel","towels","sheet","sheets","clean","cleaning","housekeeping","linen","pillow","pillows","tissue","tissues","toiletries","blanket","soap","shampoo"]):
+                department = "housekeeping"
+            elif has_word(["food","drink","drinks","room service","sandwich","breakfast","dinner","lunch","water","coffee","tea","wine","meal"]):
+                department = "roomservice"
+            elif has_word(["ac","aircon","a/c","light","lights","tv","broken","leak","leaking","maintenance","wifi","internet","heating","shower","toilet","noise"]):
+                department = "maintenance"
+            elif has_word(["taxi","transfer","transfers","transport","transportation","airport","tour","tours","concierge","recommend","recommendation","booking","reservation","car"]):
+                department = "concierge"
 
         room = "N/A"
         for word in alert_details.split():
