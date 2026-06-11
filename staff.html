@@ -299,17 +299,23 @@
             box-shadow: 0 1px 4px rgba(26,26,46,0.04);
             position: relative; overflow: hidden;
             transition: border-left-color 0.4s var(--smooth),
-                        opacity 0.4s var(--smooth),
-                        transform 0.4s var(--smooth),
+                        opacity 0.35s var(--smooth),
                         box-shadow 0.3s;
+            will-change: transform;
+        }
+        .req-card.anim {
+            transition: border-left-color 0.4s var(--smooth),
+                        opacity 0.35s var(--smooth),
+                        box-shadow 0.3s,
+                        transform 0.5s var(--spring);
         }
         .req-card:hover { box-shadow: 0 6px 18px rgba(26,26,46,0.08); }
         .req-card.st-new  { border-left-color: var(--red); }
         .req-card.st-prog { border-left-color: var(--amber); }
         .req-card.st-done { border-left-color: var(--green); opacity: 0.7; }
         .req-card.st-hist { border-left-color: var(--line); opacity: 0.5; }
-        .req-card.exiting { opacity: 0; transform: translateX(22px) scale(0.97); pointer-events: none; }
         .req-card.entering { opacity: 0; transform: translateY(-10px) scale(0.98); }
+        .req-ghost { pointer-events: none; z-index: 60; }
 
         /* gold sweep on completion */
         .req-card .sweep {
@@ -849,7 +855,53 @@
         return `<div class="empty-card"><div class="empty-mark">✦</div><div class="empty-text">${msg}</div></div>`;
     }
 
-    /* ─── RECONCILER: in-place updates, no flicker ─── */
+    /* ─── RENDER ENGINE v3: FLIP — same node glides between lists, zero flicker ─── */
+
+    function btnRowFor(req, hist) { return btnRowHTML(req, hist); }
+
+    function updateCardInPlace(el, req, hist) {
+        const cls = hist ? 'st-hist' : (req.status === 'new' ? 'st-new' : req.status === 'inprogress' ? 'st-prog' : 'st-done');
+        if (el.dataset.status !== req.status || el.dataset.hist !== String(hist)) {
+            el.dataset.status = req.status;
+            el.dataset.hist = String(hist);
+            ['st-new','st-prog','st-done','st-hist'].forEach(c => el.classList.remove(c));
+            el.classList.add(cls);
+            const foot = el.querySelector('.card-foot');
+            const btnRow = foot.querySelector('.btn-row');
+            const newBtns = btnRowFor(req, hist);
+            if (btnRow) { if (newBtns) btnRow.outerHTML = newBtns; else btnRow.remove(); }
+            else if (newBtns) foot.insertAdjacentHTML('beforeend', newBtns);
+        }
+        const foot = el.querySelector('.card-foot');
+        let who = foot.querySelector('.meta-who');
+        if (req.claimed_by) {
+            if (who) { if (who.textContent !== req.claimed_by) who.textContent = req.claimed_by; }
+            else foot.querySelector('.card-meta').insertAdjacentHTML('beforeend', `<span class="meta-who">${req.claimed_by}</span>`);
+        } else if (who) who.remove();
+        const timeEl = el.querySelector('.meta-time');
+        const t = timeAgo(req.date);
+        if (timeEl && timeEl.textContent !== t) timeEl.textContent = t;
+    }
+
+    function ghostRemove(el) {
+        try {
+            const r = el.getBoundingClientRect();
+            if (r.width > 0 && r.height > 0) {
+                const g = el.cloneNode(true);
+                g.removeAttribute('id');
+                g.classList.add('req-ghost');
+                g.style.cssText = `position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;margin:0;transition:opacity 0.28s ease, transform 0.28s ease;`;
+                document.body.appendChild(g);
+                requestAnimationFrame(() => {
+                    g.style.opacity = '0';
+                    g.style.transform = 'translateX(18px) scale(0.97)';
+                });
+                setTimeout(() => g.remove(), 320);
+            }
+        } catch(e) {}
+        el.remove();
+    }
+
     function reconcile() {
         const today = new Date().toISOString().split('T')[0];
         const ago48 = new Date(Date.now() - 48*60*60*1000);
@@ -865,14 +917,89 @@
         setCount('cnt-hist', all_hist.length);
 
         const filt = r => activeFilter === 'all' || r.department === activeFilter;
-        renderList('list-new',  all_new.filter(filt),  false, 'No new requests — all clear');
-        renderList('list-prog', all_prog.filter(filt), false, 'Nothing in progress');
-        renderList('list-done', all_done.filter(filt), false, 'Nothing completed yet — the night is young');
-        renderList('list-hist', all_hist.filter(filt), true,  'No history in the last 48 hours');
+        const lists = [
+            ['list-new',  all_new.filter(filt),  false, 'No new requests — all clear'],
+            ['list-prog', all_prog.filter(filt), false, 'Nothing in progress'],
+            ['list-done', all_done.filter(filt), false, 'Nothing completed yet — the night is young'],
+            ['list-hist', all_hist.filter(filt), true,  'No history in the last 48 hours'],
+        ];
 
-        document.getElementById('bdg-new').textContent  = all_new.filter(filt).length;
-        document.getElementById('bdg-prog').textContent = all_prog.filter(filt).length;
-        document.getElementById('bdg-done').textContent = all_done.filter(filt).length;
+        document.getElementById('bdg-new').textContent  = lists[0][1].length;
+        document.getElementById('bdg-prog').textContent = lists[1][1].length;
+        document.getElementById('bdg-done').textContent = lists[2][1].length;
+
+        /* 1) FIRST: snapshot every card's position */
+        const firstRects = new Map();
+        document.querySelectorAll('.req-card').forEach(el => {
+            firstRects.set(el.id, el.getBoundingClientRect());
+        });
+
+        /* 2) Remove cards that no longer exist anywhere (ghost exit) */
+        const keepIds = new Set();
+        lists.forEach(([_, reqs]) => reqs.forEach(r => keepIds.add('rc-' + r.id)));
+        document.querySelectorAll('.req-card').forEach(el => {
+            if (!keepIds.has(el.id)) ghostRemove(el);
+        });
+
+        /* 3) Place every card in its correct container & order — moving the SAME node */
+        const entered = [];
+        lists.forEach(([listId, reqs, hist, emptyMsg]) => {
+            const container = document.getElementById(listId);
+            if (reqs.length > 0) {
+                const emp = container.querySelector('.empty-card');
+                if (emp) emp.remove();
+            }
+            reqs.forEach((req, idx) => {
+                let el = document.getElementById('rc-' + req.id);
+                if (!el) {
+                    const tmp = document.createElement('div');
+                    tmp.innerHTML = cardHTML(req, hist);
+                    el = tmp.firstElementChild;
+                    el.classList.add('entering');
+                    el.dataset.hist = String(hist);
+                    entered.push(el);
+                }
+                updateCardInPlace(el, req, hist);
+                const ref = container.children[idx] || null;
+                if (el.parentNode !== container || container.children[idx] !== el) {
+                    container.insertBefore(el, ref);
+                }
+            });
+            if (reqs.length === 0 && !container.querySelector('.req-card') && !container.querySelector('.empty-card')) {
+                container.innerHTML = emptyHTML(emptyMsg);
+            }
+        });
+
+        /* 4) LAST + INVERT + PLAY: glide every surviving card from old spot to new */
+        document.querySelectorAll('.req-card').forEach(el => {
+            if (el.classList.contains('entering')) return;
+            const first = firstRects.get(el.id);
+            if (!first) return;
+            const cont = el.parentNode;
+            if (!cont || cont.style.display === 'none') return;
+            const last = el.getBoundingClientRect();
+            if (last.width === 0) return;
+            const dx = first.left - last.left;
+            const dy = first.top - last.top;
+            if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+            el.classList.remove('anim');
+            el.style.transform = `translate(${dx}px, ${dy}px)`;
+            void el.offsetWidth;
+            el.classList.add('anim');
+            el.style.transform = '';
+            const clean = () => { el.classList.remove('anim'); el.removeEventListener('transitionend', clean); };
+            el.addEventListener('transitionend', clean);
+            setTimeout(clean, 600);
+        });
+
+        /* 5) Entrances */
+        entered.forEach(el => {
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                el.classList.add('anim');
+                el.classList.remove('entering');
+                setTimeout(() => el.classList.remove('anim'), 600);
+            }));
+        });
     }
 
     function setCount(elId, n) {
@@ -889,81 +1016,6 @@
         el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
     }
 
-    function renderList(listId, reqs, hist, emptyMsg) {
-        const container = document.getElementById(listId);
-        const existing = {};
-        container.querySelectorAll('.req-card').forEach(el => { existing[el.id] = el; });
-
-        if (reqs.length === 0) {
-            Object.values(existing).forEach(el => {
-                el.classList.add('exiting');
-                setTimeout(() => el.remove(), 420);
-            });
-            setTimeout(() => {
-                if (container.querySelectorAll('.req-card').length === 0 && !container.querySelector('.empty-card')) {
-                    container.innerHTML = emptyHTML(emptyMsg);
-                }
-            }, 430);
-            return;
-        }
-
-        const emp = container.querySelector('.empty-card');
-        if (emp) emp.remove();
-
-        const incomingIds = new Set(reqs.map(r => 'rc-' + r.id));
-        Object.entries(existing).forEach(([id, el]) => {
-            if (!incomingIds.has(id)) {
-                el.classList.add('exiting');
-                setTimeout(() => el.remove(), 420);
-            }
-        });
-
-        reqs.forEach((req, idx) => {
-            const domId = 'rc-' + req.id;
-            let el = document.getElementById(domId);
-            const cls = hist ? 'st-hist' : (req.status === 'new' ? 'st-new' : req.status === 'inprogress' ? 'st-prog' : 'st-done');
-
-            // If the card exists but in a DIFFERENT list, remove it there and recreate here
-            if (el && el.parentNode !== container) {
-                el.classList.add('exiting');
-                const old = el;
-                setTimeout(() => old.remove(), 420);
-                el = null;
-            }
-
-            if (!el) {
-                const tmp = document.createElement('div');
-                tmp.innerHTML = cardHTML(req, hist);
-                const card = tmp.firstElementChild;
-                card.classList.add('entering');
-                const ref = container.children[idx] || null;
-                container.insertBefore(card, ref);
-                requestAnimationFrame(() => requestAnimationFrame(() => card.classList.remove('entering')));
-            } else {
-                if (el.dataset.status !== req.status) {
-                    el.dataset.status = req.status;
-                    ['st-new','st-prog','st-done','st-hist'].forEach(c => el.classList.remove(c));
-                    el.classList.add(cls);
-                    const foot = el.querySelector('.card-foot');
-                    const btnRow = foot.querySelector('.btn-row');
-                    const newBtns = btnRowHTML(req, hist);
-                    if (btnRow) { if (newBtns) btnRow.outerHTML = newBtns; else btnRow.remove(); }
-                    else if (newBtns) foot.insertAdjacentHTML('beforeend', newBtns);
-                    let who = foot.querySelector('.meta-who');
-                    if (req.claimed_by) {
-                        if (who) who.textContent = req.claimed_by;
-                        else foot.querySelector('.card-meta').insertAdjacentHTML('beforeend', `<span class="meta-who">${req.claimed_by}</span>`);
-                    } else if (who) who.remove();
-                }
-                const curIdx = Array.from(container.children).indexOf(el);
-                if (curIdx !== idx) {
-                    const ref = container.children[idx] || null;
-                    container.insertBefore(el, ref);
-                }
-            }
-        });
-    }
-
     /* ─── DATA ─── */
     async function loadRequests(force) {
         if (isLoading) return;
@@ -972,7 +1024,15 @@
             const prevNew = _requests.filter(r => r.status === 'new').length;
             const hadData = _requests.length > 0;
             const r = await fetch(`/get-requests?slug=${slug}`);
-            _requests = await r.json();
+            const fresh = await r.json();
+            // Respect in-flight optimistic actions: skip server state for ids awaiting confirmation
+            fresh.forEach(fr => {
+                if (_pendingActions.has(fr.id)) {
+                    const local = _requests.find(x => x.id === fr.id);
+                    if (local) { fr.status = local.status; fr.claimed_by = local.claimed_by; }
+                }
+            });
+            _requests = fresh;
             reconcile();
             const newNow = _requests.filter(r => r.status === 'new').length;
             if (hadData && newNow > prevNew) {
@@ -986,16 +1046,17 @@
         if (document.visibilityState === 'visible') { ensureAudio(); loadRequests(true); }
     });
 
-    /* ─── ACTIONS (optimistic, with celebration) ─── */
+    /* ─── ACTIONS: optimistic + pending-guard so server polls never fight the UI ─── */
+    const _pendingActions = new Map();
+
     function doAction(evt, id, status, claimedBy) {
         const req = _requests.find(r => r.id === id);
         const wasDone = req && req.status === 'done';
 
         if (status === 'done') _sessionDone.add(id);
-        if (status === 'undone_placeholder') {} // no-op guard
-        if (status !== 'done') _sessionDone.delete(id);
+        else _sessionDone.delete(id);
+
         if (status === 'done' && req && !wasDone) {
-            // Celebrate: sweep + sparkles + soft note + tally
             const card = document.getElementById('rc-' + id);
             if (card) {
                 card.classList.add('celebrate');
@@ -1014,16 +1075,19 @@
         }
 
         if (req) { req.status = status; req.claimed_by = claimedBy; }
-
-        // Small delay before reconcile on completion so the sweep is visible
-        const delay = status === 'done' ? 520 : 0;
-        setTimeout(() => reconcile(), delay);
+        _pendingActions.set(id, status);
+        reconcile();
 
         fetch('/update-request', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id, status, claimed_by: claimedBy })
-        }).then(() => setTimeout(() => loadRequests(true), delay)).catch(() => loadRequests(true));
+        }).then(() => {
+            _pendingActions.delete(id);
+        }).catch(() => {
+            _pendingActions.delete(id);
+            loadRequests(true);
+        });
     }
 
     function logout() {
