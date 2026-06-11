@@ -1,153 +1,214 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <link rel="icon" href="/favicon.ico">
     <title>Links & QR Codes — Favvi</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
+        :root {
+            --navy: #1a1a2e;
+            --gold: #c9a84c;
+            --gold-dark: #8a6e2a;
+            --linen: #f0efe9;
+            --white: #ffffff;
+            --cream: #f8f4ee;
+            --ink: #1a1a2e;
+            --ink-60: rgba(26,26,46,0.6);
+            --ink-40: rgba(26,26,46,0.4);
+            --ink-25: rgba(26,26,46,0.25);
+            --line: rgba(26,26,46,0.09);
+            --teal: #2e8b7a;
+            --teal-dark: #1f6456;
+            --green: #6a9e6a;
+            --green-dark: #3d6e3d;
+            --blue: #4a7fa5;
+            --blue-dark: #2e5f80;
+            --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --smooth: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'DM Sans', sans-serif; background: #f0efe9; min-height: 100vh; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--linen);
+            min-height: 100vh;
+            color: var(--ink);
+            -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-        .header { background: #1a1a2e; padding: 18px 32px; display: flex; justify-content: space-between; align-items: center; }
-        .header-left { display: flex; align-items: center; gap: 16px; }
-        .logo { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: #f8f4ee; letter-spacing: 3px; text-decoration: none; }
-        .logo span { color: #c9a84c; }
-        .divider-v { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
-        .header-title { font-size: 13px; font-weight: 400; color: rgba(248,244,238,0.7); }
+        /* ─── TOP BAR ─── */
+        .topbar {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(240,239,233,0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--line);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 24px; height: 64px;
+        }
+        .topbar-left { display: flex; align-items: center; gap: 14px; }
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 23px; font-weight: 600;
+            color: var(--ink); letter-spacing: 3px; text-decoration: none;
+        }
+        .logo span { color: var(--gold); }
+        .divider-v { width: 1px; height: 18px; background: var(--line); }
+        .topbar-title { font-size: 12px; font-weight: 400; color: var(--ink-40); letter-spacing: 1px; text-transform: uppercase; }
 
-        .body { max-width: 780px; margin: 0 auto; padding: 40px 32px 60px; }
+        /* ─── BODY ─── */
+        .body { max-width: 800px; margin: 0 auto; padding: 40px 24px 72px; }
 
-        .page-title { font-family: 'Cormorant Garamond', serif; font-size: 42px; font-weight: 600; color: #2e8b7a; line-height: 1.1; margin-bottom: 4px; }
-        .page-title em { font-style: italic; font-weight: 400; color: #1a1a2e; }
-        .page-sub { font-size: 12px; font-weight: 300; color: rgba(26,26,46,0.35); margin-bottom: 36px; }
+        .page-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 42px; font-weight: 600; line-height: 1.1; margin-bottom: 4px;
+        }
+        .page-title em { font-style: italic; color: var(--teal-dark); font-weight: 400; }
+        .page-sub { font-size: 12px; font-weight: 300; color: var(--ink-40); margin-bottom: 36px; }
 
+        /* ─── LINK CARDS ─── */
         .link-card {
-            background: white;
-            border-radius: 3px;
-            box-shadow: 0 1px 4px rgba(26,26,46,0.06);
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-top: 3px solid var(--gold);
+            border-radius: 4px;
+            box-shadow: 0 1px 4px rgba(26,26,46,0.05);
             margin-bottom: 16px;
             overflow: hidden;
-            border-left: 3px solid transparent;
+            opacity: 0; transform: translateY(12px);
+            animation: cardIn 0.55s var(--spring) forwards;
         }
-        .link-card.chat { border-color: #c9a84c; }
-        .link-card.feedback { border-color: #6a9e6a; }
+        .link-card.feedback { border-top-color: var(--green); animation-delay: 0.12s; }
+        @keyframes cardIn { to { opacity: 1; transform: translateY(0); } }
 
-        .link-card-header { padding: 20px 24px 16px; border-bottom: 1px solid #f0efe9; }
-        .link-eyebrow { font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
-        .chat .link-eyebrow { color: #c9a84c; }
-        .feedback .link-eyebrow { color: #6a9e6a; }
-        .link-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; color: #1a1a2e; }
-        .link-desc { font-size: 12px; font-weight: 300; color: rgba(26,26,46,0.4); margin-top: 3px; }
+        .link-card-header { padding: 22px 26px 16px; border-bottom: 1px solid var(--linen); }
+        .link-eyebrow { font-size: 9px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+        .chat .link-eyebrow { color: var(--gold-dark); }
+        .feedback .link-eyebrow { color: var(--green-dark); }
+        .link-title { font-family: 'Cormorant Garamond', serif; font-size: 25px; font-weight: 600; }
+        .link-desc { font-size: 12px; font-weight: 300; color: var(--ink-40); margin-top: 3px; line-height: 1.5; }
 
-        .link-card-body { padding: 24px; display: grid; grid-template-columns: 1fr auto; gap: 32px; align-items: start; }
+        .link-card-body {
+            padding: 24px 26px;
+            display: grid; grid-template-columns: 1fr auto;
+            gap: 30px; align-items: start;
+        }
 
-        /* URL display */
-        .url-section { flex: 1; }
-        .url-label { font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(26,26,46,0.35); margin-bottom: 8px; }
-        .url-box { display: flex; align-items: center; gap: 0; margin-bottom: 16px; }
+        .url-label { font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-40); margin-bottom: 8px; }
+        .url-box { display: flex; margin-bottom: 16px; }
         .url-text {
             flex: 1;
-            padding: 11px 14px;
-            background: #f0efe9;
-            border: 1px solid #e8e8e8;
+            padding: 12px 15px;
+            background: var(--linen);
+            border: 1px solid var(--line);
             border-right: none;
             border-radius: 2px 0 0 2px;
-            font-size: 12px;
-            font-weight: 300;
-            color: #1a1a2e;
-            font-family: 'DM Sans', sans-serif;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            font-size: 12px; font-weight: 300;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            min-width: 0;
         }
         .copy-btn {
-            padding: 11px 18px;
-            background: #1a1a2e;
-            color: white;
-            border: none;
-            border-radius: 0 2px 2px 0;
+            padding: 12px 20px;
+            background: var(--navy); color: var(--cream);
+            border: none; border-radius: 0 2px 2px 0;
             font-family: 'DM Sans', sans-serif;
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: background 0.2s;
-            letter-spacing: 0.3px;
+            font-size: 12px; font-weight: 500;
+            cursor: pointer; white-space: nowrap;
+            transition: all 0.25s var(--spring);
+            min-height: 44px;
         }
-        .copy-btn:hover { background: #2d2d4e; }
-        .copy-btn.copied { background: #27ae60; }
+        .copy-btn:hover { background: var(--gold); color: var(--navy); }
+        .copy-btn:active { transform: scale(0.94); }
+        .copy-btn.copied { background: var(--green); color: white; }
 
-        .link-hint { font-size: 11px; font-weight: 300; color: rgba(26,26,46,0.35); line-height: 1.6; }
-        .link-hint strong { font-weight: 500; color: rgba(26,26,46,0.55); }
+        .link-hint { font-size: 11px; font-weight: 300; color: var(--ink-40); line-height: 1.65; }
+        .link-hint strong { font-weight: 500; color: var(--ink-60); }
+        .link-hint code {
+            font-family: monospace; font-size: 10px;
+            background: var(--linen); padding: 2px 6px; border-radius: 2px;
+            color: var(--ink-60);
+        }
 
-        /* QR code section */
-        .qr-section { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        /* ─── PERSONALISE ─── */
+        .personalise-row { display: flex; gap: 8px; }
+        .personalise-row input {
+            padding: 11px 13px;
+            border: 1px solid var(--line);
+            border-radius: 2px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px; font-weight: 300;
+            color: var(--ink);
+            background: var(--white);
+            outline: none; min-width: 0;
+            transition: border-color 0.2s;
+        }
+        .personalise-row input:focus { border-color: var(--gold); }
+        .personalise-row input:first-child { flex: 1; }
+        .personalise-row input:nth-child(2) { width: 76px; flex: none; }
+        .personalise-btn { border-radius: 2px; }
+
+        /* ─── QR SECTION ─── */
+        .qr-section { display: flex; flex-direction: column; align-items: center; gap: 11px; }
         .qr-box {
-            width: 160px; height: 160px;
-            background: white;
-            border: 1px solid #e8e8e8;
-            border-radius: 3px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 164px; height: 164px;
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            display: flex; align-items: center; justify-content: center;
             padding: 12px;
+            animation: qrIn 0.6s var(--spring) both 0.3s;
         }
+        @keyframes qrIn { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
         .qr-box canvas, .qr-box img { width: 100% !important; height: 100% !important; }
 
         .download-btn {
             width: 100%;
-            padding: 9px 16px;
-            background: #f0efe9;
-            color: #1a1a2e;
-            border: 1px solid #e8e8e8;
-            border-radius: 2px;
+            padding: 11px 16px;
+            background: var(--navy); color: var(--cream);
+            border: none; border-radius: 2px;
             font-family: 'DM Sans', sans-serif;
-            font-size: 11px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
+            font-size: 11px; font-weight: 500;
+            cursor: pointer; text-align: center;
             letter-spacing: 0.3px;
-            text-align: center;
+            transition: all 0.25s var(--spring);
+            min-height: 40px;
         }
-        .download-btn:hover { background: #1a1a2e; color: white; border-color: #1a1a2e; }
+        .download-btn:hover { background: var(--gold); color: var(--navy); }
+        .download-btn:active { transform: scale(0.95); }
+        .qr-label { font-size: 10px; font-weight: 300; color: var(--ink-25); text-align: center; }
 
-        .qr-label { font-size: 10px; font-weight: 300; color: rgba(26,26,46,0.3); text-align: center; letter-spacing: 0.3px; }
-
-        /* Print tip */
-        .print-tip {
-            background: white;
-            border-radius: 3px;
-            padding: 18px 24px;
-            border-left: 3px solid #4a7fa5;
-            box-shadow: 0 1px 4px rgba(26,26,46,0.06);
-            margin-top: 8px;
+        @media (max-width: 640px) {
+            .topbar { padding: 0 16px; height: 58px; }
+            .topbar-title { display: none; }
+            .divider-v { display: none; }
+            .body { padding: 28px 16px 56px; }
+            .page-title { font-size: 34px; }
+            .link-card-header { padding: 18px 18px 14px; }
+            .link-card-body { grid-template-columns: 1fr; padding: 18px; gap: 20px; }
+            .qr-section { width: 100%; }
         }
-        .print-tip-title { font-size: 13px; font-weight: 500; color: #2e5f80; margin-bottom: 6px; }
-        .print-tip-text { font-size: 12px; font-weight: 300; color: rgba(26,26,46,0.5); line-height: 1.65; }
-
-        @media (max-width: 600px) {
-            .body { padding: 24px 16px 60px; }
-            .header { padding: 14px 16px; }
-            .link-card-body { grid-template-columns: 1fr; }
-            .qr-section { flex-direction: row; align-items: flex-start; }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+            .link-card { opacity: 1; transform: none; }
         }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="header-left">
+    <div class="topbar">
+        <div class="topbar-left">
             <a class="logo" id="backLink" href="#">fav<span>vi</span></a>
             <div class="divider-v"></div>
-            <span class="header-title">Links & QR Codes</span>
+            <span class="topbar-title">Links & QR Codes</span>
         </div>
     </div>
 
     <div class="body">
         <div class="page-title"><em>Links &</em> QR Codes</div>
-        <p class="page-sub" id="pageSub">Loading...</p>
+        <p class="page-sub" id="pageSub">Loading…</p>
 
         <!-- GUEST CHAT -->
         <div class="link-card chat">
@@ -160,18 +221,15 @@
                 <div class="url-section">
                     <div class="url-label">Link</div>
                     <div class="url-box">
-                        <div class="url-text" id="chatUrl">Loading...</div>
+                        <div class="url-text" id="chatUrl">Loading…</div>
                         <button class="copy-btn" onclick="copyLink('chatUrl', this)">Copy</button>
                     </div>
-                    <p class="link-hint">
-                        Guests scan the QR code or visit this link directly. No app download, no login needed.<br><br>
-                        The AI will ask for their room number if it needs it for a request.
-                    </p>
+                    <p class="link-hint">Guests scan and chat instantly — nothing to download, nothing to log in to.</p>
                 </div>
                 <div class="qr-section">
                     <div class="qr-box" id="chatQr"></div>
-                    <button class="download-btn" onclick="downloadQR('chatQr', 'favvi-guest-chat')">Download QR Code</button>
-                    <div class="qr-label">Print & place in rooms</div>
+                    <button class="download-btn" onclick="downloadCard('chatQr', 'favvi-guest-chat', 'Scan to chat with us')">Download Print Card</button>
+                    <div class="qr-label">Branded card, ready to print</div>
                 </div>
             </div>
         </div>
@@ -187,40 +245,42 @@
                 <div class="url-section">
                     <div class="url-label">Link</div>
                     <div class="url-box">
-                        <div class="url-text" id="feedbackUrl">Loading...</div>
+                        <div class="url-text" id="feedbackUrl">Loading…</div>
                         <button class="copy-btn" onclick="copyLink('feedbackUrl', this)">Copy</button>
                     </div>
-                    <p class="link-hint">
-                        Send this after checkout to collect ratings and comments.<br><br>
-                        <strong>Tip:</strong> Personalise it by adding the guest's name and room number to the link:<br>
-                        <span style="font-family: monospace; font-size: 10px; color: rgba(26,26,46,0.4);">...feedback?name=John&room=412</span>
-                    </p>
+                    <p class="link-hint" style="margin-bottom:16px;">Send this after checkout — by WhatsApp, email or SMS.</p>
+
+                    <div class="personalise">
+                        <div class="url-label">Personalise for a guest <span style="text-transform:none;letter-spacing:0;font-weight:300;color:var(--ink-25);">(optional)</span></div>
+                        <div class="personalise-row">
+                            <input type="text" id="pGuestName" placeholder="Guest name" />
+                            <input type="text" id="pRoom" placeholder="Room" />
+                            <button class="copy-btn personalise-btn" onclick="copyPersonalised(this)">Copy Link</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="qr-section">
                     <div class="qr-box" id="feedbackQr"></div>
-                    <button class="download-btn" onclick="downloadQR('feedbackQr', 'favvi-feedback')">Download QR Code</button>
+                    <button class="download-btn" onclick="downloadCard('feedbackQr', 'favvi-feedback', 'Scan to share your feedback')">Download Print Card</button>
                     <div class="qr-label">Optional — for shared spaces</div>
                 </div>
             </div>
         </div>
 
-        <!-- PRINT TIP -->
-        <div class="print-tip">
-            <div class="print-tip-title">Printing tip</div>
-            <p class="print-tip-text">Download the QR code image and print it at any size — it stays sharp at any resolution. For a premium look, print on card stock, add your hotel name above the QR code, and laminate it. A small tent card on the desk works perfectly. Most print shops can do this for under $1 per room.</p>
-        </div>
     </div>
 
     <script>
         const slug = window.location.pathname.split('/')[2] || '';
         const base = window.location.origin;
+        let hotelName = '';
 
         async function loadHotel() {
             try {
                 const r = await fetch(`/get-hotel/${slug}`);
                 const hotel = await r.json();
+                hotelName = hotel.name || '';
                 document.getElementById('backLink').href = `/portal/${slug}`;
-                document.getElementById('pageSub').textContent = hotel.name + ' — Links & QR Codes';
+                document.getElementById('pageSub').textContent = hotelName + ' — Links & QR Codes';
 
                 const chatUrl     = `${base}/portal/${slug}/chat`;
                 const feedbackUrl = `${base}/portal/${slug}/feedback`;
@@ -230,60 +290,131 @@
 
                 generateQR('chatQr',     chatUrl);
                 generateQR('feedbackQr', feedbackUrl);
-            } catch(e) {
-                console.error(e);
-            }
+            } catch(e) { console.error(e); }
         }
 
         function generateQR(containerId, url) {
             const container = document.getElementById(containerId);
             container.innerHTML = '';
             new QRCode(container, {
-                text:           url,
-                width:          136,
-                height:         136,
-                colorDark:      '#1a1a2e',
-                colorLight:     '#ffffff',
-                correctLevel:   QRCode.CorrectLevel.H
+                text: url, width: 140, height: 140,
+                colorDark: '#1a1a2e', colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
             });
         }
 
         function copyLink(elementId, btn) {
             const text = document.getElementById(elementId).textContent;
-            navigator.clipboard.writeText(text).then(() => {
-                btn.textContent = 'Copied!';
+            const done = () => {
+                btn.textContent = 'Copied ✦';
                 btn.classList.add('copied');
-                setTimeout(() => {
-                    btn.textContent = 'Copy';
-                    btn.classList.remove('copied');
-                }, 2000);
-            });
+                setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+            } else {
+                fallbackCopy(text, done);
+            }
+        }
+        function copyPersonalised(btn) {
+            const name = document.getElementById('pGuestName').value.trim();
+            const room = document.getElementById('pRoom').value.trim();
+            let url = `${base}/portal/${slug}/feedback`;
+            const params = new URLSearchParams();
+            if (name) params.set('name', name);
+            if (room) params.set('room', room);
+            const qs = params.toString();
+            if (qs) url += '?' + qs;
+            const done = () => {
+                btn.textContent = 'Copied ✦';
+                btn.classList.add('copied');
+                setTimeout(() => { btn.textContent = 'Copy Link'; btn.classList.remove('copied'); }, 2000);
+            };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(done).catch(() => fallbackCopy(url, done));
+            } else {
+                fallbackCopy(url, done);
+            }
         }
 
-        function downloadQR(containerId, filename) {
+        function fallbackCopy(text, done) {
+            const ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            try { document.execCommand('copy'); done(); } catch(e) {}
+            ta.remove();
+        }
+
+        /* ─── BRANDED PRINT CARD ───
+           Generates a 1000×1300 print-ready card:
+           gold ✦, hotel name in Cormorant, QR code, caption, powered-by line */
+        async function downloadCard(containerId, filename, caption) {
             const container = document.getElementById(containerId);
-            const canvas = container.querySelector('canvas');
-            if (!canvas) { alert('QR code still loading, please try again.'); return; }
+            const qrCanvas = container.querySelector('canvas');
+            const qrImg    = container.querySelector('img');
+            if (!qrCanvas && !qrImg) { alert('QR code still loading, please try again.'); return; }
 
-            // Create a larger canvas for print quality
-            const printCanvas = document.createElement('canvas');
-            const size = 800;
-            printCanvas.width  = size;
-            printCanvas.height = size;
-            const ctx = printCanvas.getContext('2d');
+            try { await document.fonts.ready; } catch(e) {}
 
-            // White background
+            const W = 1000, H = 1300;
+            const c = document.createElement('canvas');
+            c.width = W; c.height = H;
+            const ctx = c.getContext('2d');
+
+            // Background
             ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, size, size);
+            ctx.fillRect(0, 0, W, H);
 
-            // Draw QR scaled up
-            ctx.drawImage(canvas, 0, 0, size, size);
+            // Thin gold frame
+            ctx.strokeStyle = '#c9a84c';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(40, 40, W - 80, H - 80);
 
-            // Download
+            // Gold mark
+            ctx.fillStyle = '#c9a84c';
+            ctx.font = '300 64px "Cormorant Garamond", serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('✦', W / 2, 190);
+
+            // Hotel name
+            ctx.fillStyle = '#1a1a2e';
+            ctx.font = '600 64px "Cormorant Garamond", serif';
+            wrapText(ctx, hotelName || 'Your Hotel', W / 2, 300, W - 220, 74);
+
+            // QR code
+            const qrSize = 560;
+            const qrX = (W - qrSize) / 2;
+            const qrY = 430;
+            const src = qrCanvas || qrImg;
+            ctx.drawImage(src, qrX, qrY, qrSize, qrSize);
+
+            // Caption
+            ctx.fillStyle = 'rgba(26,26,46,0.65)';
+            ctx.font = '300 34px "DM Sans", sans-serif';
+            ctx.fillText(caption, W / 2, qrY + qrSize + 90);
+
+            // Powered by
+            ctx.fillStyle = 'rgba(26,26,46,0.3)';
+            ctx.font = '300 22px "DM Sans", sans-serif';
+            ctx.fillText('powered by favvi', W / 2, H - 90);
+
             const link = document.createElement('a');
-            link.download = `${filename}-qr.png`;
-            link.href = printCanvas.toDataURL('image/png');
+            link.download = `${filename}-card.png`;
+            link.href = c.toDataURL('image/png');
             link.click();
+        }
+
+        function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+            const words = String(text).split(' ');
+            let line = '', lines = [];
+            for (const word of words) {
+                const test = line ? line + ' ' + word : word;
+                if (ctx.measureText(test).width > maxWidth && line) {
+                    lines.push(line); line = word;
+                } else line = test;
+            }
+            lines.push(line);
+            lines.forEach((l, i) => ctx.fillText(l, x, y + i * lineHeight));
         }
 
         loadHotel();
