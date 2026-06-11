@@ -371,6 +371,11 @@
             background: var(--white); border: 1px dashed var(--line);
             border-radius: 4px; padding: 26px 20px;
             text-align: center;
+            animation: emptyIn 0.45s var(--smooth) both;
+        }
+        @keyframes emptyIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
         .empty-mark { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--gold); margin-bottom: 6px; }
         .empty-text { font-size: 12px; font-weight: 300; color: var(--ink-40); }
@@ -538,16 +543,17 @@
     </div>
 
     <div class="section" id="sec-done">
-        <div class="section-hd">
+        <div class="section-hd collapsible" onclick="toggleSection('list-done','doneArrow')">
             <span class="section-label lbl-done">Completed Today</span>
             <span class="section-badge" id="bdg-done">0</span>
             <div class="section-rule"></div>
+            <span class="section-arrow" id="doneArrow">▼</span>
         </div>
         <div class="cards-list" id="list-done"></div>
     </div>
 
     <div class="section" id="sec-hist">
-        <div class="section-hd collapsible" onclick="toggleHistory()">
+        <div class="section-hd collapsible" onclick="toggleSection('list-hist','histArrow')">
             <span class="section-label lbl-hist">History — Last 48h</span>
             <div class="section-rule"></div>
             <span class="section-arrow" id="histArrow">▼</span>
@@ -965,8 +971,15 @@
                     container.insertBefore(el, ref);
                 }
             });
-            if (reqs.length === 0 && !container.querySelector('.req-card') && !container.querySelector('.empty-card')) {
-                container.innerHTML = emptyHTML(emptyMsg);
+        });
+
+        /* 3b) Empty states — checked AFTER all moves so they appear in the same frame */
+        lists.forEach(([listId, reqs, hist, emptyMsg]) => {
+            const container = document.getElementById(listId);
+            if (reqs.length === 0) {
+                if (!container.querySelector('.empty-card')) {
+                    container.innerHTML = emptyHTML(emptyMsg);
+                }
             }
         });
 
@@ -1095,9 +1108,9 @@
         location.reload();
     }
 
-    function toggleHistory() {
-        const list  = document.getElementById('list-hist');
-        const arrow = document.getElementById('histArrow');
+    function toggleSection(listId, arrowId) {
+        const list  = document.getElementById(listId);
+        const arrow = document.getElementById(arrowId);
         const open  = list.style.display !== 'none';
         list.style.display    = open ? 'none' : 'flex';
         arrow.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
