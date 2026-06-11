@@ -201,17 +201,7 @@
         }
         .greeting em { font-style: italic; color: var(--gold-dark); font-weight: 400; }
         .greeting-sub { font-size: 12px; font-weight: 300; color: var(--ink-40); margin-top: 5px; }
-        .shift-tally {
-            text-align: right; flex-shrink: 0;
-        }
-        .tally-num {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 38px; font-weight: 600; color: var(--gold-dark); line-height: 1;
-            transition: transform 0.4s var(--spring);
-        }
-        .tally-num.pop { animation: tallyPop 0.55s var(--spring); }
-        @keyframes tallyPop { 0%{transform:scale(1)} 35%{transform:scale(1.45) rotate(-3deg)} 70%{transform:scale(0.95)} 100%{transform:scale(1)} }
-        .tally-lbl { font-size: 9px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-25); margin-top: 3px; }
+
 
         /* ─── STATS ─── */
         .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 9px; margin-bottom: 18px; }
@@ -489,10 +479,6 @@
         <div>
             <div class="greeting" id="greeting">Welcome <em>back.</em></div>
             <div class="greeting-sub" id="greetingSub"></div>
-        </div>
-        <div class="shift-tally">
-            <div class="tally-num" id="tallyNum">0</div>
-            <div class="tally-lbl">Resolved Today</div>
         </div>
     </div>
 
@@ -820,13 +806,27 @@
     function timeAgo(s) {
         if (!s) return '';
         try {
-            const m = Math.floor((Date.now() - new Date(s.replace(' ','T')).getTime()) / 60000);
-            if (isNaN(m) || m < 0) return '';
+            // Parse "YYYY-MM-DD HH:MM" as local time (no Z suffix — server stores local)
+            let ts;
+            if (s.includes('T')) {
+                ts = new Date(s).getTime();
+            } else {
+                // "2026-06-11 14:32" — split and parse as local
+                const [datePart, timePart] = s.split(' ');
+                const [yr, mo, dy] = datePart.split('-').map(Number);
+                const [hr, mn] = (timePart || '00:00').split(':').map(Number);
+                ts = new Date(yr, mo - 1, dy, hr, mn).getTime();
+            }
+            const m = Math.floor((Date.now() - ts) / 60000);
+            if (isNaN(m)) return s.substring(0, 16);
+            if (m < 0)  return 'Just now';
             if (m < 1)  return 'Just now';
             if (m < 60) return `${m}m ago`;
-            const h = Math.floor(m/60);
-            return h < 24 ? `${h}h ago` : s.substring(0,16);
-        } catch(e) { return s; }
+            const h = Math.floor(m / 60);
+            if (h < 24) return `${h}h ago`;
+            const d = Math.floor(h / 24);
+            return d === 1 ? 'Yesterday' : `${d} days ago`;
+        } catch(e) { return s ? s.substring(0, 16) : ''; }
     }
     function esc(s) { return (s||'').replace(/'/g,"\\'"); }
 
@@ -1023,11 +1023,7 @@
         }
     }
 
-    function bumpTally() {
-        const el = document.getElementById('tallyNum');
-        el.textContent = _resolvedThisSession;
-        el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
-    }
+    function bumpTally() {}
 
     /* ─── DATA ─── */
     async function loadRequests(force) {
