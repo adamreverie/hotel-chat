@@ -343,23 +343,19 @@
         .meta-time { font-size: 11px; font-weight: 400; color: var(--ink-25); }
         .meta-who  { font-size: 11px; font-weight: 500; color: var(--amber); }
 
-        .task-check {
-            display: flex; align-items: center; gap: 11px;
-            cursor: pointer; user-select: none; -webkit-user-select: none;
+        .btn-row { display: flex; gap: 8px; }
+        .cbtn {
+            padding: 11px 20px; border: none; border-radius: 2px;
+            font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500;
+            letter-spacing: 0.3px; cursor: pointer; min-height: 42px;
+            transition: all 0.2s var(--spring);
         }
-        .check-box {
-            width: 28px; height: 28px; border-radius: 6px; flex-shrink: 0;
-            border: 2px solid var(--line); background: var(--white);
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.25s var(--spring);
-        }
-        .check-box svg { opacity: 0; transform: scale(0.4); transition: all 0.3s var(--spring); }
-        .st-new .check-box { border-color: var(--ink-25); border-style: dashed; }
-        .st-prog .check-box { border-color: var(--staff); background: rgba(74,127,165,0.08); }
-        .task-check:hover .check-box { border-color: var(--staff); border-style: solid; background: rgba(74,127,165,0.08); transform: scale(1.08); }
-        .check-label { font-size: 12px; font-weight: 400; color: var(--ink-55); }
-        .undo-link { font-size: 11px; font-weight: 300; color: var(--ink-25); cursor: pointer; transition: color 0.2s; }
-        .undo-link:hover { color: var(--ink-55); text-decoration: underline; }
+        .cbtn:active { transform: scale(0.92); }
+        .cbtn-claim { background: var(--navy); color: var(--cream); }
+        .cbtn-claim:hover { background: var(--staff-dark); }
+        .cbtn-done  { background: var(--green); color: white; }
+        .cbtn-done:hover { background: #257347; }
+        .cbtn-undo  { background: var(--linen); color: var(--ink-55); border: 1px solid var(--line); }
 
         .empty-card {
             background: var(--white); border: 1px dashed var(--line);
@@ -389,6 +385,7 @@
             white-space: nowrap;
         }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+        .toast em { font-style: italic; color: var(--gold-light); font-family: 'Cormorant Garamond', serif; font-size: 15px; }
 
         /* ─── GOLD SPARKLES ─── */
         .spark {
@@ -559,7 +556,7 @@
     let _requests = [];
     let _resolvedThisSession = 0;
     const _sessionDone = new Set();
-    const MILESTONES = {};
+    const MILESTONES = { 5: 'Five resolved — nice pace', 10: 'Ten resolved — superb shift', 20: 'Twenty resolved — unstoppable', 30: 'Thirty resolved — legendary' };
     const slug = window.location.pathname.split('/')[2] || '';
 
     /* ─── SERVICE WORKER ─── */
@@ -630,12 +627,12 @@
         } catch(e) {}
     }
 
-    function showToast(msg) {
+    function showToast(msg, fancy) {
         const t = document.getElementById('toast');
-        t.textContent = msg;
+        t.innerHTML = fancy ? msg : msg;
         t.classList.add('show');
         clearTimeout(window._tt);
-        window._tt = setTimeout(() => t.classList.remove('show'), 2800);
+        window._tt = setTimeout(() => t.classList.remove('show'), 3200);
     }
 
     /* gold sparkle burst at screen coords */
@@ -844,28 +841,12 @@
 
     function btnRowHTML(req, hist) {
         if (hist) return '';
-        const tick = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,7 5.5,10.5 12,3.5"/></svg>`;
         if (req.status === 'new')
-            return `<div class="task-check" onclick="doAction(event,${req.id},'inprogress','${esc(staffName)}')">
-                <div class="check-box">${tick}</div>
-                <span class="check-label">Tap to claim</span>
-            </div>`;
+            return `<div class="btn-row"><button class="cbtn cbtn-claim" onclick="doAction(event,${req.id},'inprogress','${esc(staffName)}')">I'm on it!</button><button class="cbtn cbtn-done" onclick="doAction(event,${req.id},'done','${esc(staffName)}')">Done</button></div>`;
         if (req.status === 'inprogress')
-            return `<div style="display:flex;align-items:center;gap:14px;">
-                <div class="task-check" onclick="doAction(event,${req.id},'done','${esc(staffName)}')">
-                    <div class="check-box">${tick}</div>
-                    <span class="check-label">Mark as done</span>
-                </div>
-                <span class="undo-link" onclick="doAction(event,${req.id},'new','')">undo</span>
-            </div>`;
+            return `<div class="btn-row"><button class="cbtn cbtn-done" onclick="doAction(event,${req.id},'done','${esc(staffName)}')">Done</button><button class="cbtn cbtn-undo" onclick="doAction(event,${req.id},'new','')">Undo</button></div>`;
         if (req.status === 'done')
-            return `<div style="display:flex;align-items:center;gap:14px;">
-                <div class="check-box" style="background:var(--green);border-color:var(--green);width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,7 5.5,10.5 12,3.5"/></svg>
-                </div>
-                <span class="check-label" style="color:var(--green);font-weight:500;">Done</span>
-                <span class="undo-link" onclick="doAction(event,${req.id},'inprogress','${esc(staffName)}')">undo</span>
-            </div>`;
+            return `<div class="btn-row"><button class="cbtn cbtn-undo" onclick="doAction(event,${req.id},'inprogress','${esc(staffName)}')">Undo</button></div>`;
         return '';
     }
 
@@ -901,13 +882,10 @@
             ['st-new','st-prog','st-done','st-hist'].forEach(c => el.classList.remove(c));
             el.classList.add(cls);
             const foot = el.querySelector('.card-foot');
+            const btnRow = foot.querySelector('.btn-row');
             const newBtns = btnRowFor(req, hist);
-            const existing = foot.querySelector('.task-check, [style*="align-items: center"]');
-            const existingWrap = existing ? (existing.closest('[style*="display:flex"]') || existing) : null;
-            if (newBtns) {
-                if (existingWrap) existingWrap.outerHTML = newBtns;
-                else foot.insertAdjacentHTML('beforeend', newBtns);
-            } else if (existingWrap) existingWrap.remove();
+            if (btnRow) { if (newBtns) btnRow.outerHTML = newBtns; else btnRow.remove(); }
+            else if (newBtns) foot.insertAdjacentHTML('beforeend', newBtns);
         }
         const foot = el.querySelector('.card-foot');
         let who = foot.querySelector('.meta-who');
@@ -1083,7 +1061,7 @@
             const newNow = _requests.filter(r => r.status === 'new').length;
             if (hadData && newNow > prevNew) {
                 playChime();
-                showToast('New request ✦');
+                showToast('✦ <em>New guest request</em>', true);
             }
         } catch(e) {} finally { isLoading = false; }
     }
@@ -1116,7 +1094,7 @@
             _resolvedThisSession++;
             bumpTally();
             if (MILESTONES[_resolvedThisSession]) {
-                // milestone toast removed
+                setTimeout(() => showToast('✦ <em>' + MILESTONES[_resolvedThisSession] + '</em>', true), 650);
             }
         }
 
