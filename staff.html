@@ -801,7 +801,7 @@
     };
     function deptTag(d) {
         const [cls, lbl] = deptMeta[d] || ['dt-gn', d || 'General'];
-        return `<span class="dept-tag ${cls}">${lbl}</span>`;
+        return `<span class="dept-tag ${cls}">${escHTML(lbl)}</span>`;
     }
     function timeAgo(s) {
         if (!s) return '';
@@ -829,6 +829,9 @@
         } catch(e) { return s ? s.substring(0, 16) : ''; }
     }
     function esc(s) { return (s||'').replace(/'/g,"\\'"); }
+    function escHTML(s) {
+        return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
 
     function btnRowHTML(req, hist) {
         if (hist) return '';
@@ -845,12 +848,12 @@
         const cls = hist ? 'st-hist' : (req.status === 'new' ? 'st-new' : req.status === 'inprogress' ? 'st-prog' : 'st-done');
         return `<div class="req-card ${cls}" id="rc-${req.id}" data-status="${req.status}">
             <div class="sweep"></div>
-            <div class="card-top">${deptTag(req.department)}<span class="room-num"><em>Room</em>${req.room}</span></div>
-            <div class="card-body">${req.details}</div>
+            <div class="card-top">${deptTag(req.department)}<span class="room-num"><em>Room</em>${escHTML(req.room)}</span></div>
+            <div class="card-body">${escHTML(req.details)}</div>
             <div class="card-foot">
                 <div class="card-meta">
                     <span class="meta-time">${timeAgo(req.date)}</span>
-                    ${req.claimed_by ? `<span class="meta-who">${req.claimed_by}</span>` : ''}
+                    ${req.claimed_by ? `<span class="meta-who">${escHTML(req.claimed_by)}</span>` : ''}
                 </div>
                 ${btnRowHTML(req, hist)}
             </div>
@@ -882,7 +885,7 @@
         let who = foot.querySelector('.meta-who');
         if (req.claimed_by) {
             if (who) { if (who.textContent !== req.claimed_by) who.textContent = req.claimed_by; }
-            else foot.querySelector('.card-meta').insertAdjacentHTML('beforeend', `<span class="meta-who">${req.claimed_by}</span>`);
+            else foot.querySelector('.card-meta').insertAdjacentHTML('beforeend', `<span class="meta-who">${escHTML(req.claimed_by)}</span>`);
         } else if (who) who.remove();
         const timeEl = el.querySelector('.meta-time');
         const t = timeAgo(req.date);
@@ -1036,9 +1039,15 @@
             const fresh = await r.json();
             // Respect in-flight optimistic actions: skip server state for ids awaiting confirmation
             fresh.forEach(fr => {
-                if (_pendingActions.has(fr.id)) {
-                    const local = _requests.find(x => x.id === fr.id);
-                    if (local) { fr.status = local.status; fr.claimed_by = local.claimed_by; }
+                const p = _pendingActions.get(fr.id);
+                if (!p) return;
+                if (fr.status === p.status || Date.now() - p.ts > 15000) {
+                    // Server caught up (or action is stale) — stop overriding
+                    _pendingActions.delete(fr.id);
+                } else {
+                    // Server hasn't seen our action yet — keep the optimistic state
+                    fr.status = p.status;
+                    fr.claimed_by = p.claimedBy;
                 }
             });
             _requests = fresh;
@@ -1084,16 +1093,15 @@
         }
 
         if (req) { req.status = status; req.claimed_by = claimedBy; }
-        _pendingActions.set(id, status);
+        _pendingActions.set(id, { status, claimedBy, ts: Date.now() });
         reconcile();
 
         fetch('/update-request', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id, status, claimed_by: claimedBy })
-        }).then(() => {
-            _pendingActions.delete(id);
         }).catch(() => {
+            // Write failed — drop the optimistic state and resync with the server
             _pendingActions.delete(id);
             loadRequests(true);
         });
