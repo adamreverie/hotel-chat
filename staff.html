@@ -5,372 +5,400 @@
     <title>Staff Dashboard — Favvi</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="theme-color" content="#0f0f1a">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#f0efe9">
     <link rel="manifest" href="/manifest.json">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg:        #0f0f1a;
-            --bg2:       #161624;
-            --bg3:       #1e1e30;
-            --surface:   #1a1a2e;
-            --border:    rgba(255,255,255,0.07);
-            --border2:   rgba(255,255,255,0.12);
-            --gold:      #c9a84c;
-            --gold-dim:  rgba(201,168,76,0.18);
-            --cream:     #f8f4ee;
-            --white:     #ffffff;
-            --ink-70:    rgba(248,244,238,0.70);
-            --ink-45:    rgba(248,244,238,0.45);
-            --ink-25:    rgba(248,244,238,0.25);
-            --ink-12:    rgba(248,244,238,0.12);
+            --navy: #1a1a2e;
+            --gold: #c9a84c;
+            --gold-light: #e8c97a;
+            --gold-dark: #8a6e2a;
+            --linen: #f0efe9;
+            --white: #ffffff;
+            --cream: #f8f4ee;
+            --ink: #1a1a2e;
+            --ink-70: rgba(26,26,46,0.7);
+            --ink-55: rgba(26,26,46,0.55);
+            --ink-40: rgba(26,26,46,0.4);
+            --ink-25: rgba(26,26,46,0.25);
+            --line: rgba(26,26,46,0.09);
 
-            --red:       #e05252;
-            --red-dim:   rgba(224,82,82,0.14);
-            --red-glow:  rgba(224,82,82,0.25);
+            --red:       #c0392b;
+            --red-soft:  #fdf1ef;
+            --amber:     #c87f0a;
+            --amber-soft:#fdf6e9;
+            --blue:      #2980b9;
+            --blue-soft: #eef5fa;
+            --green:     #2e8b57;
+            --green-soft:#edf7f1;
+            --staff:     #4a7fa5;
+            --staff-dark:#2e5f80;
 
-            --amber:     #e8a030;
-            --amber-dim: rgba(232,160,48,0.14);
-            --amber-glow:rgba(232,160,48,0.25);
-
-            --blue:      #4a9fd4;
-            --blue-dim:  rgba(74,159,212,0.14);
-            --blue-glow: rgba(74,159,212,0.25);
-
-            --green:     #4cba6e;
-            --green-dim: rgba(76,186,110,0.14);
-            --green-glow:rgba(76,186,110,0.25);
-
-            --staff-accent: #5b8fb9;
+            --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --smooth: cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         html { -webkit-text-size-adjust: 100%; }
         body {
             font-family: 'DM Sans', sans-serif;
-            background: var(--bg);
+            background: var(--linen);
             min-height: 100vh;
-            color: var(--cream);
+            color: var(--ink);
             -webkit-font-smoothing: antialiased;
             -webkit-tap-highlight-color: transparent;
-            overscroll-behavior: none;
+            overscroll-behavior-y: contain;
         }
 
-        /* ─── HEADER ─── */
-        .header {
-            background: var(--bg2);
-            border-bottom: 1px solid var(--border);
+        /* ─── TOP BAR ─── */
+        .topbar {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(240,239,233,0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--line);
             padding: 0 18px;
             padding-top: env(safe-area-inset-top);
             height: calc(58px + env(safe-area-inset-top));
             display: none;
             justify-content: space-between; align-items: center;
-            position: sticky; top: 0; z-index: 100;
         }
-        .header-left  { display: flex; align-items: center; gap: 12px; min-width: 0; }
-        .header-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-
+        .topbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
         .logo {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 21px; font-weight: 600;
-            color: var(--cream); letter-spacing: 3px;
+            font-size: 22px; font-weight: 600;
+            color: var(--ink); letter-spacing: 3px;
             text-decoration: none; flex-shrink: 0;
         }
         .logo span { color: var(--gold); }
-
-        .divider-v { width: 1px; height: 18px; background: var(--border2); flex-shrink: 0; }
-        .dept-chip {
-            font-size: 11px; font-weight: 500; letter-spacing: 0.5px;
-            color: var(--ink-45); white-space: nowrap;
-            overflow: hidden; text-overflow: ellipsis;
-        }
-
-        .staff-pill {
-            font-size: 11px; font-weight: 500;
-            background: var(--gold-dim); border: 1px solid rgba(201,168,76,0.3);
-            color: var(--gold); padding: 5px 13px; border-radius: 20px;
-            max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-        }
         .live-badge {
-            display: flex; align-items: center; gap: 5px;
-            font-size: 10px; font-weight: 500; color: var(--green);
-            background: var(--green-dim); border: 1px solid rgba(76,186,110,0.25);
-            padding: 5px 10px; border-radius: 20px;
+            display: flex; align-items: center; gap: 6px;
+            font-size: 9px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+            color: var(--green);
         }
-        .live-dot { width: 5px; height: 5px; background: var(--green); border-radius: 50%; animation: pulse 1.8s infinite; }
-        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.85)} }
-
+        .live-dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: livePulse 1.8s infinite; }
+        @keyframes livePulse {
+            0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(46,139,87,0.4); }
+            50%     { opacity: 0.6; box-shadow: 0 0 0 4px rgba(46,139,87,0); }
+        }
+        .topbar-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
         .logout-btn {
-            background: transparent; border: 1px solid var(--border2);
-            color: var(--ink-45); font-family: 'DM Sans', sans-serif;
-            font-size: 10px; font-weight: 400; letter-spacing: 0.5px;
-            padding: 7px 13px; border-radius: 2px; cursor: pointer;
-            transition: all 0.2s;
+            background: transparent; border: 1px solid var(--line);
+            color: var(--ink-40); font-family: 'DM Sans', sans-serif;
+            font-size: 11px; padding: 7px 14px; border-radius: 2px;
+            cursor: pointer; transition: all 0.25s;
         }
-        .logout-btn:hover { border-color: var(--gold); color: var(--gold); }
+        .logout-btn:hover { border-color: var(--gold); color: var(--gold-dark); }
 
         /* ─── LOGIN ─── */
         .overlay {
-            position: fixed; inset: 0; background: var(--bg);
+            position: fixed; inset: 0; background: var(--linen);
             display: flex; justify-content: center; align-items: center;
             z-index: 200; padding: 20px; overflow-y: auto;
         }
         .login-card {
-            background: var(--bg2);
-            border: 1px solid var(--border2);
-            border-top: 3px solid var(--staff-accent);
-            border-radius: 8px;
-            padding: 40px 34px 34px;
-            width: 100%; max-width: 390px;
-            box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-top: 3px solid var(--staff);
+            border-radius: 4px;
+            padding: 42px 36px 36px;
+            width: 100%; max-width: 400px;
+            box-shadow: 0 16px 48px rgba(26,26,46,0.08);
             margin: auto;
         }
         .login-logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; letter-spacing: 3px; margin-bottom: 4px; }
         .login-logo span { color: var(--gold); }
-        .login-title { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 600; color: var(--staff-accent); margin-bottom: 4px; }
-        .login-hotel { font-size: 12px; font-weight: 300; color: var(--ink-45); margin-bottom: 28px; }
+        .login-title { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 600; margin-bottom: 2px; }
+        .login-title em { font-style: italic; color: var(--staff-dark); font-weight: 400; }
+        .login-hotel { font-size: 12px; font-weight: 300; color: var(--ink-40); margin-bottom: 28px; }
 
         .lfield { margin-bottom: 16px; }
-        .lfield label { display: block; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-45); margin-bottom: 8px; }
+        .lfield label { display: block; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-40); margin-bottom: 7px; }
         .lfield input {
             width: 100%; padding: 13px 15px;
-            background: var(--bg3); border: 1px solid var(--border2); border-radius: 4px;
-            font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 300; color: var(--cream);
+            background: var(--white); border: 1px solid var(--line); border-radius: 2px;
+            font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 300; color: var(--ink);
             outline: none; -webkit-appearance: none; appearance: none;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
         .lfield input::placeholder { color: var(--ink-25); }
-        .lfield input:focus { border-color: var(--staff-accent); box-shadow: 0 0 0 3px rgba(91,143,185,0.18); }
+        .lfield input:focus { border-color: var(--staff); box-shadow: 0 0 0 3px rgba(74,127,165,0.12); }
 
         .dept-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; }
         .dept-opt {
-            padding: 13px 8px; border: 1.5px solid var(--border2); border-radius: 4px;
-            background: var(--bg3); font-family: 'DM Sans', sans-serif;
-            font-size: 12px; font-weight: 400; color: var(--ink-45);
+            padding: 13px 8px; border: 1.5px solid var(--line); border-radius: 2px;
+            background: var(--white); font-size: 12px; font-weight: 400; color: var(--ink-55);
             cursor: pointer; text-align: center;
-            transition: all 0.2s; min-height: 46px;
+            transition: all 0.25s var(--spring); min-height: 46px;
             display: flex; align-items: center; justify-content: center;
         }
-        .dept-opt.selected { font-weight: 600; color: white; }
-        .dept-opt.selected.d-all   { background: var(--surface); border-color: var(--border2); }
-        .dept-opt.selected.d-hk    { background: var(--red);   border-color: var(--red);   box-shadow: 0 0 14px var(--red-glow); }
-        .dept-opt.selected.d-rs    { background: var(--amber); border-color: var(--amber); box-shadow: 0 0 14px var(--amber-glow); }
-        .dept-opt.selected.d-mt    { background: var(--blue);  border-color: var(--blue);  box-shadow: 0 0 14px var(--blue-glow); }
-        .dept-opt.selected.d-cn    { background: var(--green); border-color: var(--green); box-shadow: 0 0 14px var(--green-glow); }
+        .dept-opt.selected { font-weight: 600; color: white; transform: scale(1.03); }
+        .dept-opt.selected.d-all { background: var(--navy); border-color: var(--navy); }
+        .dept-opt.selected.d-hk  { background: var(--red);   border-color: var(--red); }
+        .dept-opt.selected.d-rs  { background: var(--amber); border-color: var(--amber); }
+        .dept-opt.selected.d-mt  { background: var(--blue);  border-color: var(--blue); }
+        .dept-opt.selected.d-cn  { background: var(--green); border-color: var(--green); }
 
         .stay-row { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
-        .stay-row input { width: 16px; height: 16px; accent-color: var(--staff-accent); cursor: pointer; flex-shrink: 0; }
-        .stay-row label { font-size: 12px; font-weight: 300; color: var(--ink-45); cursor: pointer; }
+        .stay-row input { width: 16px; height: 16px; accent-color: var(--navy); cursor: pointer; flex-shrink: 0; }
+        .stay-row label { font-size: 12px; font-weight: 300; color: var(--ink-55); cursor: pointer; }
 
         .login-btn {
-            width: 100%; padding: 15px; border: none; border-radius: 4px;
-            background: var(--staff-accent); color: white;
-            font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
-            letter-spacing: 0.5px; cursor: pointer;
-            transition: all 0.25s; box-shadow: 0 8px 24px rgba(91,143,185,0.35);
+            width: 100%; padding: 15px; border: none; border-radius: 2px;
+            background: var(--navy); color: var(--cream);
+            font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+            letter-spacing: 0.5px; cursor: pointer; transition: all 0.25s;
         }
-        .login-btn:hover { background: #6ba0c9; box-shadow: 0 12px 28px rgba(91,143,185,0.45); }
+        .login-btn:hover { background: var(--gold); color: var(--navy); }
         .login-btn:active { transform: scale(0.98); }
         .login-error { color: var(--red); font-size: 12px; margin-top: 10px; display: none; }
 
         /* ─── NOTIF BANNER ─── */
         .notif-banner {
-            background: var(--bg2); border: 1px solid var(--border);
-            border-left: 3px solid var(--staff-accent);
-            padding: 12px 16px; margin: 10px 16px 0;
+            background: var(--white); border: 1px solid var(--line);
+            border-left: 3px solid var(--staff);
+            border-radius: 4px;
+            padding: 13px 16px; margin: 12px 18px 0;
             display: none; justify-content: space-between; align-items: center; gap: 12px;
-            border-radius: 6px;
-            max-width: 728px;
+            max-width: 724px;
+            box-shadow: 0 1px 4px rgba(26,26,46,0.04);
         }
-        @media (min-width: 760px) { .notif-banner { margin: 10px auto 0; } }
-        .notif-banner-text { font-size: 12px; font-weight: 300; color: var(--ink-70); line-height: 1.5; }
+        @media (min-width: 760px) { .notif-banner { margin: 12px auto 0; } }
+        .notif-text { font-size: 12px; font-weight: 300; color: var(--staff-dark); line-height: 1.5; }
         .notif-btn {
-            background: var(--staff-accent); color: white; border: none; border-radius: 4px;
+            background: var(--staff); color: white; border: none; border-radius: 2px;
             padding: 10px 16px; font-family: 'DM Sans', sans-serif;
-            font-size: 11px; font-weight: 600; cursor: pointer;
-            white-space: nowrap; min-height: 38px; transition: background 0.2s;
+            font-size: 11px; font-weight: 500; cursor: pointer;
+            white-space: nowrap; min-height: 38px; transition: all 0.2s;
         }
         .notif-btn.enabled { background: var(--green); }
         .notif-btn.denied  { background: var(--ink-25); cursor: default; }
 
         /* ─── BODY ─── */
         .body {
-            padding: 14px 16px;
-            padding-bottom: calc(40px + env(safe-area-inset-bottom));
+            padding: 22px 18px;
+            padding-bottom: calc(48px + env(safe-area-inset-bottom));
             max-width: 760px; margin: 0 auto;
             display: none;
         }
 
-        /* ─── STATS ROW ─── */
-        .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 18px; }
-        .stat-card {
-            background: var(--bg2); border: 1px solid var(--border);
-            border-radius: 8px; padding: 14px 10px 12px;
-            text-align: center; cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            position: relative; overflow: hidden;
+        /* ─── GREETING ─── */
+        .greeting-row {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            gap: 14px; margin-bottom: 22px;
+            padding-bottom: 18px; border-bottom: 1px solid var(--line);
         }
-        .stat-card::before {
-            content: ''; position: absolute; inset: 0;
-            opacity: 0; transition: opacity 0.3s;
+        .greeting {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(30px, 7vw, 40px);
+            font-weight: 600; line-height: 1.05;
         }
-        .stat-card:active { transform: scale(0.95); }
-        .stat-card.s-new::before   { background: radial-gradient(ellipse at 50% 0%, var(--red-dim) 0%, transparent 70%); }
-        .stat-card.s-prog::before  { background: radial-gradient(ellipse at 50% 0%, var(--amber-dim) 0%, transparent 70%); }
-        .stat-card.s-done::before  { background: radial-gradient(ellipse at 50% 0%, var(--green-dim) 0%, transparent 70%); }
-        .stat-card.s-hist::before  { background: radial-gradient(ellipse at 50% 0%, var(--ink-12) 0%, transparent 70%); }
-        .stat-card.has-items::before { opacity: 1; }
+        .greeting em { font-style: italic; color: var(--gold-dark); font-weight: 400; }
+        .greeting-sub { font-size: 12px; font-weight: 300; color: var(--ink-40); margin-top: 5px; }
+        .shift-tally {
+            text-align: right; flex-shrink: 0;
+        }
+        .tally-num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 38px; font-weight: 600; color: var(--gold-dark); line-height: 1;
+            transition: transform 0.4s var(--spring);
+        }
+        .tally-num.pop { animation: tallyPop 0.55s var(--spring); }
+        @keyframes tallyPop { 0%{transform:scale(1)} 35%{transform:scale(1.45) rotate(-3deg)} 70%{transform:scale(0.95)} 100%{transform:scale(1)} }
+        .tally-lbl { font-size: 9px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-25); margin-top: 3px; }
 
+        /* ─── STATS ─── */
+        .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 9px; margin-bottom: 18px; }
+        .stat-card {
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-top: 3px solid transparent;
+            border-radius: 4px;
+            padding: 13px 8px 11px;
+            text-align: center; cursor: pointer;
+            box-shadow: 0 1px 4px rgba(26,26,46,0.04);
+            transition: transform 0.25s var(--spring), box-shadow 0.25s;
+        }
+        .stat-card:active { transform: scale(0.94); }
+        .stat-card.s-new  { border-top-color: var(--red); }
+        .stat-card.s-prog { border-top-color: var(--amber); }
+        .stat-card.s-done { border-top-color: var(--green); }
+        .stat-card.s-hist { border-top-color: var(--ink-25); }
         .stat-num {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 34px; font-weight: 600; line-height: 1;
-            margin-bottom: 5px; position: relative; z-index: 1;
-            transition: transform 0.3s;
+            font-size: 32px; font-weight: 600; line-height: 1; margin-bottom: 4px;
         }
-        .stat-card.s-new  .stat-num { color: var(--red); }
-        .stat-card.s-prog .stat-num { color: var(--amber); }
-        .stat-card.s-done .stat-num { color: var(--green); }
-        .stat-card.s-hist .stat-num { color: var(--ink-25); }
-        .stat-num.bump { animation: numBump 0.45s cubic-bezier(0.36,0.07,0.19,0.97); }
-        @keyframes numBump { 0%{transform:scale(1)} 30%{transform:scale(1.35)} 60%{transform:scale(0.92)} 100%{transform:scale(1)} }
+        .s-new  .stat-num { color: var(--red); }
+        .s-prog .stat-num { color: var(--amber); }
+        .s-done .stat-num { color: var(--green); }
+        .s-hist .stat-num { color: var(--ink-25); }
+        .stat-num.bump { animation: numBump 0.5s var(--spring); }
+        @keyframes numBump { 0%{transform:scale(1)} 35%{transform:scale(1.35)} 70%{transform:scale(0.93)} 100%{transform:scale(1)} }
+        .stat-lbl { font-size: 8px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-40); }
 
-        .stat-lbl { font-size: 9px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-25); position: relative; z-index: 1; }
-
-        /* ─── FILTER CHIPS ─── */
+        /* ─── FILTERS ─── */
         .filters {
-            display: flex; gap: 7px; margin-bottom: 20px;
+            display: flex; gap: 7px; margin-bottom: 24px;
             overflow-x: auto; scrollbar-width: none;
-            padding: 1px 0 4px;
+            padding: 2px 0 4px;
             -webkit-overflow-scrolling: touch;
         }
         .filters::-webkit-scrollbar { display: none; }
         .fchip {
             white-space: nowrap; padding: 9px 17px; border-radius: 20px;
-            border: 1.5px solid var(--border2);
-            background: transparent;
+            border: 1.5px solid var(--line); background: var(--white);
             font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 400;
-            color: var(--ink-45); cursor: pointer;
-            transition: all 0.2s; min-height: 38px; min-width: 44px;
+            color: var(--ink-55); cursor: pointer;
+            transition: all 0.25s var(--spring); min-height: 38px;
         }
-        .fchip.active { border-color: transparent; color: white; font-weight: 600; }
-        .fchip.active.f-all  { background: var(--surface); border-color: var(--border2); }
-        .fchip.active.f-hk   { background: var(--red);   box-shadow: 0 4px 14px var(--red-glow); }
-        .fchip.active.f-rs   { background: var(--amber); box-shadow: 0 4px 14px var(--amber-glow); }
-        .fchip.active.f-mt   { background: var(--blue);  box-shadow: 0 4px 14px var(--blue-glow); }
-        .fchip.active.f-cn   { background: var(--green); box-shadow: 0 4px 14px var(--green-glow); }
+        .fchip.active { color: white; font-weight: 600; transform: scale(1.04); }
+        .fchip.active.f-all { background: var(--navy); border-color: var(--navy); }
+        .fchip.active.f-hk  { background: var(--red);   border-color: var(--red); }
+        .fchip.active.f-rs  { background: var(--amber); border-color: var(--amber); }
+        .fchip.active.f-mt  { background: var(--blue);  border-color: var(--blue); }
+        .fchip.active.f-cn  { background: var(--green); border-color: var(--green); }
 
-        /* ─── SECTION ─── */
-        .section { margin-bottom: 28px; }
-        .section-hd {
-            display: flex; align-items: center; gap: 10px;
-            margin-bottom: 12px;
-        }
+        /* ─── SECTIONS ─── */
+        .section { margin-bottom: 30px; }
+        .section-hd { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
         .section-hd.collapsible { cursor: pointer; }
-        .section-bar { width: 3px; height: 16px; border-radius: 2px; flex-shrink: 0; }
-        .bar-new  { background: var(--red); box-shadow: 0 0 8px var(--red-glow); }
-        .bar-prog { background: var(--amber); box-shadow: 0 0 8px var(--amber-glow); }
-        .bar-done { background: var(--green); box-shadow: 0 0 8px var(--green-glow); }
-        .bar-hist { background: var(--ink-25); }
-        .section-label { font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; }
+        .section-label {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px; font-weight: 600;
+        }
         .lbl-new  { color: var(--red); }
         .lbl-prog { color: var(--amber); }
         .lbl-done { color: var(--green); }
         .lbl-hist { color: var(--ink-25); }
         .section-badge {
+            font-family: 'DM Sans', sans-serif;
             font-size: 10px; font-weight: 600;
-            background: var(--bg3); border: 1px solid var(--border2);
-            color: var(--ink-45); padding: 2px 9px; border-radius: 10px;
+            background: var(--white); border: 1px solid var(--line);
+            color: var(--ink-40); padding: 2px 9px; border-radius: 10px;
+            position: relative; top: -2px;
         }
-        .section-arrow { margin-left: auto; font-size: 10px; color: var(--ink-25); transition: transform 0.3s; }
+        .section-rule { flex: 1; height: 1px; background: var(--line); position: relative; top: -4px; }
+        .section-arrow { font-size: 10px; color: var(--ink-25); transition: transform 0.3s var(--spring); position: relative; top: -3px; }
 
         /* ─── CARDS ─── */
         .cards-list { display: flex; flex-direction: column; gap: 10px; }
 
         .req-card {
-            background: var(--bg2);
-            border: 1px solid var(--border);
-            border-left: 3px solid var(--border2);
-            border-radius: 8px;
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-left: 3px solid var(--line);
+            border-radius: 4px;
             padding: 16px 18px;
-            transition: border-left-color 0.35s ease, box-shadow 0.35s ease, opacity 0.35s ease, transform 0.35s ease;
+            box-shadow: 0 1px 4px rgba(26,26,46,0.04);
             position: relative; overflow: hidden;
+            transition: border-left-color 0.4s var(--smooth),
+                        opacity 0.4s var(--smooth),
+                        transform 0.4s var(--smooth),
+                        box-shadow 0.3s;
         }
-        .req-card::before {
-            content: ''; position: absolute;
-            left: 0; top: 0; bottom: 0; width: 3px;
-            transition: box-shadow 0.35s ease;
-        }
+        .req-card:hover { box-shadow: 0 6px 18px rgba(26,26,46,0.08); }
         .req-card.st-new  { border-left-color: var(--red); }
-        .req-card.st-new::before { box-shadow: 0 0 12px var(--red); }
         .req-card.st-prog { border-left-color: var(--amber); }
-        .req-card.st-prog::before { box-shadow: 0 0 12px var(--amber); }
-        .req-card.st-done { border-left-color: var(--green); opacity: 0.65; }
-        .req-card.st-done::before { box-shadow: 0 0 8px var(--green); }
-        .req-card.st-hist { border-left-color: var(--border2); opacity: 0.45; }
-        .req-card.exiting { opacity: 0; transform: translateX(18px); pointer-events: none; }
+        .req-card.st-done { border-left-color: var(--green); opacity: 0.7; }
+        .req-card.st-hist { border-left-color: var(--line); opacity: 0.5; }
+        .req-card.exiting { opacity: 0; transform: translateX(22px) scale(0.97); pointer-events: none; }
+        .req-card.entering { opacity: 0; transform: translateY(-10px) scale(0.98); }
+
+        /* gold sweep on completion */
+        .req-card .sweep {
+            position: absolute; inset: 0;
+            background: linear-gradient(105deg, transparent 30%, rgba(201,168,76,0.22) 50%, transparent 70%);
+            transform: translateX(-110%);
+            pointer-events: none;
+        }
+        .req-card.celebrate .sweep { animation: sweepAcross 0.7s var(--smooth) forwards; }
+        @keyframes sweepAcross { to { transform: translateX(110%); } }
 
         .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 9px; gap: 8px; }
+        .dept-tag {
+            font-size: 9px; font-weight: 600; letter-spacing: 1.8px; text-transform: uppercase;
+            padding: 3px 10px; border-radius: 2px;
+        }
+        .dt-hk { background: var(--red-soft);   color: var(--red); }
+        .dt-rs { background: var(--amber-soft); color: var(--amber); }
+        .dt-mt { background: var(--blue-soft);  color: var(--blue); }
+        .dt-cn { background: var(--green-soft); color: var(--green); }
+        .dt-gn { background: var(--linen); color: var(--ink-40); }
 
-        .dept-tag { font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 3px 10px; border-radius: 3px; }
-        .dt-hk { background: var(--red-dim);   color: var(--red);   border: 1px solid rgba(224,82,82,0.25); }
-        .dt-rs { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(232,160,48,0.25); }
-        .dt-mt { background: var(--blue-dim);  color: var(--blue);  border: 1px solid rgba(74,159,212,0.25); }
-        .dt-cn { background: var(--green-dim); color: var(--green); border: 1px solid rgba(76,186,110,0.25); }
-        .dt-gn { background: var(--bg3); color: var(--ink-45); border: 1px solid var(--border); }
+        .room-num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 23px; font-weight: 600; color: var(--ink);
+            white-space: nowrap;
+        }
+        .room-num em { font-style: italic; font-weight: 400; color: var(--gold-dark); font-size: 15px; margin-right: 3px; }
 
-        .room-num { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--cream); }
-
-        .card-body { font-size: 14px; font-weight: 300; color: var(--ink-70); line-height: 1.55; margin-bottom: 13px; word-break: break-word; }
+        .card-body { font-size: 14px; font-weight: 300; color: var(--ink-70); line-height: 1.6; margin-bottom: 13px; word-break: break-word; }
 
         .card-foot { display: flex; justify-content: space-between; align-items: flex-end; gap: 8px; flex-wrap: wrap; }
         .card-meta { display: flex; flex-direction: column; gap: 2px; }
         .meta-time { font-size: 11px; font-weight: 400; color: var(--ink-25); }
-        .meta-who  { font-size: 11px; font-weight: 600; color: var(--amber); }
+        .meta-who  { font-size: 11px; font-weight: 500; color: var(--amber); }
 
         .btn-row { display: flex; gap: 8px; }
         .cbtn {
-            padding: 11px 20px; border: none; border-radius: 4px;
-            font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600;
-            cursor: pointer; min-height: 42px;
-            transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
-            letter-spacing: 0.3px;
+            padding: 11px 20px; border: none; border-radius: 2px;
+            font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500;
+            letter-spacing: 0.3px; cursor: pointer; min-height: 42px;
+            transition: all 0.2s var(--spring);
         }
-        .cbtn:active { transform: scale(0.93); }
-        .cbtn-claim { background: var(--staff-accent); color: white; box-shadow: 0 4px 14px rgba(91,143,185,0.35); }
-        .cbtn-claim:hover { box-shadow: 0 6px 18px rgba(91,143,185,0.5); }
-        .cbtn-done  { background: var(--green); color: white; box-shadow: 0 4px 14px var(--green-glow); }
-        .cbtn-done:hover  { box-shadow: 0 6px 18px rgba(76,186,110,0.5); }
-        .cbtn-undo  { background: var(--bg3); color: var(--ink-45); border: 1px solid var(--border2); box-shadow: none; }
+        .cbtn:active { transform: scale(0.92); }
+        .cbtn-claim { background: var(--navy); color: var(--cream); }
+        .cbtn-claim:hover { background: var(--staff-dark); }
+        .cbtn-done  { background: var(--green); color: white; }
+        .cbtn-done:hover { background: #257347; }
+        .cbtn-undo  { background: var(--linen); color: var(--ink-55); border: 1px solid var(--line); }
 
         .empty-card {
-            background: var(--bg2); border: 1px dashed var(--border2);
-            border-radius: 8px; padding: 22px;
-            text-align: center; font-size: 12px; font-weight: 300; color: var(--ink-25);
+            background: var(--white); border: 1px dashed var(--line);
+            border-radius: 4px; padding: 26px 20px;
+            text-align: center;
         }
+        .empty-mark { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--gold); margin-bottom: 6px; }
+        .empty-text { font-size: 12px; font-weight: 300; color: var(--ink-40); }
 
         /* ─── TOAST ─── */
         .toast {
             position: fixed;
-            top: calc(66px + env(safe-area-inset-top));
-            left: 50%; transform: translateX(-50%) translateY(-10px);
-            background: var(--bg2); color: var(--cream);
-            border: 1px solid var(--border2);
+            top: calc(68px + env(safe-area-inset-top));
+            left: 50%; transform: translateX(-50%) translateY(-12px) scale(0.95);
+            background: var(--navy); color: var(--cream);
             border-left: 3px solid var(--gold);
-            border-radius: 6px; padding: 12px 20px;
+            border-radius: 4px; padding: 13px 22px;
             font-size: 13px; font-weight: 400;
-            box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 16px 40px rgba(26,26,46,0.3);
             z-index: 300; opacity: 0; pointer-events: none;
-            transition: opacity 0.3s ease, transform 0.3s ease;
+            transition: opacity 0.35s var(--spring), transform 0.35s var(--spring);
             white-space: nowrap;
         }
-        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+        .toast em { font-style: italic; color: var(--gold-light); font-family: 'Cormorant Garamond', serif; font-size: 15px; }
+
+        /* ─── GOLD SPARKLES ─── */
+        .spark {
+            position: fixed; pointer-events: none; z-index: 400;
+            font-size: 13px; color: var(--gold);
+            animation: sparkFly 0.85s var(--smooth) forwards;
+        }
+        @keyframes sparkFly {
+            0%   { opacity: 1; transform: translate(0,0) scale(0.6) rotate(0deg); }
+            100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.15) rotate(var(--rot)); }
+        }
 
         @media (max-width: 600px) {
+            .body { padding: 18px 14px; padding-bottom: calc(44px + env(safe-area-inset-bottom)); }
             .stats-row { gap: 7px; }
-            .stat-num { font-size: 28px; }
-            .stat-lbl { font-size: 8px; }
-            .dept-chip, .divider-v { display: none; }
+            .stat-num { font-size: 27px; }
+            .greeting-row { margin-bottom: 18px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
         }
     </style>
 </head>
@@ -380,7 +408,7 @@
 <div class="overlay" id="overlay">
     <div class="login-card">
         <div class="login-logo">fav<span>vi</span></div>
-        <div class="login-title">Staff Dashboard</div>
+        <div class="login-title">Staff <em>Dashboard</em></div>
         <p class="login-hotel" id="hotelNameLogin">Loading…</p>
 
         <div class="lfield">
@@ -416,15 +444,12 @@
     </div>
 </div>
 
-<!-- ─── HEADER ─── -->
-<div class="header" id="mainHeader">
-    <div class="header-left">
+<!-- ─── TOP BAR ─── -->
+<div class="topbar" id="mainHeader">
+    <div class="topbar-left">
         <a class="logo" id="backLink" href="#">fav<span>vi</span></a>
-        <div class="divider-v"></div>
-        <span class="dept-chip" id="deptChip">All Departments</span>
     </div>
-    <div class="header-right">
-        <span class="staff-pill" id="staffPill"></span>
+    <div class="topbar-right">
         <div class="live-badge"><div class="live-dot"></div>Live</div>
         <button class="logout-btn" onclick="logout()">Logout</button>
     </div>
@@ -432,7 +457,7 @@
 
 <!-- ─── NOTIF BANNER ─── -->
 <div class="notif-banner" id="notifBanner">
-    <div class="notif-banner-text">Get push notifications the moment a request arrives.</div>
+    <div class="notif-text">Get push notifications the moment a request arrives.</div>
     <button class="notif-btn" id="notifBtn" onclick="requestNotifPermission()">Enable Alerts</button>
 </div>
 
@@ -441,6 +466,17 @@
 
 <!-- ─── BODY ─── -->
 <div class="body" id="mainBody">
+
+    <div class="greeting-row">
+        <div>
+            <div class="greeting" id="greeting">Welcome <em>back.</em></div>
+            <div class="greeting-sub" id="greetingSub"></div>
+        </div>
+        <div class="shift-tally">
+            <div class="tally-num" id="tallyNum">0</div>
+            <div class="tally-lbl">Resolved Today</div>
+        </div>
+    </div>
 
     <div class="stats-row">
         <div class="stat-card s-new"  onclick="jumpTo('sec-new')">
@@ -471,35 +507,35 @@
 
     <div class="section" id="sec-new">
         <div class="section-hd">
-            <div class="section-bar bar-new"></div>
             <span class="section-label lbl-new">New Requests</span>
             <span class="section-badge" id="bdg-new">0</span>
+            <div class="section-rule"></div>
         </div>
         <div class="cards-list" id="list-new"></div>
     </div>
 
     <div class="section" id="sec-prog">
         <div class="section-hd">
-            <div class="section-bar bar-prog"></div>
             <span class="section-label lbl-prog">In Progress</span>
             <span class="section-badge" id="bdg-prog">0</span>
+            <div class="section-rule"></div>
         </div>
         <div class="cards-list" id="list-prog"></div>
     </div>
 
     <div class="section" id="sec-done">
         <div class="section-hd">
-            <div class="section-bar bar-done"></div>
             <span class="section-label lbl-done">Completed Today</span>
             <span class="section-badge" id="bdg-done">0</span>
+            <div class="section-rule"></div>
         </div>
         <div class="cards-list" id="list-done"></div>
     </div>
 
     <div class="section" id="sec-hist">
         <div class="section-hd collapsible" onclick="toggleHistory()">
-            <div class="section-bar bar-hist"></div>
             <span class="section-label lbl-hist">History — Last 48h</span>
+            <div class="section-rule"></div>
             <span class="section-arrow" id="histArrow">▼</span>
         </div>
         <div class="cards-list" id="list-hist" style="display:none;"></div>
@@ -510,8 +546,10 @@
 <script>
     /* ─── STATE ─── */
     let staffName = '', staffDept = 'all', activeFilter = 'all';
-    let isLoading = false, renderKey = '';
+    let isLoading = false;
     let _requests = [];
+    let _resolvedThisSession = 0;
+    const MILESTONES = { 5: 'Five resolved — nice pace', 10: 'Ten resolved — superb shift', 20: 'Twenty resolved — unstoppable', 30: 'Thirty resolved — legendary' };
     const slug = window.location.pathname.split('/')[2] || '';
 
     /* ─── SERVICE WORKER ─── */
@@ -519,7 +557,7 @@
         navigator.serviceWorker.register('/sw.js').catch(() => {});
     }
 
-    /* ─── AUDIO ─── */
+    /* ─── AUDIO (unlock on every interaction) ─── */
     function ensureAudio() {
         try {
             if (!window._ac) window._ac = new (window.AudioContext || window.webkitAudioContext)();
@@ -555,16 +593,63 @@
         try { if (navigator.vibrate) navigator.vibrate([180,80,180]); } catch(e) {}
     }
 
-    function showToast(msg) {
+    /* a softer, satisfying "resolved" note */
+    function playResolve() {
+        try {
+            ensureAudio();
+            const ac = window._ac;
+            if (!ac || ac.state !== 'running') return;
+            const t = ac.currentTime;
+            const osc = ac.createOscillator(), g = ac.createGain();
+            osc.connect(g); g.connect(ac.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(1047, t);
+            osc.frequency.setValueAtTime(1568, t + 0.09);
+            g.gain.setValueAtTime(0.3, t);
+            g.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+            osc.start(t); osc.stop(t + 0.4);
+        } catch(e) {}
+    }
+
+    function showToast(msg, fancy) {
         const t = document.getElementById('toast');
-        t.textContent = msg; t.classList.add('show');
+        t.innerHTML = fancy ? msg : msg;
+        t.classList.add('show');
         clearTimeout(window._tt);
-        window._tt = setTimeout(() => t.classList.remove('show'), 3000);
+        window._tt = setTimeout(() => t.classList.remove('show'), 3200);
+    }
+
+    /* gold sparkle burst at screen coords */
+    function sparkleAt(x, y) {
+        for (let i = 0; i < 9; i++) {
+            const s = document.createElement('div');
+            s.className = 'spark';
+            s.textContent = '✦';
+            const ang = (Math.PI * 2 * i) / 9 + Math.random() * 0.6;
+            const dist = 38 + Math.random() * 34;
+            s.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
+            s.style.setProperty('--dy', Math.sin(ang) * dist - 14 + 'px');
+            s.style.setProperty('--rot', (Math.random() * 180 - 90) + 'deg');
+            s.style.left = x + 'px';
+            s.style.top  = y + 'px';
+            document.body.appendChild(s);
+            setTimeout(() => s.remove(), 900);
+        }
     }
 
     function jumpTo(id) {
         const el = document.getElementById(id);
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    /* ─── GREETING ─── */
+    function setGreeting() {
+        const h = new Date().getHours();
+        const word = h < 5 ? 'Good night' : h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+        const first = (staffName || '').split(' ')[0];
+        document.getElementById('greeting').innerHTML = `${word}, <em>${first}.</em>`;
+        const opts = { weekday: 'long', day: 'numeric', month: 'long' };
+        document.getElementById('greetingSub').textContent = new Date().toLocaleDateString('en-GB', opts);
     }
 
     /* ─── HOTEL / LOGIN ─── */
@@ -578,13 +663,11 @@
     }
 
     function boot() {
-        document.getElementById('overlay').style.display    = 'none';
-        document.getElementById('mainHeader').style.display = 'flex';
+        document.getElementById('overlay').style.display     = 'none';
+        document.getElementById('mainHeader').style.display  = 'flex';
         document.getElementById('notifBanner').style.display = 'flex';
-        document.getElementById('mainBody').style.display   = 'block';
-        document.getElementById('staffPill').textContent    = staffName;
-        const deptNames = { all:'All Departments', housekeeping:'Housekeeping', roomservice:'Room Service', maintenance:'Maintenance', concierge:'Concierge' };
-        document.getElementById('deptChip').textContent = deptNames[staffDept] || 'All Departments';
+        document.getElementById('mainBody').style.display    = 'block';
+        setGreeting();
         document.querySelectorAll('.fchip').forEach(b => b.classList.toggle('active', b.dataset.f === staffDept));
         ensureAudio();
         checkNotifStatus();
@@ -634,7 +717,7 @@
         boot();
     }
 
-    /* ─── NOTIFICATIONS ─── */
+    /* ─── NOTIFICATIONS (logic unchanged) ─── */
     function checkNotifStatus() {
         const btn = document.getElementById('notifBtn');
         if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
@@ -709,7 +792,6 @@
         const [cls, lbl] = deptMeta[d] || ['dt-gn', d || 'General'];
         return `<span class="dept-tag ${cls}">${lbl}</span>`;
     }
-
     function timeAgo(s) {
         if (!s) return '';
         try {
@@ -721,37 +803,41 @@
             return h < 24 ? `${h}h ago` : s.substring(0,16);
         } catch(e) { return s; }
     }
+    function esc(s) { return (s||'').replace(/'/g,"\\'"); }
+
+    function btnRowHTML(req, hist) {
+        if (hist) return '';
+        if (req.status === 'new')
+            return `<div class="btn-row"><button class="cbtn cbtn-claim" onclick="doAction(event,${req.id},'inprogress','${esc(staffName)}')">I'm on it!</button><button class="cbtn cbtn-done" onclick="doAction(event,${req.id},'done','${esc(staffName)}')">Done</button></div>`;
+        if (req.status === 'inprogress')
+            return `<div class="btn-row"><button class="cbtn cbtn-done" onclick="doAction(event,${req.id},'done','${esc(staffName)}')">Done</button><button class="cbtn cbtn-undo" onclick="doAction(event,${req.id},'new','')">Undo</button></div>`;
+        if (req.status === 'done')
+            return `<div class="btn-row"><button class="cbtn cbtn-undo" onclick="doAction(event,${req.id},'inprogress','${esc(staffName)}')">Undo</button></div>`;
+        return '';
+    }
 
     function cardHTML(req, hist) {
-        const isNew  = req.status === 'new';
-        const isProg = req.status === 'inprogress';
-        const isDone = req.status === 'done';
-        const cls    = hist ? 'st-hist' : (isNew ? 'st-new' : isProg ? 'st-prog' : 'st-done');
-
-        let btns = '';
-        if (isNew)  btns = `<div class="btn-row"><button class="cbtn cbtn-claim" onclick="doAction(${req.id},'inprogress','${esc(staffName)}')">I'm on it!</button><button class="cbtn cbtn-done" onclick="doAction(${req.id},'done','${esc(staffName)}')">Done</button></div>`;
-        if (isProg) btns = `<div class="btn-row"><button class="cbtn cbtn-done" onclick="doAction(${req.id},'done','${esc(staffName)}')">Done</button><button class="cbtn cbtn-undo" onclick="doAction(${req.id},'new','')">Undo</button></div>`;
-        if (isDone && !hist) btns = `<div class="btn-row"><button class="cbtn cbtn-undo" onclick="doAction(${req.id},'inprogress','${esc(staffName)}')">Undo</button></div>`;
-
+        const cls = hist ? 'st-hist' : (req.status === 'new' ? 'st-new' : req.status === 'inprogress' ? 'st-prog' : 'st-done');
         return `<div class="req-card ${cls}" id="rc-${req.id}" data-status="${req.status}">
-            <div class="card-top">${deptTag(req.department)}<span class="room-num">Room ${req.room}</span></div>
+            <div class="sweep"></div>
+            <div class="card-top">${deptTag(req.department)}<span class="room-num"><em>Room</em>${req.room}</span></div>
             <div class="card-body">${req.details}</div>
             <div class="card-foot">
                 <div class="card-meta">
                     <span class="meta-time">${timeAgo(req.date)}</span>
                     ${req.claimed_by ? `<span class="meta-who">${req.claimed_by}</span>` : ''}
                 </div>
-                ${btns}
+                ${btnRowHTML(req, hist)}
             </div>
         </div>`;
     }
-    function esc(s) { return (s||'').replace(/'/g,"\\'"); }
 
-    function empty(msg) { return `<div class="empty-card">${msg}</div>`; }
+    function emptyHTML(msg) {
+        return `<div class="empty-card"><div class="empty-mark">✦</div><div class="empty-text">${msg}</div></div>`;
+    }
 
-    /* ─── RECONCILE: update cards in-place, never replace DOM needlessly ─── */
+    /* ─── RECONCILER: in-place updates, no flicker ─── */
     function reconcile() {
-        if (!_requests.length && !window._firstLoad) return;
         const today = new Date().toISOString().split('T')[0];
         const ago48 = new Date(Date.now() - 48*60*60*1000);
 
@@ -760,15 +846,15 @@
         const all_done = _requests.filter(r => r.status === 'done' && r.date && r.date.startsWith(today));
         const all_hist = _requests.filter(r => r.status === 'done' && r.date && !r.date.startsWith(today) && new Date(r.date.replace(' ','T')) >= ago48);
 
-        setCount('cnt-new',  's-new',  all_new.length);
-        setCount('cnt-prog', 's-prog', all_prog.length);
-        setCount('cnt-done', 's-done', all_done.length);
-        setCount('cnt-hist', 's-hist', all_hist.length);
+        setCount('cnt-new',  all_new.length);
+        setCount('cnt-prog', all_prog.length);
+        setCount('cnt-done', all_done.length);
+        setCount('cnt-hist', all_hist.length);
 
         const filt = r => activeFilter === 'all' || r.department === activeFilter;
-        renderList('list-new',  all_new.filter(filt),  false, 'No new requests — all clear ✦');
+        renderList('list-new',  all_new.filter(filt),  false, 'No new requests — all clear');
         renderList('list-prog', all_prog.filter(filt), false, 'Nothing in progress');
-        renderList('list-done', all_done.filter(filt), false, 'No completed requests yet today');
+        renderList('list-done', all_done.filter(filt), false, 'Nothing completed yet — the night is young');
         renderList('list-hist', all_hist.filter(filt), true,  'No history in the last 48 hours');
 
         document.getElementById('bdg-new').textContent  = all_new.filter(filt).length;
@@ -776,106 +862,96 @@
         document.getElementById('bdg-done').textContent = all_done.filter(filt).length;
     }
 
-    function setCount(elId, cardCls, n) {
+    function setCount(elId, n) {
         const el = document.getElementById(elId);
         if (el.textContent !== String(n)) {
             el.textContent = n;
             el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump');
         }
-        const card = document.querySelector('.' + cardCls);
-        if (card) card.classList.toggle('has-items', n > 0);
+    }
+
+    function bumpTally() {
+        const el = document.getElementById('tallyNum');
+        el.textContent = _resolvedThisSession;
+        el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
     }
 
     function renderList(listId, reqs, hist, emptyMsg) {
         const container = document.getElementById(listId);
-        const incoming  = reqs;
-
-        // Build a map of what's currently rendered
         const existing = {};
         container.querySelectorAll('.req-card').forEach(el => { existing[el.id] = el; });
 
-        if (incoming.length === 0) {
-            // Fade out all existing cards then show empty
+        if (reqs.length === 0) {
             Object.values(existing).forEach(el => {
                 el.classList.add('exiting');
-                setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 350);
+                setTimeout(() => el.remove(), 420);
             });
             setTimeout(() => {
-                if (container.querySelectorAll('.req-card').length === 0) {
-                    container.innerHTML = empty(emptyMsg);
+                if (container.querySelectorAll('.req-card').length === 0 && !container.querySelector('.empty-card')) {
+                    container.innerHTML = emptyHTML(emptyMsg);
                 }
-            }, 360);
+            }, 430);
             return;
         }
 
-        // Remove empty placeholder if present
         const emp = container.querySelector('.empty-card');
         if (emp) emp.remove();
 
-        const incomingIds = new Set(incoming.map(r => 'rc-' + r.id));
-
-        // Remove cards no longer in this list
+        const incomingIds = new Set(reqs.map(r => 'rc-' + r.id));
         Object.entries(existing).forEach(([id, el]) => {
             if (!incomingIds.has(id)) {
                 el.classList.add('exiting');
-                setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 350);
+                setTimeout(() => el.remove(), 420);
             }
         });
 
-        // Add or update cards
-        incoming.forEach((req, idx) => {
+        reqs.forEach((req, idx) => {
             const domId = 'rc-' + req.id;
-            const el    = document.getElementById(domId);
-            const cls   = hist ? 'st-hist' : (req.status === 'new' ? 'st-new' : req.status === 'inprogress' ? 'st-prog' : 'st-done');
+            let el = document.getElementById(domId);
+            const cls = hist ? 'st-hist' : (req.status === 'new' ? 'st-new' : req.status === 'inprogress' ? 'st-prog' : 'st-done');
+
+            // If the card exists but in a DIFFERENT list, remove it there and recreate here
+            if (el && el.parentNode !== container) {
+                el.classList.add('exiting');
+                const old = el;
+                setTimeout(() => old.remove(), 420);
+                el = null;
+            }
 
             if (!el) {
-                // New card — insert at correct position
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = cardHTML(req, hist);
-                const newCard = tempDiv.firstChild;
-                newCard.style.opacity = '0';
-                newCard.style.transform = 'translateY(-8px)';
-                const refNode = container.children[idx] || null;
-                container.insertBefore(newCard, refNode);
-                requestAnimationFrame(() => {
-                    newCard.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-                    newCard.style.opacity = '';
-                    newCard.style.transform = '';
-                });
+                const tmp = document.createElement('div');
+                tmp.innerHTML = cardHTML(req, hist);
+                const card = tmp.firstElementChild;
+                card.classList.add('entering');
+                const ref = container.children[idx] || null;
+                container.insertBefore(card, ref);
+                requestAnimationFrame(() => requestAnimationFrame(() => card.classList.remove('entering')));
             } else {
-                // Existing card — update class and buttons only if status changed
-                const prevStatus = el.dataset.status;
-                if (prevStatus !== req.status) {
+                if (el.dataset.status !== req.status) {
                     el.dataset.status = req.status;
                     ['st-new','st-prog','st-done','st-hist'].forEach(c => el.classList.remove(c));
                     el.classList.add(cls);
-                    // Update buttons
                     const foot = el.querySelector('.card-foot');
-                    let btns = '';
-                    if (req.status === 'new')        btns = `<div class="btn-row"><button class="cbtn cbtn-claim" onclick="doAction(${req.id},'inprogress','${esc(staffName)}')">I'm on it!</button><button class="cbtn cbtn-done" onclick="doAction(${req.id},'done','${esc(staffName)}')">Done</button></div>`;
-                    if (req.status === 'inprogress') btns = `<div class="btn-row"><button class="cbtn cbtn-done" onclick="doAction(${req.id},'done','${esc(staffName)}')">Done</button><button class="cbtn cbtn-undo" onclick="doAction(${req.id},'new','')">Undo</button></div>`;
-                    if (req.status === 'done' && !hist) btns = `<div class="btn-row"><button class="cbtn cbtn-undo" onclick="doAction(${req.id},'inprogress','${esc(staffName)}')">Undo</button></div>`;
-                    const existingBtnRow = foot.querySelector('.btn-row');
-                    if (existingBtnRow) existingBtnRow.outerHTML = btns;
-                    else foot.insertAdjacentHTML('beforeend', btns);
-                    // Update claimed_by
+                    const btnRow = foot.querySelector('.btn-row');
+                    const newBtns = btnRowHTML(req, hist);
+                    if (btnRow) { if (newBtns) btnRow.outerHTML = newBtns; else btnRow.remove(); }
+                    else if (newBtns) foot.insertAdjacentHTML('beforeend', newBtns);
                     let who = foot.querySelector('.meta-who');
                     if (req.claimed_by) {
                         if (who) who.textContent = req.claimed_by;
                         else foot.querySelector('.card-meta').insertAdjacentHTML('beforeend', `<span class="meta-who">${req.claimed_by}</span>`);
-                    } else { if (who) who.remove(); }
+                    } else if (who) who.remove();
                 }
-                // Move to correct position if needed
-                const currentIdx = Array.from(container.children).indexOf(el);
-                if (currentIdx !== idx) {
-                    const refNode = container.children[idx] || null;
-                    container.insertBefore(el, refNode);
+                const curIdx = Array.from(container.children).indexOf(el);
+                if (curIdx !== idx) {
+                    const ref = container.children[idx] || null;
+                    container.insertBefore(el, ref);
                 }
             }
         });
     }
 
-    /* ─── DATA FETCH ─── */
+    /* ─── DATA ─── */
     async function loadRequests(force) {
         if (isLoading) return;
         isLoading = true;
@@ -884,11 +960,12 @@
             const hadData = _requests.length > 0;
             const r = await fetch(`/get-requests?slug=${slug}`);
             _requests = await r.json();
-            window._firstLoad = true;
-            if (force) renderKey = '';
             reconcile();
             const newNow = _requests.filter(r => r.status === 'new').length;
-            if (hadData && newNow > prevNew) { playChime(); showToast('✦ New guest request'); }
+            if (hadData && newNow > prevNew) {
+                playChime();
+                showToast('✦ <em>New guest request</em>', true);
+            }
         } catch(e) {} finally { isLoading = false; }
     }
 
@@ -896,16 +973,41 @@
         if (document.visibilityState === 'visible') loadRequests(true);
     });
 
-    /* ─── ACTIONS ─── */
-    function doAction(id, status, claimedBy) {
-        // Optimistic update — mutate local state, reconcile immediately
+    /* ─── ACTIONS (optimistic, with celebration) ─── */
+    function doAction(evt, id, status, claimedBy) {
         const req = _requests.find(r => r.id === id);
-        if (req) { req.status = status; req.claimed_by = claimedBy; reconcile(); }
+        const wasDone = req && req.status === 'done';
+
+        if (status === 'done' && req && !wasDone) {
+            // Celebrate: sweep + sparkles + soft note + tally
+            const card = document.getElementById('rc-' + id);
+            if (card) {
+                card.classList.add('celebrate');
+                setTimeout(() => card.classList.remove('celebrate'), 750);
+            }
+            if (evt && evt.target) {
+                const rect = evt.target.getBoundingClientRect();
+                sparkleAt(rect.left + rect.width/2, rect.top + rect.height/2);
+            }
+            playResolve();
+            _resolvedThisSession++;
+            bumpTally();
+            if (MILESTONES[_resolvedThisSession]) {
+                setTimeout(() => showToast('✦ <em>' + MILESTONES[_resolvedThisSession] + '</em>', true), 650);
+            }
+        }
+
+        if (req) { req.status = status; req.claimed_by = claimedBy; }
+
+        // Small delay before reconcile on completion so the sweep is visible
+        const delay = status === 'done' ? 520 : 0;
+        setTimeout(() => reconcile(), delay);
+
         fetch('/update-request', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id, status, claimed_by: claimedBy })
-        }).then(() => loadRequests(true)).catch(() => loadRequests(true));
+        }).then(() => setTimeout(() => loadRequests(true), delay)).catch(() => loadRequests(true));
     }
 
     function logout() {
@@ -917,7 +1019,7 @@
         const list  = document.getElementById('list-hist');
         const arrow = document.getElementById('histArrow');
         const open  = list.style.display !== 'none';
-        list.style.display  = open ? 'none' : 'block';
+        list.style.display    = open ? 'none' : 'flex';
         arrow.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
     }
 </script>
