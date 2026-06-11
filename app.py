@@ -407,7 +407,7 @@ Use bullet points and clear steps when explaining procedures."""
 
     response = client.messages.create(
         model="claude-sonnet-4-5",
-        max_tokens=1000,
+        max_tokens=2000,
         system=staff_prompt,
         messages=[{"role": "user", "content": user_message}]
     )

@@ -1,215 +1,294 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <link rel="icon" href="/favicon.ico">
     <title>Share Your Feedback</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --navy: #1a1a2e;
+            --gold: #c9a84c;
+            --gold-light: #e8c97a;
+            --gold-dark: #8a6e2a;
+            --linen: #f0efe9;
+            --white: #ffffff;
+            --cream: #f8f4ee;
+            --ink: #1a1a2e;
+            --ink-60: rgba(26,26,46,0.6);
+            --ink-40: rgba(26,26,46,0.4);
+            --ink-25: rgba(26,26,46,0.25);
+            --line: rgba(26,26,46,0.09);
+            --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --smooth: cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'DM Sans', sans-serif;
-            background: #f0efe9;
+            background: var(--linen);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: flex-start;
             padding: 40px 20px 60px;
+            -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .container {
-            background: white;
-            border-radius: 3px;
+            background: var(--white);
+            border-radius: 6px;
             width: 100%;
-            max-width: 440px;
-            box-shadow: 0 4px 24px rgba(26,26,46,0.08);
+            max-width: 460px;
+            box-shadow: 0 16px 48px rgba(26,26,46,0.1);
             overflow: hidden;
         }
 
-        /* HEADER */
+        /* ─── HEADER ─── */
         .header {
-            background: #1a1a2e;
-            padding: 36px 32px;
+            background: var(--navy);
+            padding: 34px 32px 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute; top: -120px; right: -120px;
+            width: 320px; height: 320px;
+            background: radial-gradient(circle, rgba(201,168,76,0.14) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .header-mark {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 26px; font-weight: 300; color: var(--gold);
+            line-height: 1; margin-bottom: 14px;
+            position: relative;
         }
         .hotel-name {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 22px;
-            font-weight: 300;
-            color: #c9a84c;
-            letter-spacing: 2px;
-            margin-bottom: 12px;
+            font-size: 10px; font-weight: 500;
+            color: rgba(248,244,238,0.45);
+            letter-spacing: 2.5px; text-transform: uppercase;
+            margin-bottom: 10px; position: relative;
         }
         .header h2 {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 30px;
-            font-weight: 300;
-            color: #f8f4ee;
-            line-height: 1.2;
-            margin-bottom: 8px;
+            font-size: 34px; font-weight: 600;
+            color: var(--cream); line-height: 1.15;
+            margin-bottom: 8px; position: relative;
         }
-        .header h2 em { font-style: italic; color: #c9a84c; }
+        .header h2 em { font-style: italic; color: var(--gold); font-weight: 400; }
         .header p {
-            font-size: 12px;
-            font-weight: 300;
+            font-size: 12px; font-weight: 300;
             color: rgba(248,244,238,0.4);
-            letter-spacing: 0.5px;
+            letter-spacing: 0.5px; position: relative;
         }
 
-        /* FORM */
-        .form-body { padding: 32px; }
-
-        .guest-row {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 28px;
+        /* ─── PROGRESS ─── */
+        .progress-track {
+            display: flex; gap: 4px;
+            padding: 14px 32px 0;
         }
+        .progress-seg {
+            flex: 1; height: 3px; border-radius: 2px;
+            background: var(--line);
+            transition: background 0.4s var(--smooth), box-shadow 0.4s;
+        }
+        .progress-seg.filled {
+            background: var(--gold);
+            box-shadow: 0 0 8px rgba(201,168,76,0.4);
+        }
+
+        /* ─── FORM ─── */
+        .form-body { padding: 24px 32px 32px; }
+
+        .guest-row { display: flex; gap: 12px; margin-bottom: 26px; }
         .guest-row input {
-            padding: 11px 14px;
-            border: 1px solid #e8e8e8;
+            padding: 12px 15px;
+            border: 1px solid var(--line);
             border-radius: 2px;
             font-family: 'DM Sans', sans-serif;
-            font-size: 14px;
-            font-weight: 300;
-            color: #1a1a2e;
-            background: #fafafa;
+            font-size: 16px; font-weight: 300;
+            color: var(--ink);
+            background: var(--white);
             outline: none;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
-        .guest-row input:focus { border-color: #c9a84c; background: white; }
-        #guestName { flex: 1; }
-        #roomNumber { width: 90px; flex: none; }
+        .guest-row input::placeholder { color: var(--ink-25); }
+        .guest-row input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.1); }
+        #guestName { flex: 1; min-width: 0; }
+        #roomNumber { width: 100px; flex: none; }
 
-        .divider {
-            height: 1px;
-            background: #f0efe9;
-            margin: 0 0 24px;
+        .divider { height: 1px; background: var(--line); margin: 0 0 24px; }
+
+        /* ─── CATEGORIES ─── */
+        .category {
+            margin-bottom: 22px;
+            opacity: 0; transform: translateY(10px);
+            animation: catIn 0.5s var(--spring) forwards;
         }
+        .category:nth-of-type(2) { animation-delay: 0.08s; }
+        .category:nth-of-type(3) { animation-delay: 0.16s; }
+        .category:nth-of-type(4) { animation-delay: 0.24s; }
+        .category:nth-of-type(5) { animation-delay: 0.32s; }
+        .category:nth-of-type(6) { animation-delay: 0.40s; }
+        @keyframes catIn { to { opacity: 1; transform: translateY(0); } }
 
-        /* CATEGORY */
-        .category { margin-bottom: 24px; }
         .category-label {
-            font-size: 11px;
-            font-weight: 500;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: rgba(26,26,46,0.65);
-            margin-bottom: 12px;
-            display: block;
+            font-size: 10px; font-weight: 500;
+            letter-spacing: 1.8px; text-transform: uppercase;
+            color: var(--ink-40);
+            margin-bottom: 11px; display: flex; align-items: center; gap: 8px;
         }
-
-        .emoji-row {
-            display: flex;
-            justify-content: space-between;
-            gap: 6px;
+        .category-check {
+            font-size: 11px; color: var(--gold-dark);
+            opacity: 0; transform: scale(0.5);
+            transition: all 0.35s var(--spring);
         }
+        .category.rated .category-check { opacity: 1; transform: scale(1); }
 
+        .emoji-row { display: flex; justify-content: space-between; gap: 6px; }
         .emoji-btn {
             flex: 1;
-            padding: 10px 4px;
-            border: 1.5px solid #e8e8e8;
-            border-radius: 2px;
-            background: white;
+            padding: 11px 4px;
+            border: 1.5px solid var(--line);
+            border-radius: 4px;
+            background: var(--white);
             cursor: pointer;
             text-align: center;
-            transition: all 0.2s;
-            font-size: 22px;
-            line-height: 1;
+            font-size: 23px; line-height: 1;
+            transition: all 0.25s var(--spring);
+            min-height: 48px;
         }
-        .emoji-btn:hover {
-            border-color: #c9a84c;
-            transform: scale(1.08);
-        }
+        .emoji-btn:hover { border-color: var(--gold); transform: translateY(-2px); }
+        .emoji-btn:active { transform: scale(0.9); }
         .emoji-btn.selected {
-            border-color: #1a1a2e;
-            background: #f8f4ee;
-            transform: scale(1.08);
+            border-color: var(--gold);
+            background: rgba(201,168,76,0.1);
+            transform: scale(1.12);
+            box-shadow: 0 4px 14px rgba(201,168,76,0.25);
         }
 
-        /* COMMENT */
-        .comment-section { margin-bottom: 24px; }
+        /* ─── COMMENT ─── */
+        .comment-section { margin-bottom: 26px; }
         .comment-section label {
-            font-size: 10px;
-            font-weight: 500;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: rgba(26,26,46,0.4);
-            display: block;
-            margin-bottom: 10px;
+            font-size: 10px; font-weight: 500;
+            letter-spacing: 1.8px; text-transform: uppercase;
+            color: var(--ink-40);
+            display: block; margin-bottom: 10px;
         }
         textarea {
             width: 100%;
-            padding: 12px 14px;
-            border: 1px solid #e8e8e8;
+            padding: 13px 15px;
+            border: 1px solid var(--line);
             border-radius: 2px;
             font-family: 'DM Sans', sans-serif;
-            font-size: 14px;
-            font-weight: 300;
-            color: #1a1a2e;
-            background: #fafafa;
-            resize: none;
-            height: 80px;
+            font-size: 16px; font-weight: 300;
+            color: var(--ink);
+            background: var(--white);
+            resize: none; height: 86px;
             outline: none;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
-        textarea:focus { border-color: #c9a84c; background: white; }
+        textarea::placeholder { color: var(--ink-25); }
+        textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.1); }
 
+        /* ─── SUBMIT ─── */
         .submit-btn {
             width: 100%;
-            padding: 14px;
-            background: #1a1a2e;
-            color: white;
-            border: none;
-            border-radius: 2px;
+            padding: 16px;
+            background: var(--navy);
+            color: var(--cream);
+            border: none; border-radius: 2px;
             font-family: 'DM Sans', sans-serif;
-            font-size: 13px;
-            font-weight: 500;
+            font-size: 13px; font-weight: 500;
             letter-spacing: 0.5px;
             cursor: pointer;
-            transition: opacity 0.2s, transform 0.15s;
+            transition: all 0.35s var(--spring);
+            opacity: 0.55;
         }
-        .submit-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+        .submit-btn.ready {
+            opacity: 1;
+            background: var(--gold);
+            color: var(--navy);
+            box-shadow: 0 8px 24px rgba(201,168,76,0.35);
+        }
+        .submit-btn.ready:hover { background: var(--gold-light); transform: translateY(-2px); }
+        .submit-btn.ready:active { transform: scale(0.97); }
+        .submit-btn:disabled { cursor: default; }
+        .submit-error {
+            color: #c0392b; font-size: 12px; font-weight: 300;
+            text-align: center; margin-top: 12px; display: none;
+        }
 
-        /* SUCCESS */
-        .success {
-            display: none;
-            padding: 60px 32px;
-            text-align: center;
+        /* ─── SUCCESS ─── */
+        .success { display: none; padding: 64px 32px; text-align: center; }
+        .success.visible { display: block; animation: catIn 0.6s var(--spring) both; }
+        .success-mark {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 56px; font-weight: 300; color: var(--gold);
+            line-height: 1; margin-bottom: 20px;
+            animation: markGlow 3s ease infinite;
         }
-        .success-emoji { font-size: 64px; margin-bottom: 20px; }
+        @keyframes markGlow { 0%,100%{opacity:0.85} 50%{opacity:1; text-shadow: 0 0 24px rgba(201,168,76,0.45);} }
         .success h3 {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 32px;
-            font-weight: 300;
-            color: #1a1a2e;
+            font-size: 38px; font-weight: 600;
+            color: var(--ink);
             margin-bottom: 10px;
         }
+        .success h3 em { font-style: italic; color: var(--gold-dark); font-weight: 400; }
         .success p {
-            font-size: 13px;
-            font-weight: 300;
-            color: rgba(26,26,46,0.4);
-            line-height: 1.7;
+            font-size: 13px; font-weight: 300;
+            color: var(--ink-40); line-height: 1.7;
         }
-        .success .hotel-name-success {
-            font-size: 11px;
-            color: rgba(26,26,46,0.25);
-            margin-top: 24px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
+        .hotel-name-success {
+            font-size: 10px;
+            color: var(--ink-25);
+            margin-top: 26px;
+            letter-spacing: 2px; text-transform: uppercase;
+        }
+
+        /* ─── SPARKLES ─── */
+        .spark {
+            position: fixed; pointer-events: none; z-index: 400;
+            font-size: 14px; color: var(--gold);
+            animation: sparkFly 0.9s var(--smooth) forwards;
+        }
+        @keyframes sparkFly {
+            0%   { opacity: 1; transform: translate(0,0) scale(0.6) rotate(0deg); }
+            100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.2) rotate(var(--rot)); }
         }
 
         @media (max-width: 480px) {
             body { padding: 0; }
             .container { border-radius: 0; min-height: 100vh; }
+            .header { padding: 28px 22px 24px; padding-top: max(28px, env(safe-area-inset-top)); }
+            .header h2 { font-size: 30px; }
+            .progress-track { padding: 12px 22px 0; }
+            .form-body { padding: 20px 22px 32px; padding-bottom: max(32px, env(safe-area-inset-bottom)); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+            .category { opacity: 1; transform: none; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header" id="formHeader">
-            <div class="hotel-name" id="hotelNameHeader">Loading...</div>
+            <div class="header-mark">✦</div>
+            <div class="hotel-name" id="hotelNameHeader">Loading…</div>
             <h2>How was your <em>stay?</em></h2>
             <p>Takes less than 30 seconds — we read every response.</p>
+        </div>
+
+        <div class="progress-track" id="progressTrack">
+            <div class="progress-seg" data-seg="overall"></div>
+            <div class="progress-seg" data-seg="cleanliness"></div>
+            <div class="progress-seg" data-seg="staff"></div>
+            <div class="progress-seg" data-seg="dining"></div>
+            <div class="progress-seg" data-seg="wifi"></div>
         </div>
 
         <div class="form-body" id="formBody">
@@ -221,7 +300,7 @@
             <div class="divider"></div>
 
             <div class="category">
-                <span class="category-label">Overall Experience</span>
+                <span class="category-label">Overall Experience <span class="category-check">✦</span></span>
                 <div class="emoji-row" data-category="overall">
                     <button class="emoji-btn" data-score="5">🤩</button>
                     <button class="emoji-btn" data-score="4">😊</button>
@@ -232,7 +311,7 @@
             </div>
 
             <div class="category">
-                <span class="category-label">Room Cleanliness</span>
+                <span class="category-label">Room Cleanliness <span class="category-check">✦</span></span>
                 <div class="emoji-row" data-category="cleanliness">
                     <button class="emoji-btn" data-score="5">🤩</button>
                     <button class="emoji-btn" data-score="4">😊</button>
@@ -243,7 +322,7 @@
             </div>
 
             <div class="category">
-                <span class="category-label">Staff Friendliness</span>
+                <span class="category-label">Staff Friendliness <span class="category-check">✦</span></span>
                 <div class="emoji-row" data-category="staff">
                     <button class="emoji-btn" data-score="5">🤩</button>
                     <button class="emoji-btn" data-score="4">😊</button>
@@ -254,7 +333,7 @@
             </div>
 
             <div class="category">
-                <span class="category-label">Dining Experience</span>
+                <span class="category-label">Dining Experience <span class="category-check">✦</span></span>
                 <div class="emoji-row" data-category="dining">
                     <button class="emoji-btn" data-score="5">🤩</button>
                     <button class="emoji-btn" data-score="4">😊</button>
@@ -265,7 +344,7 @@
             </div>
 
             <div class="category">
-                <span class="category-label">WiFi Quality</span>
+                <span class="category-label">WiFi Quality <span class="category-check">✦</span></span>
                 <div class="emoji-row" data-category="wifi">
                     <button class="emoji-btn" data-score="5">🤩</button>
                     <button class="emoji-btn" data-score="4">😊</button>
@@ -279,23 +358,26 @@
 
             <div class="comment-section">
                 <label>Any comments? (optional)</label>
-                <textarea id="comment" placeholder="Tell us about your experience..."></textarea>
+                <textarea id="comment" placeholder="Tell us about your experience…"></textarea>
             </div>
 
-            <button class="submit-btn" onclick="submitFeedback()">Submit Feedback</button>
+            <button class="submit-btn" id="submitBtn" onclick="submitFeedback()">Rate all categories to submit</button>
+            <p class="submit-error" id="submitError">Something went wrong — please try again.</p>
         </div>
 
         <div class="success" id="successMsg">
-            <div class="success-emoji">🤩</div>
-            <h3>Thank you.</h3>
+            <div class="success-mark">✦</div>
+            <h3>Thank <em>you.</em></h3>
             <p>Your feedback means everything to us.<br>We hope to welcome you back soon.</p>
             <div class="hotel-name-success" id="hotelNameSuccess"></div>
         </div>
     </div>
 
     <script>
+        const slug = window.location.pathname.split('/')[2] || '';
+        let submitting = false;
+
         async function loadHotelName() {
-            const slug = window.location.pathname.split('/')[2] || '';
             try {
                 const url = slug ? `/get-hotel/${slug}` : '/hotel-config';
                 const r = await fetch(url);
@@ -313,23 +395,71 @@
         if (params.get('name')) document.getElementById('guestName').value = params.get('name');
         if (params.get('room')) document.getElementById('roomNumber').value = params.get('room');
 
+        function sparkleAt(x, y) {
+            for (let i = 0; i < 8; i++) {
+                const s = document.createElement('div');
+                s.className = 'spark';
+                s.textContent = '✦';
+                const ang = (Math.PI * 2 * i) / 8 + Math.random() * 0.6;
+                const dist = 30 + Math.random() * 28;
+                s.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
+                s.style.setProperty('--dy', Math.sin(ang) * dist - 12 + 'px');
+                s.style.setProperty('--rot', (Math.random() * 160 - 80) + 'deg');
+                s.style.left = x + 'px';
+                s.style.top  = y + 'px';
+                document.body.appendChild(s);
+                setTimeout(() => s.remove(), 950);
+            }
+        }
+
+        function updateProgress() {
+            let rated = 0;
+            Object.entries(scores).forEach(([cat, score]) => {
+                const seg = document.querySelector(`.progress-seg[data-seg="${cat}"]`);
+                if (score > 0) { seg.classList.add('filled'); rated++; }
+            });
+            const btn = document.getElementById('submitBtn');
+            if (rated === 5) {
+                if (!btn.classList.contains('ready')) {
+                    btn.classList.add('ready');
+                    btn.textContent = 'Submit Feedback ✦';
+                    const rect = btn.getBoundingClientRect();
+                    sparkleAt(rect.left + rect.width/2, rect.top + rect.height/2);
+                }
+            } else {
+                btn.textContent = `Rate all categories to submit (${rated}/5)`;
+            }
+        }
+
         document.querySelectorAll('.emoji-row').forEach(group => {
             group.querySelectorAll('.emoji-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     group.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
                     btn.classList.add('selected');
                     scores[group.dataset.category] = parseInt(btn.dataset.score);
+                    group.closest('.category').classList.add('rated');
+                    try { if (navigator.vibrate) navigator.vibrate(8); } catch(e) {}
+                    updateProgress();
                 });
             });
         });
 
         async function submitFeedback() {
+            if (submitting) return;
             if (Object.values(scores).some(s => s === 0)) {
-                alert('Please rate all categories before submitting.');
+                updateProgress();
                 return;
             }
 
+            submitting = true;
+            const btn = document.getElementById('submitBtn');
+            const errEl = document.getElementById('submitError');
+            btn.disabled = true;
+            btn.textContent = 'Sending…';
+            errEl.style.display = 'none';
+
             const data = {
+                slug:        slug,
                 guest_name:  document.getElementById('guestName').value || 'Guest',
                 room_number: document.getElementById('roomNumber').value || 'N/A',
                 overall:     scores.overall,
@@ -340,15 +470,27 @@
                 comment:     document.getElementById('comment').value
             };
 
-            await fetch('/submit-feedback', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
+            try {
+                const r = await fetch('/submit-feedback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (!r.ok) throw new Error('submit failed');
 
-            document.getElementById('formHeader').style.display = 'none';
-            document.getElementById('formBody').style.display = 'none';
-            document.getElementById('successMsg').style.display = 'block';
+                document.getElementById('formHeader').style.display = 'none';
+                document.getElementById('progressTrack').style.display = 'none';
+                document.getElementById('formBody').style.display = 'none';
+                const success = document.getElementById('successMsg');
+                success.classList.add('visible');
+                const rect = success.getBoundingClientRect();
+                setTimeout(() => sparkleAt(window.innerWidth/2, rect.top + 90), 250);
+            } catch(e) {
+                errEl.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Submit Feedback ✦';
+                submitting = false;
+            }
         }
     </script>
 </body>
