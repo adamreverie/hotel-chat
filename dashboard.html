@@ -144,8 +144,9 @@
         }
         @keyframes rise { to { opacity: 1; transform: translateY(0); } }
         .hero-number {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 76px; font-weight: 600; color: var(--gold); line-height: 1;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 60px; font-weight: 500; color: var(--gold); line-height: 1;
+            letter-spacing: -1px;
             position: relative;
         }
         .hero-label { font-size: 10px; font-weight: 500; color: rgba(248,244,238,0.4); letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; position: relative; }
@@ -183,15 +184,16 @@
         .stat-card.wifi    { border-top-color: var(--purple); }
 
         .stat-score {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 38px; font-weight: 600; line-height: 1; margin-bottom: 4px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 30px; font-weight: 500; line-height: 1; margin-bottom: 6px;
+            letter-spacing: -0.5px;
         }
         .stat-card.overall .stat-score { color: var(--gold-dark); }
         .stat-card.clean   .stat-score { color: var(--blue-dark); }
         .stat-card.staff-s .stat-score { color: var(--green-dark); }
         .stat-card.dining  .stat-score { color: var(--red-dark); }
         .stat-card.wifi    .stat-score { color: var(--purple-dark); }
-        .stat-score small { font-size: 16px; font-weight: 400; color: var(--ink-25); }
+        .stat-score small { font-size: 13px; font-weight: 400; color: var(--ink-25); letter-spacing: 0; }
 
         .stat-label { font-size: 9px; font-weight: 500; letter-spacing: 1.2px; text-transform: uppercase; color: var(--ink-40); margin-bottom: 10px; }
 
@@ -232,7 +234,7 @@
         .feedback-date { font-size: 11px; font-weight: 300; color: var(--ink-25); white-space: nowrap; }
 
         .scores-row { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 12px; }
-        .score-chip { font-size: 11px; font-weight: 500; padding: 4px 12px; border-radius: 2px; }
+        .score-chip { font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 2px; white-space: nowrap; }
         .score-chip.high { background: #edf7f1; color: #2e8b57; }
         .score-chip.mid  { background: #fdf6e9; color: var(--amber); }
         .score-chip.low  { background: #fdf1ef; color: var(--red); }
@@ -256,12 +258,26 @@
         @media (max-width: 640px) {
             .topbar { padding: 0 16px; height: 58px; }
             .topbar-title, .divider-v { display: none; }
-            .body { padding: 26px 16px 56px; }
-            .page-title { font-size: 34px; }
-            .hero-card { flex-direction: column; align-items: flex-start; gap: 14px; padding: 24px; }
-            .hero-verdict { text-align: left; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .body { padding: 24px 14px 56px; }
+            .page-title { font-size: 32px; }
+            .page-sub { margin-bottom: 24px; }
+            .hero-card {
+                flex-direction: row; align-items: center;
+                gap: 14px; padding: 20px 22px;
+            }
+            .hero-number { font-size: 44px; }
+            .hero-label { font-size: 9px; margin-top: 5px; }
+            .verdict-word { font-size: 22px; }
+            .verdict-sub { font-size: 10px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 30px; }
+            .stat-card { padding: 14px 10px 13px; }
             .stat-card:nth-child(5) { grid-column: span 2; }
+            .stat-score { font-size: 26px; }
+            .section-label { font-size: 21px; }
+            .feedback-card { padding: 16px 16px; }
+            .guest-name { font-size: 19px; }
+            .scores-row { gap: 5px; }
+            .score-chip { font-size: 10px; padding: 4px 8px; }
         }
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -463,11 +479,11 @@
                         <div class="feedback-date">${escHTML(f[9] || '')}</div>
                     </div>
                     <div class="scores-row">
-                        <span class="score-chip ${scoreClass(f[3])}">Overall ${escHTML(f[3])}/5</span>
-                        <span class="score-chip ${scoreClass(f[4])}">Cleanliness ${escHTML(f[4])}/5</span>
-                        <span class="score-chip ${scoreClass(f[5])}">Staff ${escHTML(f[5])}/5</span>
-                        <span class="score-chip ${scoreClass(f[6])}">Dining ${escHTML(f[6])}/5</span>
-                        <span class="score-chip ${scoreClass(f[7])}">WiFi ${escHTML(f[7])}/5</span>
+                        <span class="score-chip ${scoreClass(f[3])}">Overall ${escHTML(f[3])}</span>
+                        <span class="score-chip ${scoreClass(f[4])}">Clean ${escHTML(f[4])}</span>
+                        <span class="score-chip ${scoreClass(f[5])}">Staff ${escHTML(f[5])}</span>
+                        <span class="score-chip ${scoreClass(f[6])}">Dining ${escHTML(f[6])}</span>
+                        <span class="score-chip ${scoreClass(f[7])}">WiFi ${escHTML(f[7])}</span>
                     </div>
                     ${f[8] ? `<div class="comment">${escHTML(f[8])}</div>` : ''}
                 </div>`;

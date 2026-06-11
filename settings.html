@@ -76,9 +76,10 @@
         .field input {
             width: 100%; padding: 13px 15px;
             border: 1px solid var(--line); border-radius: 2px;
-            font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 300;
+            font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 300;
             color: var(--ink); background: var(--white);
             outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+            -webkit-appearance: none; appearance: none;
         }
         .field input::placeholder { color: var(--ink-25); }
         .field input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(155,123,184,0.12); }
@@ -123,9 +124,10 @@
         .form-field input, .form-field textarea {
             width: 100%; padding: 12px 14px;
             border: 1px solid var(--line); border-radius: 2px;
-            font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 300;
+            font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 300;
             color: var(--ink); background: var(--white);
             outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+            -webkit-appearance: none; appearance: none;
         }
         .form-field input::placeholder, .form-field textarea::placeholder { color: var(--ink-25); }
         .form-field input:focus, .form-field textarea:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(155,123,184,0.1); }
@@ -158,12 +160,17 @@
         @media (max-width: 600px) {
             .topbar { padding: 0 16px; height: 58px; }
             .topbar-title { display: none; }
-            .body { padding: 28px 16px 56px; }
+            .divider-v { display: none; }
+            .body { padding: 24px 14px; padding-bottom: max(56px, env(safe-area-inset-bottom)); }
             .page-title { font-size: 32px; }
             .form-row { grid-template-columns: 1fr; }
-            .section-header { padding: 18px 18px 14px; }
-            .section-body { padding: 18px 18px 6px; }
-            .section-footer { padding: 0 18px 18px; }
+            .section-header { padding: 18px 16px 14px; }
+            .section-title { font-size: 22px; }
+            .section-body { padding: 16px 16px 4px; }
+            .section-footer { padding: 0 16px 18px; flex-direction: column-reverse; align-items: stretch; gap: 8px; }
+            .save-btn { width: 100%; padding: 14px; }
+            .save-status { text-align: center; }
+            .login-card { padding: 36px 24px 30px; }
         }
     </style>
 </head>
