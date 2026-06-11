@@ -1,147 +1,362 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <link rel="icon" href="/favicon.ico">
     <title>Manager Analytics — Favvi</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'DM Sans', sans-serif; background: #f0efe9; min-height: 100vh; }
-
-        .header { background: #1a1a2e; padding: 18px 32px; display: flex; justify-content: space-between; align-items: center; }
-        .header-left { display: flex; align-items: center; gap: 16px; }
-        .logo { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: #f8f4ee; letter-spacing: 3px; text-decoration: none; }
-        .logo span { color: #c9a84c; }
-        .divider-v { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
-        .header-title { font-size: 13px; font-weight: 400; color: rgba(248,244,238,0.7); }
-        .logout { background: transparent; color: rgba(248,244,238,0.4); border: 1px solid rgba(248,244,238,0.12); padding: 8px 20px; border-radius: 2px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 300; transition: all 0.3s; }
-        .logout:hover { border-color: rgba(201,168,76,0.5); color: #c9a84c; }
-
-        .overlay { position: fixed; inset: 0; background: #f0efe9; display: flex; justify-content: center; align-items: center; z-index: 200; }
-        .login-card { background: white; border-radius: 3px; padding: 48px 40px; width: 360px; box-shadow: 0 4px 24px rgba(26,26,46,0.08); border-left: 3px solid #6a9e6a; }
-        .login-logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: #1a1a2e; letter-spacing: 3px; margin-bottom: 4px; }
-        .login-logo span { color: #c9a84c; }
-        .login-card h2 { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 600; color: #3d6e3d; margin-bottom: 6px; }
-        .login-card p { font-size: 12px; font-weight: 300; color: rgba(26,26,46,0.4); margin-bottom: 28px; }
-        .field { margin-bottom: 14px; }
-        .field label { display: block; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(26,26,46,0.4); margin-bottom: 7px; }
-        .field input { width: 100%; padding: 12px 14px; border: 1px solid #e8e8e8; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 300; color: #1a1a2e; background: #fafafa; outline: none; transition: border-color 0.2s; }
-        .field input:focus { border-color: #6a9e6a; background: white; }
-        .login-btn { width: 100%; padding: 13px; background: #1a1a2e; color: white; border: none; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; margin-top: 6px; transition: opacity 0.2s; }
-        .login-btn:hover { opacity: 0.85; }
-        .login-error { color: #e57373; font-size: 12px; margin-top: 10px; display: none; }
-
-        .body { padding: 40px 32px; max-width: 860px; margin: 0 auto; }
-
-        /* Page title — dominant */
-        .page-title { font-family: 'Cormorant Garamond', serif; font-size: 42px; font-weight: 600; color: #3d6e3d; line-height: 1.1; margin-bottom: 4px; }
-        .page-title em { font-style: italic; font-weight: 400; color: #1a1a2e; }
-        .page-sub { font-size: 12px; font-weight: 300; color: rgba(26,26,46,0.35); margin-bottom: 32px; }
-
-        /* Total responses — hero number */
-        .total-card { background: #1a1a2e; border-radius: 3px; padding: 28px 32px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
-        .total-number { font-family: 'Cormorant Garamond', serif; font-size: 72px; font-weight: 600; color: #c9a84c; line-height: 1; }
-        .total-label { font-size: 11px; font-weight: 300; color: rgba(248,244,238,0.4); letter-spacing: 1px; text-transform: uppercase; margin-top: 6px; }
-        .total-right { font-size: 12px; font-weight: 300; color: rgba(248,244,238,0.2); text-align: right; line-height: 1.6; }
-
-        /* Stat cards */
-        .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 36px; }
-        .stat-card { background: white; border-radius: 3px; padding: 20px 16px; text-align: center; box-shadow: 0 1px 4px rgba(26,26,46,0.05); border-top: 3px solid transparent; }
-        .stat-card.overall { border-color: #c9a84c; }
-        .stat-card.clean   { border-color: #4a7fa5; }
-        .stat-card.staff-s { border-color: #6a9e6a; }
-        .stat-card.dining  { border-color: #c0392b; }
-        .stat-card.wifi    { border-color: #9b7bb8; }
-
-        /* Score — the dominant element in each stat card */
-        .stat-score { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 600; color: #1a1a2e; line-height: 1; margin-bottom: 6px; }
-        .stat-card.overall .stat-score { color: #8a6e2a; }
-        .stat-card.clean   .stat-score { color: #2e5f80; }
-        .stat-card.staff-s .stat-score { color: #3d6e3d; }
-        .stat-card.dining  .stat-score { color: #8b2020; }
-        .stat-card.wifi    .stat-score { color: #6b4d8a; }
-
-        .stat-label { font-size: 10px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: rgba(26,26,46,0.35); }
-
-        /* Section heading with coloured left line */
-        .section-label {
-            font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
-            color: rgba(26,26,46,0.4); margin-bottom: 14px;
-            padding-left: 12px; border-left: 3px solid #6a9e6a;
+        :root {
+            --navy: #1a1a2e;
+            --gold: #c9a84c;
+            --gold-dark: #8a6e2a;
+            --linen: #f0efe9;
+            --white: #ffffff;
+            --cream: #f8f4ee;
+            --ink: #1a1a2e;
+            --ink-60: rgba(26,26,46,0.6);
+            --ink-40: rgba(26,26,46,0.4);
+            --ink-25: rgba(26,26,46,0.25);
+            --line: rgba(26,26,46,0.09);
+            --green: #6a9e6a;
+            --green-dark: #3d6e3d;
+            --blue: #4a7fa5;  --blue-dark: #2e5f80;
+            --red: #c0392b;   --red-dark: #8b2020;
+            --purple: #9b7bb8; --purple-dark: #6b4d8a;
+            --amber: #d68910;
+            --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --smooth: cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Feedback cards */
-        .feedback-card { background: white; border-radius: 3px; padding: 22px 24px; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(26,26,46,0.05); border-left: 3px solid #e8e8e8; }
-        .feedback-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--linen);
+            min-height: 100vh;
+            color: var(--ink);
+            -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-        /* Guest name — dominant */
-        .guest-name { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: #1a1a2e; margin-bottom: 2px; }
-        .guest-room { font-size: 11px; font-weight: 300; color: rgba(26,26,46,0.35); letter-spacing: 0.5px; }
-        .feedback-date { font-size: 11px; font-weight: 300; color: rgba(26,26,46,0.3); }
+        /* ─── TOP BAR ─── */
+        .topbar {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(240,239,233,0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--line);
+            display: none; justify-content: space-between; align-items: center;
+            padding: 0 24px; height: 64px;
+        }
+        .topbar-left { display: flex; align-items: center; gap: 14px; }
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 23px; font-weight: 600;
+            color: var(--ink); letter-spacing: 3px; text-decoration: none;
+        }
+        .logo span { color: var(--gold); }
+        .divider-v { width: 1px; height: 18px; background: var(--line); }
+        .topbar-title { font-size: 12px; font-weight: 400; color: var(--ink-40); letter-spacing: 1px; text-transform: uppercase; }
+        .logout {
+            background: transparent; color: var(--ink-60);
+            border: 1px solid var(--line);
+            padding: 8px 18px; border-radius: 2px;
+            font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 400;
+            cursor: pointer; transition: all 0.25s;
+        }
+        .logout:hover { border-color: var(--gold); color: var(--gold-dark); }
 
-        .scores-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        /* ─── LOGIN ─── */
+        .overlay {
+            position: fixed; inset: 0; background: var(--linen);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 200; padding: 20px;
+        }
+        .login-card {
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-top: 3px solid var(--green);
+            border-radius: 4px;
+            padding: 44px 38px 38px;
+            width: 100%; max-width: 380px;
+            box-shadow: 0 16px 48px rgba(26,26,46,0.08);
+        }
+        .login-logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; letter-spacing: 3px; margin-bottom: 4px; }
+        .login-logo span { color: var(--gold); }
+        .login-card h2 { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 600; color: var(--green-dark); margin-bottom: 6px; }
+        .login-card > p { font-size: 12px; font-weight: 300; color: var(--ink-40); margin-bottom: 26px; }
+        .field { margin-bottom: 14px; }
+        .field label { display: block; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-40); margin-bottom: 7px; }
+        .field input {
+            width: 100%; padding: 13px 15px;
+            background: var(--white); border: 1px solid var(--line); border-radius: 2px;
+            font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 300; color: var(--ink);
+            outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+            -webkit-appearance: none; appearance: none;
+        }
+        .field input::placeholder { color: var(--ink-25); }
+        .field input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(106,158,106,0.12); }
+        .login-btn {
+            width: 100%; padding: 14px;
+            background: var(--navy); color: var(--cream);
+            border: none; border-radius: 2px;
+            font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+            letter-spacing: 0.5px; cursor: pointer; transition: all 0.25s; margin-top: 4px;
+        }
+        .login-btn:hover { background: var(--green-dark); }
+        .login-error { color: var(--red); font-size: 12px; margin-top: 10px; display: none; }
+        .login-back {
+            display: inline-block; font-size: 11px; font-weight: 300;
+            color: var(--ink-25); text-decoration: none;
+            letter-spacing: 1px; text-transform: uppercase; margin-top: 22px;
+            transition: color 0.2s;
+        }
+        .login-back:hover { color: var(--gold-dark); }
+
+        /* ─── BODY ─── */
+        .body { max-width: 820px; margin: 0 auto; padding: 40px 24px 72px; display: none; }
+
+        .page-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 42px; font-weight: 600; line-height: 1.1; margin-bottom: 4px;
+        }
+        .page-title em { font-style: italic; color: var(--green-dark); font-weight: 400; }
+        .page-sub { font-size: 12px; font-weight: 300; color: var(--ink-40); margin-bottom: 32px; }
+
+        /* ─── HERO ─── */
+        .hero-card {
+            background: var(--navy);
+            border-radius: 6px;
+            padding: 30px 34px;
+            margin-bottom: 16px;
+            display: flex; align-items: center; justify-content: space-between; gap: 20px;
+            position: relative; overflow: hidden;
+            box-shadow: 0 16px 48px rgba(26,26,46,0.2);
+            opacity: 0; transform: translateY(12px);
+            animation: rise 0.55s var(--spring) forwards;
+        }
+        .hero-card::before {
+            content: '';
+            position: absolute; top: -120px; right: -120px;
+            width: 320px; height: 320px;
+            background: radial-gradient(circle, rgba(201,168,76,0.13) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+        .hero-number {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 76px; font-weight: 600; color: var(--gold); line-height: 1;
+            position: relative;
+        }
+        .hero-label { font-size: 10px; font-weight: 500; color: rgba(248,244,238,0.4); letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; position: relative; }
+        .hero-verdict {
+            text-align: right; position: relative;
+        }
+        .verdict-word {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 30px; font-weight: 400; font-style: italic;
+            color: var(--cream); line-height: 1.2;
+        }
+        .verdict-sub { font-size: 11px; font-weight: 300; color: rgba(248,244,238,0.35); margin-top: 6px; }
+
+        /* ─── STATS ─── */
+        .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 38px; }
+        .stat-card {
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-top: 3px solid var(--gold);
+            border-radius: 4px;
+            padding: 18px 12px 16px;
+            text-align: center;
+            box-shadow: 0 1px 4px rgba(26,26,46,0.05);
+            opacity: 0; transform: translateY(12px);
+            animation: rise 0.5s var(--spring) forwards;
+        }
+        .stat-card:nth-child(1) { animation-delay: 0.08s; }
+        .stat-card:nth-child(2) { animation-delay: 0.14s; }
+        .stat-card:nth-child(3) { animation-delay: 0.20s; }
+        .stat-card:nth-child(4) { animation-delay: 0.26s; }
+        .stat-card:nth-child(5) { animation-delay: 0.32s; }
+        .stat-card.clean   { border-top-color: var(--blue); }
+        .stat-card.staff-s { border-top-color: var(--green); }
+        .stat-card.dining  { border-top-color: var(--red); }
+        .stat-card.wifi    { border-top-color: var(--purple); }
+
+        .stat-score {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 38px; font-weight: 600; line-height: 1; margin-bottom: 4px;
+        }
+        .stat-card.overall .stat-score { color: var(--gold-dark); }
+        .stat-card.clean   .stat-score { color: var(--blue-dark); }
+        .stat-card.staff-s .stat-score { color: var(--green-dark); }
+        .stat-card.dining  .stat-score { color: var(--red-dark); }
+        .stat-card.wifi    .stat-score { color: var(--purple-dark); }
+        .stat-score small { font-size: 16px; font-weight: 400; color: var(--ink-25); }
+
+        .stat-label { font-size: 9px; font-weight: 500; letter-spacing: 1.2px; text-transform: uppercase; color: var(--ink-40); margin-bottom: 10px; }
+
+        .stat-bar { height: 3px; background: var(--linen); border-radius: 2px; overflow: hidden; }
+        .stat-bar-fill {
+            height: 100%; width: 0; border-radius: 2px;
+            transition: width 1.1s var(--smooth) 0.4s;
+        }
+        .overall .stat-bar-fill { background: var(--gold); }
+        .clean   .stat-bar-fill { background: var(--blue); }
+        .staff-s .stat-bar-fill { background: var(--green); }
+        .dining  .stat-bar-fill { background: var(--red); }
+        .wifi    .stat-bar-fill { background: var(--purple); }
+
+        /* ─── FEEDBACK LIST ─── */
+        .section-hd { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; }
+        .section-label { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; color: var(--green-dark); }
+        .section-rule { flex: 1; height: 1px; background: var(--line); position: relative; top: -4px; }
+
+        .feedback-card {
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-left: 3px solid var(--line);
+            border-radius: 4px;
+            padding: 20px 24px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 4px rgba(26,26,46,0.05);
+            opacity: 0; transform: translateY(10px);
+            animation: rise 0.5s var(--spring) forwards;
+        }
+        .feedback-card.score-high { border-left-color: var(--green); }
+        .feedback-card.score-mid  { border-left-color: var(--amber); }
+        .feedback-card.score-low  { border-left-color: var(--red); }
+
+        .feedback-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 10px; }
+        .guest-name { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; margin-bottom: 1px; }
+        .guest-room { font-size: 11px; font-weight: 300; color: var(--ink-40); letter-spacing: 0.5px; }
+        .feedback-date { font-size: 11px; font-weight: 300; color: var(--ink-25); white-space: nowrap; }
+
+        .scores-row { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 12px; }
         .score-chip { font-size: 11px; font-weight: 500; padding: 4px 12px; border-radius: 2px; }
-        .score-chip.high { background: #eafaf1; color: #27ae60; }
-        .score-chip.mid  { background: #fef9e7; color: #d68910; }
-        .score-chip.low  { background: #fdecea; color: #c0392b; }
+        .score-chip.high { background: #edf7f1; color: #2e8b57; }
+        .score-chip.mid  { background: #fdf6e9; color: var(--amber); }
+        .score-chip.low  { background: #fdf1ef; color: var(--red); }
 
-        .comment { font-size: 13px; font-weight: 300; color: rgba(26,26,46,0.55); font-style: italic; border-left: 2px solid #c9a84c; padding-left: 12px; line-height: 1.6; }
-        .no-data { text-align: center; padding: 48px; font-size: 13px; font-weight: 300; color: rgba(26,26,46,0.3); background: white; border-radius: 3px; }
+        .comment {
+            font-size: 13px; font-weight: 300; color: var(--ink-60);
+            font-style: italic;
+            border-left: 2px solid var(--gold);
+            padding-left: 14px; line-height: 1.65;
+        }
 
-        @media (max-width: 600px) { .body { padding: 24px 16px; } .stats-grid { grid-template-columns: repeat(2,1fr); } .header { padding: 14px 16px; } .total-card { flex-direction: column; gap: 12px; } }
+        .no-data {
+            text-align: center; padding: 52px 24px;
+            background: var(--white);
+            border: 1px dashed var(--line);
+            border-radius: 4px;
+        }
+        .no-data-mark { font-family: 'Cormorant Garamond', serif; font-size: 26px; color: var(--gold); margin-bottom: 10px; }
+        .no-data-text { font-size: 13px; font-weight: 300; color: var(--ink-40); line-height: 1.6; }
+
+        @media (max-width: 640px) {
+            .topbar { padding: 0 16px; height: 58px; }
+            .topbar-title, .divider-v { display: none; }
+            .body { padding: 26px 16px 56px; }
+            .page-title { font-size: 34px; }
+            .hero-card { flex-direction: column; align-items: flex-start; gap: 14px; padding: 24px; }
+            .hero-verdict { text-align: left; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .stat-card:nth-child(5) { grid-column: span 2; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+            .hero-card, .stat-card, .feedback-card { opacity: 1; transform: none; }
+            .stat-bar-fill { transition: none; }
+        }
     </style>
 </head>
 <body>
+
+    <!-- LOGIN -->
     <div class="overlay" id="overlay">
         <div class="login-card">
             <div class="login-logo">fav<span>vi</span></div>
             <h2>Manager Analytics</h2>
-            <p id="hotelNameLogin">Loading...</p>
+            <p id="hotelNameLogin">Loading…</p>
             <div class="field">
                 <label>Manager Password</label>
-                <input type="password" id="passwordInput" placeholder="Enter password" onkeypress="if(event.key==='Enter') login()" />
+                <input type="password" id="passwordInput" placeholder="Enter password"
+                       onkeypress="if(event.key==='Enter') login()" />
             </div>
             <button class="login-btn" onclick="login()">Access Analytics</button>
             <p class="login-error" id="loginError">Incorrect password. Try again.</p>
+            <a class="login-back" id="loginBackLink" href="#">← Back to portal</a>
         </div>
     </div>
 
-    <div class="header" id="mainHeader" style="display:none;">
-        <div class="header-left">
+    <!-- TOP BAR -->
+    <div class="topbar" id="mainHeader">
+        <div class="topbar-left">
             <a class="logo" id="backLink" href="#">fav<span>vi</span></a>
             <div class="divider-v"></div>
-            <span class="header-title">Manager Analytics</span>
+            <span class="topbar-title">Manager Analytics</span>
         </div>
-        <button class="logout" onclick="logout()">Logout</button>
+        <button class="logout" onclick="logout()">Log out</button>
     </div>
 
-    <div class="body" id="mainBody" style="display:none;">
+    <!-- BODY -->
+    <div class="body" id="mainBody">
         <div class="page-title"><em>Guest</em> Feedback</div>
-        <p class="page-sub" id="pageSubtitle">Loading...</p>
+        <p class="page-sub" id="pageSubtitle">Loading…</p>
 
-        <div class="total-card">
+        <div class="hero-card">
             <div>
-                <div class="total-number" id="totalResponses">—</div>
-                <div class="total-label">Total Responses</div>
+                <div class="hero-number" id="totalResponses">0</div>
+                <div class="hero-label">Total Responses</div>
             </div>
-            <div class="total-right">Post-checkout feedback<br>collected via Favvi</div>
+            <div class="hero-verdict">
+                <div class="verdict-word" id="verdictWord">—</div>
+                <div class="verdict-sub" id="verdictSub">Overall guest satisfaction</div>
+            </div>
         </div>
 
         <div class="stats-grid">
-            <div class="stat-card overall"><div class="stat-score" id="avgOverall">—</div><div class="stat-label">Overall</div></div>
-            <div class="stat-card clean"><div class="stat-score" id="avgCleanliness">—</div><div class="stat-label">Cleanliness</div></div>
-            <div class="stat-card staff-s"><div class="stat-score" id="avgStaff">—</div><div class="stat-label">Staff</div></div>
-            <div class="stat-card dining"><div class="stat-score" id="avgDining">—</div><div class="stat-label">Dining</div></div>
-            <div class="stat-card wifi"><div class="stat-score" id="avgWifi">—</div><div class="stat-label">WiFi</div></div>
+            <div class="stat-card overall">
+                <div class="stat-label">Overall</div>
+                <div class="stat-score"><span id="avgOverall">0</span><small>/5</small></div>
+                <div class="stat-bar"><div class="stat-bar-fill" id="barOverall"></div></div>
+            </div>
+            <div class="stat-card clean">
+                <div class="stat-label">Cleanliness</div>
+                <div class="stat-score"><span id="avgCleanliness">0</span><small>/5</small></div>
+                <div class="stat-bar"><div class="stat-bar-fill" id="barCleanliness"></div></div>
+            </div>
+            <div class="stat-card staff-s">
+                <div class="stat-label">Staff</div>
+                <div class="stat-score"><span id="avgStaff">0</span><small>/5</small></div>
+                <div class="stat-bar"><div class="stat-bar-fill" id="barStaff"></div></div>
+            </div>
+            <div class="stat-card dining">
+                <div class="stat-label">Dining</div>
+                <div class="stat-score"><span id="avgDining">0</span><small>/5</small></div>
+                <div class="stat-bar"><div class="stat-bar-fill" id="barDining"></div></div>
+            </div>
+            <div class="stat-card wifi">
+                <div class="stat-label">WiFi</div>
+                <div class="stat-score"><span id="avgWifi">0</span><small>/5</small></div>
+                <div class="stat-bar"><div class="stat-bar-fill" id="barWifi"></div></div>
+            </div>
         </div>
 
-        <div class="section-label">Recent Feedback</div>
+        <div class="section-hd">
+            <span class="section-label">Recent Feedback</span>
+            <div class="section-rule"></div>
+        </div>
         <div id="feedbackList"></div>
     </div>
 
     <script>
         const slug = window.location.pathname.split('/')[2] || '';
+
+        function escHTML(s) {
+            return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+
         async function loadHotelName() {
             try {
                 const url = slug ? `/get-hotel/${slug}` : '/hotel-config';
@@ -149,6 +364,7 @@
                 const config = await r.json();
                 document.getElementById('hotelNameLogin').textContent = config.name || '';
                 document.getElementById('backLink').href = slug ? `/portal/${slug}` : '/';
+                document.getElementById('loginBackLink').href = slug ? `/portal/${slug}` : '/';
             } catch(e) {}
         }
         loadHotelName();
@@ -177,34 +393,85 @@
 
         function scoreClass(s) { return s >= 4 ? 'high' : s === 3 ? 'mid' : 'low'; }
 
+        function verdictFor(score) {
+            if (score >= 4.6) return 'Exceptional.';
+            if (score >= 4.2) return 'Excellent.';
+            if (score >= 3.7) return 'Very good.';
+            if (score >= 3.0) return 'Good.';
+            if (score > 0)    return 'Needs attention.';
+            return '—';
+        }
+
+        /* Count-up animation: numbers perform on load */
+        function countUp(elId, target, decimals, duration) {
+            const el = document.getElementById(elId);
+            const start = performance.now();
+            const dur = duration || 1100;
+            function tick(now) {
+                const p = Math.min((now - start) / dur, 1);
+                const eased = 1 - Math.pow(1 - p, 3);
+                el.textContent = (target * eased).toFixed(decimals);
+                if (p < 1) requestAnimationFrame(tick);
+                else el.textContent = decimals ? target.toFixed(decimals) : String(target);
+            }
+            requestAnimationFrame(tick);
+        }
+
         async function loadData() {
             const r = await fetch(`/feedback-stats?slug=${slug}`);
             const data = await r.json();
             const avg = data.averages;
-            document.getElementById('totalResponses').textContent   = avg.total_responses;
-            document.getElementById('avgOverall').textContent       = avg.overall + '/5';
-            document.getElementById('avgCleanliness').textContent   = avg.cleanliness + '/5';
-            document.getElementById('avgStaff').textContent         = avg.staff + '/5';
-            document.getElementById('avgDining').textContent        = avg.dining + '/5';
-            document.getElementById('avgWifi').textContent          = avg.wifi + '/5';
+
+            countUp('totalResponses', avg.total_responses || 0, 0, 1200);
+            countUp('avgOverall',     parseFloat(avg.overall)     || 0, 1);
+            countUp('avgCleanliness', parseFloat(avg.cleanliness) || 0, 1);
+            countUp('avgStaff',       parseFloat(avg.staff)       || 0, 1);
+            countUp('avgDining',      parseFloat(avg.dining)      || 0, 1);
+            countUp('avgWifi',        parseFloat(avg.wifi)        || 0, 1);
+
+            const setBar = (id, score) => {
+                const el = document.getElementById(id);
+                requestAnimationFrame(() => { el.style.width = (Math.max(0, Math.min(5, parseFloat(score) || 0)) / 5 * 100).toFixed(1) + '%'; });
+            };
+            setBar('barOverall',     avg.overall);
+            setBar('barCleanliness', avg.cleanliness);
+            setBar('barStaff',       avg.staff);
+            setBar('barDining',      avg.dining);
+            setBar('barWifi',        avg.wifi);
+
+            document.getElementById('verdictWord').textContent = verdictFor(parseFloat(avg.overall) || 0);
 
             const list = document.getElementById('feedbackList');
-            if (!data.recent.length) { list.innerHTML = '<div class="no-data">No feedback yet. Share the feedback link with guests after checkout.</div>'; return; }
-            list.innerHTML = data.recent.map(f => `
-                <div class="feedback-card">
+            if (!data.recent.length) {
+                list.innerHTML = `<div class="no-data">
+                    <div class="no-data-mark">✦</div>
+                    <div class="no-data-text">No feedback yet.<br>Share the feedback link with guests after checkout — it's on your Links & QR Codes page.</div>
+                </div>`;
+                return;
+            }
+
+            list.innerHTML = data.recent.map((f, i) => {
+                const overall = parseInt(f[3]) || 0;
+                const cardScore = overall >= 4 ? 'score-high' : overall === 3 ? 'score-mid' : 'score-low';
+                return `
+                <div class="feedback-card ${cardScore}" style="animation-delay:${0.06 * i}s">
                     <div class="feedback-top">
-                        <div><div class="guest-name">${f[1] || 'Guest'}</div><div class="guest-room">Room ${f[2] || 'N/A'}</div></div>
-                        <div class="feedback-date">${f[9]}</div>
+                        <div>
+                            <div class="guest-name">${escHTML(f[1] || 'Guest')}</div>
+                            <div class="guest-room">Room ${escHTML(f[2] || 'N/A')}</div>
+                        </div>
+                        <div class="feedback-date">${escHTML(f[9] || '')}</div>
                     </div>
                     <div class="scores-row">
-                        <span class="score-chip ${scoreClass(f[3])}">Overall ${f[3]}/5</span>
-                        <span class="score-chip ${scoreClass(f[4])}">Cleanliness ${f[4]}/5</span>
-                        <span class="score-chip ${scoreClass(f[5])}">Staff ${f[5]}/5</span>
-                        <span class="score-chip ${scoreClass(f[6])}">Dining ${f[6]}/5</span>
-                        <span class="score-chip ${scoreClass(f[7])}">WiFi ${f[7]}/5</span>
+                        <span class="score-chip ${scoreClass(f[3])}">Overall ${escHTML(f[3])}/5</span>
+                        <span class="score-chip ${scoreClass(f[4])}">Cleanliness ${escHTML(f[4])}/5</span>
+                        <span class="score-chip ${scoreClass(f[5])}">Staff ${escHTML(f[5])}/5</span>
+                        <span class="score-chip ${scoreClass(f[6])}">Dining ${escHTML(f[6])}/5</span>
+                        <span class="score-chip ${scoreClass(f[7])}">WiFi ${escHTML(f[7])}/5</span>
                     </div>
-                    ${f[8] ? `<div class="comment">${f[8]}</div>` : ''}
-                </div>`).join('');
+                    ${f[8] ? `<div class="comment">${escHTML(f[8])}</div>` : ''}
+                </div>`;
+            }).join('');
         }
     </script>
 </body>
