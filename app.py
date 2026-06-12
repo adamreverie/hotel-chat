@@ -239,7 +239,7 @@ def send_trial_warnings():
     if secret != os.environ.get('CRON_SECRET', ''):
         return jsonify({'error': 'unauthorized'}), 403
 
-    conn = get_db()
+    conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
         SELECT slug, name, email, trial_ends_at FROM hotels
