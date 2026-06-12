@@ -230,6 +230,72 @@ def contact():
         return jsonify({"success": True})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
+    
+# ─── TRIAL EXPIRY WARNING EMAILS ───
+# Called once daily by an external cron. Protected by CRON_SECRET env var.
+@app.route('/send-trial-warnings', methods=['POST', 'GET'])
+def send_trial_warnings():
+    secret = request.args.get('secret', '')
+    if secret != os.environ.get('CRON_SECRET', ''):
+        return jsonify({'error': 'unauthorized'}), 403
+
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT slug, name, email, trial_ends_at FROM hotels
+        WHERE subscription_status = 'on_trial' AND trial_ends_at IS NOT NULL
+    """)
+    hotels = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    sent = []
+    today = datetime.now().date()
+
+    for slug, name, email, trial_ends_at in hotels:
+        if not email or not trial_ends_at:
+            continue
+        days_left = (trial_ends_at.date() - today).days
+
+        if days_left == 7:
+            subject = f"Your Favvi trial ends in 7 days"
+            headline = "One week left in your trial"
+            body_line = f"Your free trial of Favvi for {name} ends in 7 days. After that, your subscription begins at $149/month — nothing to do if you'd like to continue."
+        elif days_left == 1:
+            subject = f"Your Favvi trial ends tomorrow"
+            headline = "Your trial ends tomorrow"
+            body_line = f"Your free trial of Favvi for {name} ends tomorrow, and your subscription will begin at $149/month. We hope your guests have been enjoying it!"
+        else:
+            continue
+
+        html = f"""
+        <div style="font-family: Georgia, serif; max-width: 540px; margin: 0 auto; padding: 40px 20px;">
+            <div style="color: #c9a84c; font-size: 24px; margin-bottom: 16px;">&#10022;</div>
+            <h1 style="font-size: 26px; color: #1a1a2e; font-weight: 600; margin-bottom: 14px;">{headline}</h1>
+            <p style="font-size: 15px; color: #444; line-height: 1.7; margin-bottom: 14px;">{body_line}</p>
+            <p style="font-size: 15px; color: #444; line-height: 1.7; margin-bottom: 24px;">
+                Questions, feedback, or want to make changes to your plan?
+                Just reply to this email — we read everything.
+            </p>
+            <a href="https://favvi.ai/portal/{slug}"
+               style="display: inline-block; background: #1a1a2e; color: #f8f4ee; padding: 13px 28px; text-decoration: none; font-size: 14px; font-family: Arial, sans-serif;">
+               Open your portal</a>
+            <p style="font-size: 12px; color: #999; margin-top: 36px;">Favvi — AI Concierge for Boutique Hotels<br>hello@favvi.ai</p>
+        </div>
+        """
+
+        try:
+            resend.Emails.send({
+                "from": "Favvi <hello@favvi.ai>",
+                "to": email,
+                "subject": subject,
+                "html": html
+            })
+            sent.append({'slug': slug, 'days_left': days_left})
+        except Exception as e:
+            print(f"Trial warning failed for {slug}: {e}")
+
+    return jsonify({'sent': sent, 'checked': len(hotels)})
 
 @app.route('/privacy')
 def privacy_page(): return send_from_directory('.', 'privacy.html')
