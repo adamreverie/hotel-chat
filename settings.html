@@ -373,14 +373,23 @@
         }
         loadConfig();
 
+        let authPw = '';
         async function attemptLogin() {
-            if (!hotelConfig) await loadConfig();
             const pw = document.getElementById('passwordInput').value;
             const errEl = document.getElementById('loginError');
-            if (pw !== hotelConfig.manager_password) {
+            let valid = false;
+            try {
+                const r = await fetch('/verify-password', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ slug, password: pw, role: 'manager' })
+                });
+                valid = (await r.json()).valid === true;
+            } catch(e) {}
+            if (!valid) {
                 errEl.style.display = 'block';
                 return;
             }
+            authPw = pw;
             errEl.style.display = 'none';
             enterSettings();
         }
@@ -441,6 +450,7 @@
                     }
                 }
 
+                payload.auth_password = authPw;
                 const r = await fetch('/update-hotel-settings', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -448,6 +458,7 @@
                 });
                 const data = await r.json();
                 if (data.success) {
+                    if (payload.manager_password) authPw = payload.manager_password;
                     if (section === 'passwords') {
                         ['newStaffPw','confirmStaffPw','newManagerPw','confirmManagerPw'].forEach(id => {
                             const el = document.getElementById(id); if (el) el.value = '';

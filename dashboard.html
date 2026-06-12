@@ -284,19 +284,30 @@
         }
         loadHotelName();
 
+        let managerPw = '';
         async function login() {
+            const pw = document.getElementById('passwordInput').value;
+            let valid = false;
+            try {
+                const vr = await fetch('/verify-password', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ slug, password: pw, role: 'manager' })
+                });
+                valid = (await vr.json()).valid === true;
+            } catch(e) {}
+            if (!valid) {
+                document.getElementById('loginError').style.display = 'block';
+                return;
+            }
+            managerPw = pw;
             const url = slug ? `/get-hotel/${slug}` : '/hotel-config';
             const r = await fetch(url);
             const config = await r.json();
-            if (document.getElementById('passwordInput').value === config.manager_password) {
-                document.getElementById('overlay').style.display = 'none';
-                document.getElementById('mainHeader').style.display = 'flex';
-                document.getElementById('mainBody').style.display = 'block';
-                document.getElementById('pageSubtitle').textContent = config.name + ' — Guest satisfaction overview';
-                loadData();
-            } else {
-                document.getElementById('loginError').style.display = 'block';
-            }
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('mainHeader').style.display = 'flex';
+            document.getElementById('mainBody').style.display = 'block';
+            document.getElementById('pageSubtitle').textContent = config.name + ' — Guest satisfaction overview';
+            loadData();
         }
 
         function logout() {
@@ -332,7 +343,7 @@
         }
 
         async function loadData() {
-            const r = await fetch(`/feedback-stats?slug=${slug}`);
+            const r = await fetch(`/feedback-stats?slug=${slug}&pw=${encodeURIComponent(managerPw)}`);
             const data = await r.json();
             const avg = data.averages;
 

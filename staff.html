@@ -385,7 +385,6 @@
             white-space: nowrap;
         }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
-        .toast em { font-style: italic; color: var(--gold-light); font-family: 'Cormorant Garamond', serif; font-size: 15px; }
 
         /* ─── GOLD SPARKLES ─── */
         .spark {
@@ -552,11 +551,12 @@
 <script>
     /* ─── STATE ─── */
     let staffName = '', staffDept = 'all', activeFilter = 'all';
+    let staffPw = '';
     let isLoading = false;
     let _requests = [];
     let _resolvedThisSession = 0;
     const _sessionDone = new Set();
-    const MILESTONES = { 5: 'Five resolved — nice pace', 10: 'Ten resolved — superb shift', 20: 'Twenty resolved — unstoppable', 30: 'Thirty resolved — legendary' };
+    const MILESTONES = {};
     const slug = window.location.pathname.split('/')[2] || '';
 
     /* ─── SERVICE WORKER ─── */
@@ -627,12 +627,12 @@
         } catch(e) {}
     }
 
-    function showToast(msg, fancy) {
+    function showToast(msg) {
         const t = document.getElementById('toast');
-        t.innerHTML = fancy ? msg : msg;
+        t.textContent = msg;
         t.classList.add('show');
         clearTimeout(window._tt);
-        window._tt = setTimeout(() => t.classList.remove('show'), 3200);
+        window._tt = setTimeout(() => t.classList.remove('show'), 2800);
     }
 
     /* gold sparkle burst at screen coords */
@@ -696,12 +696,15 @@
         const d = localStorage.getItem('favvi_staff_dept');
         const s = localStorage.getItem('favvi_staff_slug');
         const p = localStorage.getItem('favvi_staff_pw_hash');
-        if (!n || !d || s !== slug) return;
+        if (!n || !d || !p || s !== slug) return;
         try {
-            const r = await fetch(slug ? `/get-hotel/${slug}` : '/hotel-config');
-            const c = await r.json();
-            if (c.staff_password !== atob(p)) return;
-            staffName = n; staffDept = d; activeFilter = d;
+            const pw = atob(p);
+            const r = await fetch('/verify-password', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ slug, password: pw, role: 'staff' })
+            });
+            if ((await r.json()).valid !== true) return;
+            staffName = n; staffDept = d; activeFilter = d; staffPw = pw;
             boot();
         } catch(e) {}
     }
@@ -715,14 +718,20 @@
     }
 
     async function checkPassword() {
-        const r = await fetch(slug ? `/get-hotel/${slug}` : '/hotel-config');
-        const c = await r.json();
         const name = document.getElementById('staffName').value.trim();
         const pw   = document.getElementById('staffPassword').value;
         const err  = document.getElementById('loginError');
         if (!name) { err.textContent = 'Please enter your name.'; err.style.display = 'block'; return; }
-        if (pw !== c.staff_password) { err.textContent = 'Incorrect password. Try again.'; err.style.display = 'block'; return; }
-        staffName = name; err.style.display = 'none';
+        let valid = false;
+        try {
+            const r = await fetch('/verify-password', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ slug, password: pw, role: 'staff' })
+            });
+            valid = (await r.json()).valid === true;
+        } catch(e) {}
+        if (!valid) { err.textContent = 'Incorrect password. Try again.'; err.style.display = 'block'; return; }
+        staffName = name; staffPw = pw; err.style.display = 'none';
         if (document.getElementById('staySignedIn').checked) {
             localStorage.setItem('favvi_staff_name', name);
             localStorage.setItem('favvi_staff_dept', staffDept);
@@ -1041,7 +1050,7 @@
         try {
             const prevNew = _requests.filter(r => r.status === 'new').length;
             const hadData = _requests.length > 0;
-            const r = await fetch(`/get-requests?slug=${slug}`);
+            const r = await fetch(`/get-requests?slug=${slug}&pw=${encodeURIComponent(staffPw)}`);
             const fresh = await r.json();
             // Respect in-flight optimistic actions: skip server state for ids awaiting confirmation
             fresh.forEach(fr => {
@@ -1061,7 +1070,7 @@
             const newNow = _requests.filter(r => r.status === 'new').length;
             if (hadData && newNow > prevNew) {
                 playChime();
-                showToast('✦ <em>New guest request</em>', true);
+                showToast('New request ✦');
             }
         } catch(e) {} finally { isLoading = false; }
     }
@@ -1094,7 +1103,7 @@
             _resolvedThisSession++;
             bumpTally();
             if (MILESTONES[_resolvedThisSession]) {
-                setTimeout(() => showToast('✦ <em>' + MILESTONES[_resolvedThisSession] + '</em>', true), 650);
+                // milestone toast removed
             }
         }
 
@@ -1105,7 +1114,7 @@
         fetch('/update-request', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id, status, claimed_by: claimedBy })
+            body: JSON.stringify({ id, status, claimed_by: claimedBy, slug, password: staffPw })
         }).catch(() => {
             // Write failed — drop the optimistic state and resync with the server
             _pendingActions.delete(id);
