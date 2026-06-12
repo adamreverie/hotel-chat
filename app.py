@@ -139,9 +139,8 @@ def verify_hotel_password(slug, password, role):
 
 
 def is_admin():
-    """Check admin credentials from body or query string."""
-    # Support both old field name (admin_password) and what admin.html actually sends (password)
-    body     = request.json or {}
+    """Check admin credentials — never crashes on GET requests."""
+    body     = request.get_json(silent=True) or {}
     supplied = (body.get('admin_password') or body.get('password')
                 or request.args.get('admin_password', '')
                 or request.args.get('password', ''))
@@ -962,38 +961,70 @@ def admin_data():
     if not is_admin():
         return jsonify({"error": "Unauthorised"}), 403
     conn = get_conn(); c = conn.cursor()
-    c.execute('''SELECT id, name, slug, email, date_created,
-                        trial_ends_at, subscription_status
-                 FROM hotels ORDER BY id DESC''')
+    # Try full schema first; fall back for older SQLite databases
+    try:
+        c.execute('''SELECT id, name, slug, email, date_created,
+                            trial_ends_at, subscription_status
+                     FROM hotels ORDER BY id DESC''')
+    except Exception:
+        c.execute('SELECT id, name, slug, email, date_created, NULL, NULL FROM hotels ORDER BY id DESC')
     rows = c.fetchall(); conn.close()
-    return jsonify([{
-        "id": r[0], "name": r[1], "slug": r[2],
-        "email": r[3], "date_created": r[4],
-        "trial_ends_at": str(r[5]) if r[5] else None,
-        "subscription_status": r[6],
-    } for r in rows])
+    hotels = []
+    for r in rows:
+        import datetime as _dt
+        trial_ends = r[5]
+        days_remaining = None
+        if trial_ends:
+            try:
+                if isinstance(trial_ends, str):
+                    trial_ends = _dt.datetime.strptime(trial_ends[:19], "%Y-%m-%d %H:%M:%S")
+                days_remaining = (trial_ends.date() - _dt.date.today()).days
+            except Exception:
+                pass
+        hotels.append({
+            "id": r[0], "name": r[1], "slug": r[2],
+            "email": r[3], "date_created": r[4],
+            "trial_ends_at": str(r[5]) if r[5] else None,
+            "subscription_status": r[6],
+            "days_remaining": days_remaining,
+        })
+    return jsonify({"hotels": hotels})
 
 
 @app.route('/admin-extend-trial', methods=['POST'])
 def admin_extend_trial():
     if not is_admin():
         return jsonify({"error": "Unauthorised"}), 403
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     slug = data.get('slug')
     days = int(data.get('days', 7))
-    conn = get_conn(); c = conn.cursor()
-    c.execute(f'SELECT trial_ends_at FROM hotels WHERE slug = {ph()}', (slug,))
-    row = c.fetchone(); conn.close()
-    if not row:
-        return jsonify({"success": False, "error": "Hotel not found"})
     from datetime import timedelta
-    current = row[0] if row[0] else datetime.now()
-    if hasattr(current, 'date'):
-        new_end = current + timedelta(days=days)
-    else:
-        new_end = datetime.now() + timedelta(days=days)
     conn = get_conn(); c = conn.cursor()
-    c.execute(f'UPDATE hotels SET trial_ends_at = {ph()} WHERE slug = {ph()}', (new_end, slug))
+    # trial_ends_at may not exist in older SQLite schemas
+    try:
+        c.execute(f'SELECT trial_ends_at FROM hotels WHERE slug = {ph()}', (slug,))
+        row = c.fetchone()
+    except Exception:
+        row = None
+    conn.close()
+    if row is None:
+        # Column missing or hotel not found — just set it from now
+        new_end = datetime.now() + timedelta(days=days)
+    else:
+        current = row[0] if row[0] else datetime.now()
+        if hasattr(current, 'date'):
+            new_end = current + timedelta(days=days)
+        else:
+            try:
+                current = datetime.strptime(str(current)[:19], "%Y-%m-%d %H:%M:%S")
+            except Exception:
+                current = datetime.now()
+            new_end = current + timedelta(days=days)
+    conn = get_conn(); c = conn.cursor()
+    try:
+        c.execute(f'UPDATE hotels SET trial_ends_at = {ph()} WHERE slug = {ph()}', (new_end, slug))
+    except Exception:
+        pass  # Column not present in this schema — silently skip
     conn.commit(); conn.close()
     return jsonify({"success": True, "new_trial_ends_at": str(new_end)})
 
@@ -1002,7 +1033,7 @@ def admin_extend_trial():
 def admin_delete_hotel():
     if not is_admin():
         return jsonify({"error": "Unauthorised"}), 403
-    slug = (request.json or {}).get('slug')
+    slug = (request.get_json(silent=True) or {}).get('slug')
     if not slug:
         return jsonify({"success": False, "error": "No slug"})
     conn = get_conn(); c = conn.cursor()

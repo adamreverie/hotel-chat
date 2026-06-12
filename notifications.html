@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" href="/favicon.ico">
+    <title>Set Up Notifications — Favvi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #1a1a2e; --gold: #c9a84c; --gold-dark: #8a6e2a;
+            --linen: #f0efe9; --white: #ffffff; --cream: #f8f4ee;
+            --ink: #1a1a2e;
+            --ink-60: rgba(26,26,46,0.6); --ink-40: rgba(26,26,46,0.4); --ink-25: rgba(26,26,46,0.25);
+            --line: rgba(26,26,46,0.09);
+            --blue: #4a7fa5; --blue-dark: #2e5f80;
+            --green: #6a9e6a; --green-dark: #3d6e3d;
+            --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--linen);
+            min-height: 100vh;
+            color: var(--ink);
+            -webkit-font-smoothing: antialiased;
+        }
+        .topbar {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(240,239,233,0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--line);
+            display: flex; align-items: center; gap: 14px;
+            padding: 0 24px; height: 64px;
+        }
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 23px; font-weight: 600;
+            color: var(--ink); letter-spacing: 3px; text-decoration: none;
+        }
+        .logo span { color: var(--gold); }
+        .divider-v { width: 1px; height: 18px; background: var(--line); }
+        .topbar-title { font-size: 12px; font-weight: 400; color: var(--ink-40); letter-spacing: 1px; text-transform: uppercase; }
+
+        .body { max-width: 680px; margin: 0 auto; padding: 40px 24px 72px; }
+        .page-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 40px; font-weight: 600; line-height: 1.1; margin-bottom: 6px;
+        }
+        .page-title em { font-style: italic; color: var(--gold-dark); font-weight: 400; }
+        .page-sub { font-size: 13px; font-weight: 300; color: var(--ink-60); line-height: 1.7; margin-bottom: 32px; max-width: 540px; }
+
+        .device-card {
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-top: 3px solid var(--blue);
+            border-radius: 4px;
+            padding: 28px 30px 24px;
+            margin-bottom: 18px;
+            box-shadow: 0 1px 4px rgba(26,26,46,0.05);
+            opacity: 0; transform: translateY(12px);
+            animation: rise 0.55s var(--spring) forwards;
+        }
+        .device-card.android { border-top-color: var(--green); animation-delay: 0.12s; }
+        @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+
+        .device-label { font-size: 9px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+        .device-card.iphone  .device-label { color: var(--blue-dark); }
+        .device-card.android .device-label { color: var(--green-dark); }
+        .device-title { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 600; margin-bottom: 18px; }
+
+        .step { display: flex; gap: 14px; align-items: flex-start; padding: 12px 0; }
+        .step + .step { border-top: 1px solid var(--line); }
+        .step-num {
+            width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+            background: var(--linen); border: 1px solid var(--line);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 500;
+        }
+        .iphone  .step-num { color: var(--blue-dark); }
+        .android .step-num { color: var(--green-dark); }
+        .step-text { font-size: 13px; font-weight: 300; color: var(--ink-60); line-height: 1.65; padding-top: 3px; }
+        .step-text strong { font-weight: 500; color: var(--ink); }
+
+        .note-card {
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-left: 3px solid var(--gold);
+            border-radius: 4px;
+            padding: 18px 22px;
+            box-shadow: 0 1px 4px rgba(26,26,46,0.05);
+            opacity: 0; transform: translateY(12px);
+            animation: rise 0.55s var(--spring) forwards 0.24s;
+        }
+        .note-title { font-size: 12px; font-weight: 500; color: var(--gold-dark); margin-bottom: 8px; }
+        .note-card p { font-size: 12px; font-weight: 300; color: var(--ink-60); line-height: 1.7; }
+        .note-card p + p { margin-top: 8px; }
+        .note-card strong { font-weight: 500; color: var(--ink); }
+
+        @media (max-width: 640px) {
+            .topbar { padding: 0 16px; height: 58px; }
+            .topbar-title, .divider-v { display: none; }
+            .body { padding: 26px 16px 56px; }
+            .page-title { font-size: 32px; }
+            .device-card { padding: 22px 18px 18px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+            .device-card, .note-card { opacity: 1; transform: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <a class="logo" href="/">fav<span>vi</span></a>
+        <div class="divider-v"></div>
+        <span class="topbar-title">Notification Setup</span>
+    </div>
+
+    <div class="body">
+        <div class="page-title">Alerts on <em>every phone.</em></div>
+        <p class="page-sub">Two minutes per device and your team gets notified the instant a guest needs something — even with the phone in their pocket. Each staff member does this once on their own phone.</p>
+
+        <div class="device-card iphone">
+            <div class="device-label">iPhone & iPad</div>
+            <div class="device-title">Setting up on iPhone</div>
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-text">Open <strong>Safari</strong> and go to your staff dashboard: <strong>favvi.ai/portal/your-hotel/staff</strong>. (It must be Safari — other browsers can't install apps on iPhone.)</div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-text">Tap the <strong>Share button</strong> — the square with the arrow pointing up, at the bottom of the screen.</div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-text">Scroll down and tap <strong>"Add to Home Screen"</strong>, then tap <strong>Add</strong>. Favvi now appears on the home screen like a real app.</div>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-text"><strong>Open Favvi from the new home screen icon</strong> (not from Safari) and log in with your name and the staff password.</div>
+            </div>
+            <div class="step">
+                <div class="step-num">5</div>
+                <div class="step-text">Tap <strong>"Enable Alerts"</strong> at the top of the dashboard, then tap <strong>Allow</strong> when iPhone asks. Done — requests will now pop up like text messages.</div>
+            </div>
+        </div>
+
+        <div class="device-card android">
+            <div class="device-label">Android</div>
+            <div class="device-title">Setting up on Android</div>
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-text">Open <strong>Chrome</strong> and go to your staff dashboard: <strong>favvi.ai/portal/your-hotel/staff</strong>.</div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-text">Tap the <strong>⋮ menu</strong> in the top-right corner and choose <strong>"Add to Home screen"</strong> (sometimes called "Install app"), then confirm.</div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-text"><strong>Open Favvi from the home screen icon</strong> and log in with your name and the staff password.</div>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-text">Tap <strong>"Enable Alerts"</strong>, then <strong>Allow</strong>. That's it — alerts arrive even when the phone is locked.</div>
+            </div>
+        </div>
+
+        <div class="note-card">
+            <div class="note-title">Good to know</div>
+            <p><strong>iPhone needs iOS 16.4 or newer</strong> for notifications — that's any iPhone updated since March 2023. If "Enable Alerts" says not supported, update iOS first.</p>
+            <p><strong>Pick your department when logging in</strong> — housekeeping staff only get housekeeping alerts, maintenance only maintenance, and so on. Choose "All Departments" to receive everything.</p>
+            <p><strong>The in-app chime respects the silent switch</strong> — if a phone is on silent, the dashboard won't make a sound, but push notifications still come through with their own alert.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -2,143 +2,135 @@
 <html lang="en">
 <head>
     <link rel="icon" href="/favicon.ico">
-    <title>You're Live — Favvi</title>
+    <title>Welcome to Favvi</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --navy: #1a1a2e;
-            --gold: #c9a84c;
-            --gold-dark: #8a6e2a;
-            --linen: #f0efe9;
-            --white: #ffffff;
-            --cream: #f8f4ee;
+            --navy: #1a1a2e; --gold: #c9a84c; --gold-dark: #8a6e2a;
+            --linen: #f0efe9; --white: #ffffff; --cream: #f8f4ee;
             --ink: #1a1a2e;
-            --ink-60: rgba(26,26,46,0.6);
-            --ink-40: rgba(26,26,46,0.4);
-            --line: rgba(26,26,46,0.1);
+            --ink-60: rgba(26,26,46,0.6); --ink-40: rgba(26,26,46,0.4); --ink-25: rgba(26,26,46,0.25);
+            --line: rgba(26,26,46,0.09);
+            --green: #6a9e6a; --blue: #4a7fa5; --teal: #2e8b7a;
+            --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'DM Sans', sans-serif;
             background: var(--linen);
-            color: var(--ink);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 40px 20px;
+            display: flex; justify-content: center; align-items: flex-start;
+            padding: 48px 20px 64px;
             -webkit-font-smoothing: antialiased;
         }
-
         .card {
             background: var(--white);
             border: 1px solid var(--line);
             border-top: 3px solid var(--gold);
             border-radius: 4px;
-            padding: 52px 44px;
-            width: 100%;
-            max-width: 460px;
-            text-align: center;
+            padding: 52px 44px 44px;
+            width: 100%; max-width: 560px;
             box-shadow: 0 16px 48px rgba(26,26,46,0.08);
+            animation: cardIn 0.6s var(--spring) both;
+            text-align: center;
         }
-
-        .logo {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 24px;
-            font-weight: 600;
-            letter-spacing: 3px;
-            margin-bottom: 30px;
-        }
-        .logo span { color: var(--gold); }
+        @keyframes cardIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 
         .mark {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 58px;
-            font-weight: 300;
-            color: var(--gold);
-            line-height: 1;
-            margin-bottom: 22px;
+            font-size: 52px; font-weight: 300; color: var(--gold);
+            line-height: 1; margin-bottom: 18px;
+            animation: markGlow 3s ease infinite;
         }
+        @keyframes markGlow { 0%,100%{opacity:0.85} 50%{opacity:1; text-shadow: 0 0 22px rgba(201,168,76,0.45);} }
 
         h1 {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 38px;
-            font-weight: 600;
-            margin-bottom: 14px;
+            font-size: 38px; font-weight: 600; line-height: 1.15;
+            margin-bottom: 10px;
         }
         h1 em { font-style: italic; color: var(--gold-dark); font-weight: 400; }
-
-        .trial-badge {
-            display: inline-block;
-            border: 1px solid rgba(201,168,76,0.4);
-            color: var(--gold-dark);
-            font-size: 10px;
-            font-weight: 500;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            padding: 6px 16px;
-            border-radius: 2px;
-            margin-bottom: 26px;
-        }
-
-        p {
-            font-size: 14px;
-            font-weight: 300;
-            color: var(--ink-60);
-            line-height: 1.7;
-            margin-bottom: 32px;
-        }
+        .sub { font-size: 14px; font-weight: 300; color: var(--ink-60); line-height: 1.7; max-width: 400px; margin: 0 auto 30px; }
 
         .portal-btn {
-            display: block;
-            background: var(--navy);
-            color: var(--cream);
-            padding: 15px 36px;
-            border-radius: 2px;
-            font-size: 13px;
-            font-weight: 500;
-            text-decoration: none;
-            letter-spacing: 0.5px;
-            transition: all 0.25s;
-            margin-bottom: 18px;
+            display: inline-block;
+            background: var(--navy); color: var(--cream);
+            padding: 16px 40px; border-radius: 2px;
+            font-size: 13px; font-weight: 500; letter-spacing: 0.5px;
+            text-decoration: none; transition: all 0.25s;
+            margin-bottom: 14px;
         }
-        .portal-btn:hover { background: var(--gold); color: var(--navy); }
+        .portal-btn:hover { background: var(--gold); color: var(--navy); transform: translateY(-2px); }
+        .email-note { font-size: 12px; font-weight: 300; color: var(--ink-40); margin-bottom: 36px; line-height: 1.6; }
 
-        .help-link {
-            font-size: 12px;
-            font-weight: 300;
-            color: var(--ink-40);
+        .next-title {
+            font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
+            color: var(--gold-dark); margin-bottom: 16px;
+            display: flex; align-items: center; gap: 12px;
         }
-        .help-link a { color: var(--gold-dark); text-decoration: none; }
-        .help-link a:hover { text-decoration: underline; }
+        .next-title::before, .next-title::after { content: ''; flex: 1; height: 1px; background: var(--line); }
 
-        @media (max-width: 460px) {
-            .card { padding: 40px 24px; }
-            h1 { font-size: 32px; }
+        .next-steps { text-align: left; }
+        .next-step {
+            display: flex; gap: 14px; align-items: flex-start;
+            padding: 13px 0;
+        }
+        .next-step + .next-step { border-top: 1px solid var(--line); }
+        .next-num {
+            width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+            background: var(--linen); border: 1px solid var(--line);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 500; color: var(--gold-dark);
+        }
+        .next-text { font-size: 13px; font-weight: 300; color: var(--ink-60); line-height: 1.6; padding-top: 3px; }
+        .next-text strong { font-weight: 500; color: var(--ink); }
+        .next-text a { color: var(--gold-dark); font-weight: 500; text-decoration: none; }
+        .next-text a:hover { text-decoration: underline; }
+
+        @media (max-width: 480px) {
+            body { padding: 24px 14px 48px; }
+            .card { padding: 38px 24px 32px; }
+            h1 { font-size: 31px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
         }
     </style>
 </head>
 <body>
     <div class="card">
-        <div class="logo">fav<span>vi</span></div>
         <div class="mark">✦</div>
-        <h1>You're <em>live.</em></h1>
-        <div class="trial-badge">14-Day Free Trial Started</div>
-        <p>Your hotel portal is ready. We've sent your login details to your email — check your inbox to get started.</p>
-        <a class="portal-btn" id="portalBtn" href="/login">Go to My Portal</a>
-        <div class="help-link">
-            Need help? <a href="mailto:hello@favvi.ai">hello@favvi.ai</a>
+        <h1>Welcome to <em>Favvi.</em></h1>
+        <p class="sub">Your hotel portal is ready, and your 14-day free trial has begun. Your AI concierge is waiting to meet its first guests.</p>
+
+        <a class="portal-btn" id="portalBtn" href="/login">Open Your Portal</a>
+        <p class="email-note">We've also emailed your portal link and passwords —<br>keep that email safe.</p>
+
+        <div class="next-title">What happens next</div>
+        <div class="next-steps">
+            <div class="next-step">
+                <div class="next-num">1</div>
+                <div class="next-text"><strong>Open your portal.</strong> A setup checklist will greet you and walk you through everything, step by step.</div>
+            </div>
+            <div class="next-step">
+                <div class="next-num">2</div>
+                <div class="next-text"><strong>Tell the AI about your hotel.</strong> WiFi, breakfast times, facilities — five minutes in Settings and your concierge knows your hotel.</div>
+            </div>
+            <div class="next-step">
+                <div class="next-num">3</div>
+                <div class="next-text"><strong>Put Favvi on your team's phones.</strong> Staff get instant alerts when guests need something — <a href="/guide/notifications">here's the 2-minute setup guide</a>.</div>
+            </div>
+            <div class="next-step">
+                <div class="next-num">4</div>
+                <div class="next-text"><strong>Print your QR cards.</strong> Branded, ready-to-print cards are waiting in your portal. One on every desk, and you're live.</div>
+            </div>
         </div>
     </div>
 
     <script>
-        const params = new URLSearchParams(window.location.search);
-        const slug = params.get('slug');
-        if (slug) {
-            document.getElementById('portalBtn').href = `/portal/${slug}`;
-        }
+        const slug = new URLSearchParams(window.location.search).get('slug') || '';
+        if (slug) document.getElementById('portalBtn').href = `/portal/${slug}`;
     </script>
 </body>
 </html>
