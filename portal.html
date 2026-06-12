@@ -82,30 +82,88 @@
         .welcome em { font-style: italic; color: var(--gold-dark); font-weight: 400; }
         .subtitle { font-size: 12px; font-weight: 300; color: var(--ink-40); letter-spacing: 0.5px; text-align: right; }
 
-        /* ── SETUP BANNER ── */
-        .setup-banner {
+        /* ── ONBOARDING CHECKLIST ── */
+        .onboard {
             background: var(--white);
             border: 1px solid var(--line);
-            border-left: 3px solid var(--gold);
+            border-top: 3px solid var(--gold);
             border-radius: 4px;
-            padding: 16px 20px;
-            display: none;
-            justify-content: space-between;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 24px;
+            padding: 26px 28px 22px;
+            margin-bottom: 28px;
             box-shadow: 0 1px 4px rgba(26,26,46,0.05);
+            display: none;
+            animation: onboardIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
         }
-        .setup-banner-text { font-size: 13px; font-weight: 300; color: var(--ink-60); line-height: 1.5; }
-        .setup-banner-text strong { font-weight: 500; color: var(--ink); }
-        .setup-banner-btn {
-            background: var(--navy); color: var(--cream);
-            padding: 10px 18px; border-radius: 2px;
-            font-size: 12px; font-weight: 500;
-            text-decoration: none; white-space: nowrap;
-            transition: all 0.25s;
+        @keyframes onboardIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .onboard.collapsing { transition: opacity 0.5s ease, transform 0.5s ease; opacity: 0; transform: translateY(-8px) scale(0.99); }
+
+        .onboard-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 6px; }
+        .onboard-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 27px; font-weight: 600; line-height: 1.15;
         }
-        .setup-banner-btn:hover { background: var(--gold); color: var(--navy); }
+        .onboard-title em { font-style: italic; color: var(--gold-dark); font-weight: 400; }
+        .onboard-count { font-size: 12px; font-weight: 400; color: var(--ink-40); white-space: nowrap; }
+        .onboard-sub { font-size: 12px; font-weight: 300; color: var(--ink-40); margin-bottom: 16px; line-height: 1.5; }
+
+        .onboard-bar { height: 3px; background: var(--linen); border-radius: 2px; overflow: hidden; margin-bottom: 18px; }
+        .onboard-bar-fill {
+            height: 100%; width: 0; border-radius: 2px;
+            background: var(--gold);
+            box-shadow: 0 0 8px rgba(201,168,76,0.4);
+            transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .onboard-step {
+            display: flex; align-items: center; gap: 14px;
+            padding: 13px 10px;
+            margin: 0 -10px;
+            border-radius: 4px;
+            text-decoration: none; color: inherit;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+        .onboard-step:hover { background: var(--linen); }
+        .onboard-step + .onboard-step { border-top: 1px solid var(--line); }
+
+        .step-circle {
+            width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+            border: 1.5px dashed var(--ink-25);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; color: transparent;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .onboard-step.done .step-circle {
+            border: 1.5px solid var(--green);
+            background: var(--green);
+            color: white;
+        }
+        .step-text { flex: 1; min-width: 0; }
+        .step-title { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 2px; }
+        .step-desc  { font-size: 12px; font-weight: 300; color: var(--ink-40); line-height: 1.5; }
+        .onboard-step.done .step-title { color: var(--ink-40); text-decoration: line-through; text-decoration-color: var(--ink-25); }
+        .onboard-step.done .step-desc  { color: var(--ink-25); }
+        .step-arrow { font-size: 13px; color: var(--ink-25); flex-shrink: 0; transition: all 0.25s; }
+        .onboard-step:hover .step-arrow { color: var(--gold-dark); transform: translateX(2px); }
+        .onboard-step.done .step-arrow { opacity: 0; }
+
+        .onboard-foot { text-align: right; margin-top: 10px; }
+        .onboard-hide {
+            font-size: 11px; font-weight: 300; color: var(--ink-25);
+            text-decoration: none; border-bottom: 1px solid transparent;
+            cursor: pointer; transition: color 0.2s;
+        }
+        .onboard-hide:hover { color: var(--ink-60); }
+
+        .spark {
+            position: fixed; pointer-events: none; z-index: 400;
+            font-size: 13px; color: var(--gold);
+            animation: sparkFly 0.85s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        @keyframes sparkFly {
+            0%   { opacity: 1; transform: translate(0,0) scale(0.6) rotate(0deg); }
+            100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.15) rotate(var(--rot)); }
+        }
 
         /* ── GRID ── */
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
@@ -195,11 +253,62 @@
     </div>
 
     <div class="body">
-        <div class="setup-banner" id="setupBanner">
-            <div class="setup-banner-text">
-                <strong>Finish setting up.</strong> Add your hotel info so the AI knows what to tell your guests.
+        <div class="onboard" id="onboard">
+            <div class="onboard-head">
+                <div class="onboard-title">Let's set up <em>your hotel.</em></div>
+                <div class="onboard-count" id="onboardCount">0 of 5</div>
             </div>
-            <a class="setup-banner-btn" id="setupBannerBtn" href="#">Set Up Now →</a>
+            <p class="onboard-sub">Five quick steps and your AI concierge is ready for guests.</p>
+            <div class="onboard-bar"><div class="onboard-bar-fill" id="onboardBar"></div></div>
+
+            <a class="onboard-step" id="step-info" href="#">
+                <div class="step-circle">✓</div>
+                <div class="step-text">
+                    <div class="step-title">Tell the AI about your hotel</div>
+                    <div class="step-desc">WiFi password, breakfast times, facilities — this is what the concierge tells your guests. The more detail, the smarter it gets.</div>
+                </div>
+                <span class="step-arrow">→</span>
+            </a>
+
+            <a class="onboard-step" id="step-knowledge" href="#">
+                <div class="step-circle">✓</div>
+                <div class="step-text">
+                    <div class="step-title">Add your staff knowledge base</div>
+                    <div class="step-desc">Procedures, policies, how to handle situations — your staff's private AI assistant learns from this.</div>
+                </div>
+                <span class="step-arrow">→</span>
+            </a>
+
+            <a class="onboard-step" id="step-chat" href="#" target="_blank">
+                <div class="step-circle">✓</div>
+                <div class="step-text">
+                    <div class="step-title">Try your guest chat</div>
+                    <div class="step-desc">See exactly what guests will see. Ask it something — request towels, ask about breakfast.</div>
+                </div>
+                <span class="step-arrow">→</span>
+            </a>
+
+            <a class="onboard-step" id="step-links" href="#">
+                <div class="step-circle">✓</div>
+                <div class="step-text">
+                    <div class="step-title">Download your QR print cards</div>
+                    <div class="step-desc">Branded, print-ready cards for guest rooms. Guests scan and chat — nothing to install.</div>
+                </div>
+                <span class="step-arrow">→</span>
+            </a>
+
+            <a class="onboard-step" id="step-staff" href="#" target="_blank">
+                <div class="step-circle">✓</div>
+                <div class="step-text">
+                    <div class="step-title">Open the staff dashboard</div>
+                    <div class="step-desc">Where requests arrive in real time. Have your team log in here and enable alerts on their phones.</div>
+                </div>
+                <span class="step-arrow">→</span>
+            </a>
+
+            <div class="onboard-foot">
+                <span class="onboard-hide" onclick="hideOnboard()">Hide this checklist</span>
+            </div>
         </div>
 
         <div class="welcome-row">
@@ -279,13 +388,99 @@
             document.getElementById('linksLink').href      = `/portal/${slug}/links`;
             document.getElementById('settingsLink').href   = `/portal/${slug}/settings`;
 
-            document.getElementById('setupBannerBtn').href = `/portal/${slug}/settings`;
-
-            if (!hotel.hotel_info || hotel.hotel_info.trim() === '') {
-                document.getElementById('setupBanner').style.display = 'flex';
-            }
+            initOnboarding(hotel);
         }
         loadHotel();
+
+        /* ── ONBOARDING CHECKLIST ── */
+        const obKey = k => `favvi_onboard_${slug}_${k}`;
+
+        function sparkleAt(x, y) {
+            for (let i = 0; i < 10; i++) {
+                const s = document.createElement('div');
+                s.className = 'spark';
+                s.textContent = '✦';
+                const ang = (Math.PI * 2 * i) / 10 + Math.random() * 0.5;
+                const dist = 36 + Math.random() * 30;
+                s.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
+                s.style.setProperty('--dy', Math.sin(ang) * dist - 12 + 'px');
+                s.style.setProperty('--rot', (Math.random() * 160 - 80) + 'deg');
+                s.style.left = x + 'px'; s.style.top = y + 'px';
+                document.body.appendChild(s);
+                setTimeout(() => s.remove(), 900);
+            }
+        }
+
+        function initOnboarding(hotel) {
+            if (localStorage.getItem(obKey('hidden'))) return;
+
+            const steps = [
+                { id: 'step-info',      href: `/portal/${slug}/settings`,  done: !!(hotel.hotel_info && hotel.hotel_info.trim()),           track: null },
+                { id: 'step-knowledge', href: `/portal/${slug}/settings`,  done: !!(hotel.staff_knowledge && hotel.staff_knowledge.trim()), track: null },
+                { id: 'step-chat',      href: `/portal/${slug}/chat`,      done: !!localStorage.getItem(obKey('chat')),                     track: 'chat' },
+                { id: 'step-links',     href: `/portal/${slug}/links`,     done: !!localStorage.getItem(obKey('links')),                    track: 'links' },
+                { id: 'step-staff',     href: `/portal/${slug}/staff`,     done: !!localStorage.getItem(obKey('staff')),                    track: 'staff' },
+            ];
+
+            const doneCount = steps.filter(s => s.done).length;
+
+            // All five complete: celebrate once, then never show again
+            if (doneCount === 5) {
+                if (!localStorage.getItem(obKey('celebrated'))) {
+                    localStorage.setItem(obKey('celebrated'), '1');
+                    localStorage.setItem(obKey('hidden'), '1');
+                    const card = document.getElementById('onboard');
+                    renderOnboard(steps, doneCount);
+                    card.style.display = 'block';
+                    setTimeout(() => {
+                        const rect = card.getBoundingClientRect();
+                        sparkleAt(rect.left + rect.width / 2, rect.top + 60);
+                        setTimeout(() => {
+                            card.classList.add('collapsing');
+                            setTimeout(() => card.remove(), 520);
+                        }, 900);
+                    }, 700);
+                }
+                return;
+            }
+
+            renderOnboard(steps, doneCount);
+            document.getElementById('onboard').style.display = 'block';
+        }
+
+        function renderOnboard(steps, doneCount) {
+            steps.forEach(s => {
+                const el = document.getElementById(s.id);
+                el.href = s.href;
+                if (s.done) el.classList.add('done');
+                if (s.track && !s.done) {
+                    el.addEventListener('click', () => {
+                        localStorage.setItem(obKey(s.track), '1');
+                        el.classList.add('done');
+                        const rect = el.querySelector('.step-circle').getBoundingClientRect();
+                        sparkleAt(rect.left + rect.width / 2, rect.top + rect.height / 2);
+                        updateOnboardProgress();
+                    });
+                }
+            });
+            document.getElementById('onboardCount').textContent = `${doneCount} of 5`;
+            requestAnimationFrame(() => {
+                document.getElementById('onboardBar').style.width = (doneCount / 5 * 100) + '%';
+            });
+        }
+
+        function updateOnboardProgress() {
+            const done = document.querySelectorAll('.onboard-step.done').length;
+            document.getElementById('onboardCount').textContent = `${done} of 5`;
+            document.getElementById('onboardBar').style.width = (done / 5 * 100) + '%';
+        }
+
+        function hideOnboard() {
+            localStorage.setItem(obKey('hidden'), '1');
+            const card = document.getElementById('onboard');
+            card.classList.add('collapsing');
+            setTimeout(() => card.remove(), 520);
+        }
     </script>
 </body>
 </html>
