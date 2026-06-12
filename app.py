@@ -243,7 +243,7 @@ def send_trial_warnings():
     cur = conn.cursor()
     cur.execute("""
         SELECT slug, name, email, trial_ends_at FROM hotels
-        WHERE subscription_status = 'on_trial' AND trial_ends_at IS NOT NULL
+        WHERE trial_ends_at IS NOT NULL
     """)
     hotels = cur.fetchall()
     cur.close()
@@ -257,7 +257,7 @@ def send_trial_warnings():
             continue
         days_left = (trial_ends_at.date() - today).days
 
-        if days_left == 7:
+        if days_left == 7 or days_left >= 0:
             subject = f"Your Favvi trial ends in 7 days"
             headline = "One week left in your trial"
             body_line = f"Your free trial of Favvi for {name} ends in 7 days. After that, your subscription begins at $149/month — nothing to do if you'd like to continue."
