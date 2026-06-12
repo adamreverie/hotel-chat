@@ -3,6 +3,7 @@ import re
 import json
 import time
 import secrets
+import urllib.request
 import resend
 import sqlite3
 from datetime import datetime
@@ -164,6 +165,9 @@ def signup_page(): return send_from_directory('.', 'signup.html')
 @app.route('/login')
 def login_page(): return send_from_directory('.', 'login.html')
 
+@app.route('/signup-success')
+def signup_success_page(): return send_from_directory('.', 'signup-success.html')
+
 @app.route('/terms')
 def terms(): return send_from_directory('.', 'terms.html')
 
@@ -273,68 +277,95 @@ def signup():
 
     slug = re.sub(r'[^a-z0-9]+', '-', hotel_name.lower()).strip('-')
 
+    # Reject duplicates before sending anyone to checkout
     conn = get_conn(); c = conn.cursor()
     c.execute(f'SELECT id FROM hotels WHERE slug = {ph()} OR email = {ph()}', (slug, email))
     if c.fetchone():
         conn.close()
         return jsonify({"success": False, "error": "A hotel with this name or email already exists"})
+    conn.close()
 
-    c.execute(f'''INSERT INTO hotels
-                  (name, slug, email, password, system_prompt,
-                   staff_password, manager_password, date_created)
-                  VALUES ({ph()}, {ph()}, {ph()}, {ph()}, {ph()}, {ph()}, {ph()}, {ph()})''',
-              (hotel_name, slug, email, password, '',
-               staff_pw, manager_pw, datetime.now().strftime("%Y-%m-%d %H:%M")))
+    ls_api_key    = os.environ.get("LEMONSQUEEZY_API_KEY", "")
+    ls_store_id   = os.environ.get("LEMONSQUEEZY_STORE_ID", "")
+    ls_variant_id = os.environ.get("LEMONSQUEEZY_VARIANT_ID", "")
+
+    # ── Lemon Squeezy checkout (production path) ──
+    if ls_api_key and ls_store_id and ls_variant_id:
+        payload = {
+            "data": {
+                "type": "checkouts",
+                "attributes": {
+                    "checkout_data": {
+                        "email": email,
+                        "custom": {
+                            "hotel_name":       hotel_name,
+                            "slug":             slug,
+                            "email":            email,
+                            "password":         password,
+                            "staff_password":   staff_pw,
+                            "manager_password": manager_pw
+                        }
+                    },
+                    "product_options": {
+                        "redirect_url": "https://favvi.ai/signup-success"
+                    }
+                },
+                "relationships": {
+                    "store":   {"data": {"type": "stores",   "id": str(ls_store_id)}},
+                    "variant": {"data": {"type": "variants", "id": str(ls_variant_id)}}
+                }
+            }
+        }
+        try:
+            req = urllib.request.Request(
+                "https://api.lemonsqueezy.com/v1/checkouts",
+                data=json.dumps(payload).encode(),
+                headers={
+                    "Accept":        "application/vnd.api+json",
+                    "Content-Type":  "application/vnd.api+json",
+                    "Authorization": f"Bearer {ls_api_key}"
+                },
+                method="POST"
+            )
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                body = json.loads(resp.read().decode())
+            checkout_url = body["data"]["attributes"]["url"]
+            return jsonify({"success": True, "checkout_url": checkout_url})
+        except Exception as e:
+            print(f"Lemon Squeezy checkout failed: {e}")
+            return jsonify({"success": False, "error": "Could not start checkout — please try again"})
+
+    # ── Fallback (no billing configured): create the hotel directly ──
+    from datetime import timedelta
+    conn = get_conn(); c = conn.cursor()
+    if USE_POSTGRES:
+        c.execute(f"""INSERT INTO hotels
+                      (name, slug, email, password, system_prompt,
+                       staff_password, manager_password, date_created,
+                       trial_ends_at, subscription_status)
+                      VALUES ({ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()})""",
+                  (hotel_name, slug, email, password, '',
+                   staff_pw, manager_pw, datetime.now().strftime("%Y-%m-%d %H:%M"),
+                   datetime.now() + timedelta(days=14), 'on_trial'))
+    else:
+        c.execute(f"""INSERT INTO hotels
+                      (name, slug, email, password, system_prompt,
+                       staff_password, manager_password, date_created)
+                      VALUES ({ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()})""",
+                  (hotel_name, slug, email, password, '',
+                   staff_pw, manager_pw, datetime.now().strftime("%Y-%m-%d %H:%M")))
     conn.commit(); conn.close()
 
-    # Notify us
     try:
         resend.Emails.send({
             "from": "Favvi <hello@favvi.ai>",
             "to": "hello@favvi.ai",
-            "subject": f"New signup — {hotel_name}",
-            "html": f"""<h2>New Hotel Signed Up</h2>
-                <p><strong>Hotel:</strong> {hotel_name}</p>
-                <p><strong>Email:</strong> {email}</p>
-                <p><strong>Slug:</strong> {slug}</p>
-                <p><strong>Time:</strong> {datetime.now().strftime("%Y-%m-%d %H:%M")}</p>"""
+            "subject": f"New signup (direct) — {hotel_name}",
+            "html": f"<p><strong>Hotel:</strong> {hotel_name}</p><p><strong>Email:</strong> {email}</p><p><strong>Slug:</strong> {slug}</p>"
         })
     except Exception: pass
 
-    # Welcome the hotel
-    try:
-        resend.Emails.send({
-            "from": "Favvi <hello@favvi.ai>",
-            "to": email,
-            "subject": f"Welcome to Favvi — {hotel_name} is live!",
-            "html": f"""
-            <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;">
-                <h2 style="color:#1a1a2e;">Welcome to Favvi</h2>
-                <p>Your hotel portal is ready. Here are your details:</p>
-                <div style="background:#f5f5f5;padding:20px;border-radius:8px;margin:20px 0;">
-                    <p><strong>Hotel:</strong> {hotel_name}</p>
-                    <p><strong>Portal:</strong> https://favvi.ai/portal/{slug}</p>
-                    <p><strong>Email:</strong> {email}</p>
-                    <p><strong>Password:</strong> {password}</p>
-                    <p><strong>Staff Password:</strong> {staff_pw}</p>
-                    <p><strong>Manager Password:</strong> {manager_pw}</p>
-                </div>
-                <h3>Getting Started</h3>
-                <ol>
-                    <li>Visit your portal and open <strong>Settings</strong></li>
-                    <li>Add your hotel info, facilities and room details</li>
-                    <li>Share the QR code from <strong>Links & QR</strong> in guest rooms</li>
-                    <li>Staff log in at <strong>favvi.ai/portal/{slug}/staff</strong></li>
-                </ol>
-                <a href="https://favvi.ai/portal/{slug}"
-                   style="display:inline-block;background:#1a1a2e;color:white;
-                          padding:12px 28px;text-decoration:none;border-radius:4px;margin-top:16px;">
-                    Open Your Portal</a>
-            </div>"""
-        })
-    except Exception: pass
-
-    return jsonify({"success": True, "slug": slug})
+    return jsonify({"success": True, "checkout_url": "/signup-success"})
 
 
 # ── SETTINGS ──────────────────────────────────────────────────────────────────
