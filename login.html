@@ -2,14 +2,13 @@
 <html lang="en">
 <head>
     <link rel="icon" href="/favicon.ico">
-    <title>Log In — Favvi</title>
+    <title>Hotel Login — Favvi</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         :root {
             --navy: #1a1a2e;
             --gold: #c9a84c;
-            --gold-light: #e8c97a;
             --gold-dark: #8a6e2a;
             --linen: #f0efe9;
             --white: #ffffff;
@@ -18,193 +17,172 @@
             --ink-60: rgba(26,26,46,0.6);
             --ink-40: rgba(26,26,46,0.4);
             --ink-25: rgba(26,26,46,0.25);
-            --line: rgba(26,26,46,0.1);
+            --line: rgba(26,26,46,0.09);
+            --green: #6a9e6a;
+            --red: #c0392b;
+            --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'DM Sans', sans-serif;
             background: var(--linen);
-            color: var(--ink);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 32px 20px;
+            display: flex; justify-content: center; align-items: center;
+            padding: 20px;
             -webkit-font-smoothing: antialiased;
         }
-
         .card {
             background: var(--white);
             border: 1px solid var(--line);
             border-top: 3px solid var(--gold);
             border-radius: 4px;
-            padding: 46px 40px 40px;
-            width: 100%;
-            max-width: 400px;
+            padding: 44px 38px 36px;
+            width: 100%; max-width: 400px;
             box-shadow: 0 16px 48px rgba(26,26,46,0.08);
+            animation: cardIn 0.55s var(--spring) both;
         }
+        @keyframes cardIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
         .logo {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 30px;
-            font-weight: 600;
-            color: var(--ink);
-            letter-spacing: 3px;
-            text-decoration: none;
-            display: inline-block;
+            font-size: 24px; font-weight: 600;
+            color: var(--ink); letter-spacing: 3px;
+            text-decoration: none; display: inline-block;
             margin-bottom: 4px;
         }
         .logo span { color: var(--gold); }
-
-        .tagline {
-            font-size: 11px;
-            font-weight: 400;
-            color: var(--ink-40);
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            margin-bottom: 36px;
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 30px; font-weight: 600;
+            color: var(--ink); line-height: 1.15; margin-bottom: 4px;
         }
+        h1 em { font-style: italic; color: var(--gold-dark); font-weight: 400; }
+        .sub { font-size: 12px; font-weight: 300; color: var(--ink-40); margin-bottom: 28px; }
 
-        .field { margin-bottom: 16px; }
+        .field { margin-bottom: 15px; }
         .field label {
-            display: block;
-            font-size: 10px;
-            font-weight: 500;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: var(--ink-40);
-            margin-bottom: 7px;
+            display: block; font-size: 10px; font-weight: 500;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            color: var(--ink-40); margin-bottom: 7px;
         }
         .field input {
-            width: 100%;
-            padding: 13px 15px;
+            width: 100%; padding: 13px 15px;
             background: var(--white);
             border: 1px solid var(--line);
             border-radius: 2px;
             font-family: 'DM Sans', sans-serif;
-            font-size: 15px;
-            font-weight: 300;
-            color: var(--ink);
-            outline: none;
+            font-size: 16px; font-weight: 300;
+            color: var(--ink); outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
+            -webkit-appearance: none; appearance: none;
         }
         .field input::placeholder { color: var(--ink-25); }
-        .field input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.12); }
+        .field input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.1); }
 
         .stay-row {
-            display: flex;
-            align-items: center;
-            gap: 11px;
-            margin-bottom: 18px;
+            display: flex; align-items: flex-start; gap: 10px;
+            margin: 18px 0;
             padding: 13px 14px;
             background: var(--linen);
-            border-radius: 2px;
             border: 1px solid var(--line);
+            border-radius: 2px;
         }
-        .stay-row input {
-            width: 16px; height: 16px;
-            accent-color: var(--navy);
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-        .stay-title { font-size: 13px; font-weight: 500; color: var(--ink); cursor: pointer; display: block; }
-        .stay-sub { font-size: 11px; font-weight: 300; color: var(--ink-40); }
+        .stay-row input { width: 16px; height: 16px; accent-color: var(--navy); cursor: pointer; flex-shrink: 0; margin-top: 1px; }
+        .stay-label { font-size: 13px; font-weight: 500; color: var(--ink); cursor: pointer; display: block; }
+        .stay-hint  { font-size: 11px; font-weight: 300; color: var(--ink-40); }
 
         .login-btn {
-            width: 100%;
-            padding: 15px;
-            background: var(--navy);
-            color: var(--cream);
-            border: none;
-            border-radius: 2px;
+            width: 100%; padding: 15px;
+            background: var(--navy); color: var(--cream);
+            border: none; border-radius: 2px;
             font-family: 'DM Sans', sans-serif;
-            font-size: 13px;
-            font-weight: 500;
-            letter-spacing: 0.5px;
+            font-size: 13px; font-weight: 500; letter-spacing: 0.5px;
             cursor: pointer;
             transition: all 0.25s;
         }
         .login-btn:hover { background: var(--gold); color: var(--navy); }
-        .login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .login-btn:active { transform: scale(0.98); }
+        .login-btn:disabled { opacity: 0.6; cursor: default; }
 
-        .error {
-            color: #c0392b;
-            font-size: 12px;
-            margin-top: 12px;
+        .error { color: var(--red); font-size: 12px; font-weight: 300; margin-top: 12px; display: none; text-align: center; }
+
+        .forgot-row { text-align: center; margin-top: 16px; }
+        .forgot-row a {
+            font-size: 12px; font-weight: 300; color: var(--ink-40);
+            text-decoration: none; border-bottom: 1px solid var(--line);
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .forgot-row a:hover { color: var(--gold-dark); border-color: var(--gold); }
+
+        .forgot-box {
             display: none;
-            text-align: center;
+            margin-top: 18px; padding-top: 18px;
+            border-top: 1px solid var(--line);
         }
+        .forgot-box p.intro { font-size: 12px; font-weight: 300; color: var(--ink-40); margin-bottom: 12px; line-height: 1.6; }
+        .forgot-sent { font-size: 12px; font-weight: 300; color: var(--green); margin-top: 12px; text-align: center; display: none; line-height: 1.6; }
 
-        .divider { height: 1px; background: var(--line); margin: 30px 0 0; }
-        .footer-text {
-            font-size: 12px;
-            font-weight: 300;
-            color: var(--ink-40);
-            text-align: center;
-            margin-top: 20px;
-        }
-        .footer-text a { color: var(--gold-dark); text-decoration: none; font-weight: 400; }
+        .divider { height: 1px; background: var(--line); margin: 28px 0 0; }
+        .footer-text { font-size: 12px; font-weight: 300; color: var(--ink-40); text-align: center; margin-top: 18px; }
+        .footer-text a { color: var(--gold-dark); text-decoration: none; font-weight: 500; }
         .footer-text a:hover { text-decoration: underline; }
 
-        .back-home {
-            font-size: 11px;
-            font-weight: 300;
-            color: var(--ink-25);
-            text-decoration: none;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin-top: 24px;
-            transition: color 0.2s;
+        @media (max-width: 480px) {
+            .card { padding: 36px 24px 30px; }
+            h1 { font-size: 27px; }
         }
-        .back-home:hover { color: var(--gold-dark); }
-
-        @media (max-width: 440px) {
-            .card { padding: 36px 24px 32px; }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
         }
     </style>
 </head>
 <body>
     <div class="card">
         <a href="/" class="logo">fav<span>vi</span></a>
-        <p class="tagline">Hotel Portal</p>
+        <h1>Welcome <em>back.</em></h1>
+        <p class="sub">Hotel Management Portal</p>
 
         <div class="field">
             <label>Email Address</label>
-            <input
-                type="email"
-                id="email"
-                placeholder="manager@yourhotel.com"
-                onkeypress="if(event.key==='Enter') login()"
-            />
+            <input type="email" id="email" placeholder="manager@yourhotel.com"
+                   autocomplete="email"
+                   onkeypress="if(event.key==='Enter') login()" />
         </div>
         <div class="field">
             <label>Password</label>
-            <input
-                type="password"
-                id="password"
-                placeholder="Enter your password"
-                onkeypress="if(event.key==='Enter') login()"
-            />
+            <input type="password" id="password" placeholder="Enter your password"
+                   autocomplete="current-password"
+                   onkeypress="if(event.key==='Enter') login()" />
         </div>
 
         <div class="stay-row">
             <input type="checkbox" id="staySignedIn" checked />
             <div>
-                <label for="staySignedIn" class="stay-title">Stay signed in</label>
-                <span class="stay-sub">Skip login next time you open Favvi</span>
+                <label for="staySignedIn" class="stay-label">Stay signed in</label>
+                <span class="stay-hint">Skip login next time you open Favvi</span>
             </div>
         </div>
 
-        <button class="login-btn" id="loginBtn" onclick="login()">Log In to Portal</button>
+        <button class="login-btn" id="loginBtn" onclick="login()">Login to Portal</button>
         <p class="error" id="error">Incorrect email or password.</p>
+
+        <div class="forgot-row">
+            <a href="#" onclick="showForgot(event)">Forgot password?</a>
+        </div>
+
+        <div class="forgot-box" id="forgotBox">
+            <p class="intro">Enter your account email and we'll send a reset link.</p>
+            <div class="field">
+                <input type="email" id="forgotEmail" placeholder="manager@yourhotel.com"
+                       onkeypress="if(event.key==='Enter') sendReset()" />
+            </div>
+            <button class="login-btn" id="forgotBtn" onclick="sendReset()">Send Reset Link</button>
+            <p class="forgot-sent" id="forgotSent">If that email is registered, a reset link is on its way. Check your inbox.</p>
+        </div>
 
         <div class="divider"></div>
         <p class="footer-text">Don't have an account? <a href="/signup">Start free trial</a></p>
     </div>
-
-    <a class="back-home" href="/">← Back to favvi.ai</a>
 
     <script>
         // Auto-redirect if already logged in
@@ -214,7 +192,7 @@
         }
 
         async function login() {
-            const email    = document.getElementById('email').value;
+            const email    = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const errEl    = document.getElementById('error');
             const btn      = document.getElementById('loginBtn');
@@ -225,10 +203,7 @@
                 return;
             }
 
-            btn.disabled = true;
-            btn.textContent = 'Logging in…';
-            errEl.style.display = 'none';
-
+            btn.disabled = true; btn.textContent = 'Logging in…';
             try {
                 const response = await fetch('/hotel-login', {
                     method: 'POST',
@@ -241,48 +216,43 @@
                     if (document.getElementById('staySignedIn').checked) {
                         localStorage.setItem('favvi_hotel_slug', data.slug);
                         localStorage.setItem('favvi_hotel_email', email);
-                        localStorage.setItem('favvi_hotel_password', btoa(password));
+                        localStorage.setItem('favvi_hotel_pw', btoa(password));
                     }
                     window.location.href = `/portal/${data.slug}`;
-                } else {
-                    errEl.textContent = 'Incorrect email or password.';
-                    errEl.style.display = 'block';
-                    btn.disabled = false;
-                    btn.textContent = 'Log In to Portal';
+                    return;
                 }
-            } catch(e) {
-                errEl.textContent = 'Network error. Please try again.';
+                errEl.textContent = 'Incorrect email or password.';
                 errEl.style.display = 'block';
-                btn.disabled = false;
-                btn.textContent = 'Log In to Portal';
+            } catch(e) {
+                errEl.textContent = 'Connection error — please try again.';
+                errEl.style.display = 'block';
             }
+            btn.disabled = false; btn.textContent = 'Login to Portal';
         }
 
-        async function checkSavedLogin() {
-            const savedEmail = localStorage.getItem('favvi_hotel_email');
-            const savedPw    = localStorage.getItem('favvi_hotel_password');
-            const slugSaved  = localStorage.getItem('favvi_hotel_slug');
+        function showForgot(e) {
+            e.preventDefault();
+            const box = document.getElementById('forgotBox');
+            box.style.display = box.style.display === 'block' ? 'none' : 'block';
+            const emailField = document.getElementById('email').value;
+            if (emailField) document.getElementById('forgotEmail').value = emailField;
+        }
 
-            if (!savedEmail || !savedPw || !slugSaved) return;
-
+        async function sendReset() {
+            const email = document.getElementById('forgotEmail').value.trim();
+            if (!email) return;
+            const btn = document.getElementById('forgotBtn');
+            btn.disabled = true; btn.textContent = 'Sending…';
             try {
-                const r = await fetch('/hotel-login', {
+                await fetch('/request-password-reset', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: savedEmail, password: atob(savedPw) })
+                    body: JSON.stringify({ email })
                 });
-                const data = await r.json();
-                if (data.success) {
-                    window.location.href = `/portal/${data.slug}`;
-                } else {
-                    localStorage.removeItem('favvi_hotel_email');
-                    localStorage.removeItem('favvi_hotel_password');
-                    localStorage.removeItem('favvi_hotel_slug');
-                }
             } catch(e) {}
+            document.getElementById('forgotSent').style.display = 'block';
+            btn.style.display = 'none';
         }
-
-        checkSavedLogin();
     </script>
 </body>
 </html>

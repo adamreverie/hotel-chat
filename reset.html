@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" href="/favicon.ico">
+    <title>Reset Password — Favvi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #1a1a2e;
+            --gold: #c9a84c;
+            --gold-dark: #8a6e2a;
+            --linen: #f0efe9;
+            --white: #ffffff;
+            --cream: #f8f4ee;
+            --ink: #1a1a2e;
+            --ink-60: rgba(26,26,46,0.6);
+            --ink-40: rgba(26,26,46,0.4);
+            --ink-25: rgba(26,26,46,0.25);
+            --line: rgba(26,26,46,0.09);
+            --green: #6a9e6a;
+            --red: #c0392b;
+            --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--linen);
+            min-height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+        }
+        .card {
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-top: 3px solid var(--gold);
+            border-radius: 4px;
+            padding: 44px 38px 38px;
+            width: 100%; max-width: 420px;
+            box-shadow: 0 16px 48px rgba(26,26,46,0.08);
+            animation: cardIn 0.55s var(--spring) both;
+        }
+        @keyframes cardIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px; font-weight: 600;
+            color: var(--ink); letter-spacing: 3px;
+            text-decoration: none; display: inline-block;
+            margin-bottom: 6px;
+        }
+        .logo span { color: var(--gold); }
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 30px; font-weight: 600;
+            color: var(--ink); line-height: 1.15; margin-bottom: 6px;
+        }
+        h1 em { font-style: italic; color: var(--gold-dark); font-weight: 400; }
+        .sub { font-size: 12px; font-weight: 300; color: var(--ink-40); margin-bottom: 28px; line-height: 1.6; }
+
+        .field { margin-bottom: 15px; }
+        .field label {
+            display: block; font-size: 10px; font-weight: 500;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            color: var(--ink-40); margin-bottom: 7px;
+        }
+        .field input {
+            width: 100%; padding: 13px 15px;
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-radius: 2px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 16px; font-weight: 300;
+            color: var(--ink); outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            -webkit-appearance: none; appearance: none;
+        }
+        .field input::placeholder { color: var(--ink-25); }
+        .field input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.1); }
+
+        .optional-section {
+            border-top: 1px solid var(--line);
+            margin-top: 24px; padding-top: 22px;
+        }
+        .optional-title { font-size: 10px; font-weight: 500; letter-spacing: 1.8px; text-transform: uppercase; color: var(--gold-dark); margin-bottom: 4px; }
+        .optional-hint  { font-size: 11px; font-weight: 300; color: var(--ink-25); margin-bottom: 16px; }
+
+        .submit-btn {
+            width: 100%; padding: 15px;
+            background: var(--navy); color: var(--cream);
+            border: none; border-radius: 2px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px; font-weight: 500; letter-spacing: 0.5px;
+            cursor: pointer; margin-top: 20px;
+            transition: all 0.25s;
+        }
+        .submit-btn:hover { background: var(--gold); color: var(--navy); }
+        .submit-btn:active { transform: scale(0.98); }
+        .submit-btn:disabled { opacity: 0.6; cursor: default; transform: none; }
+
+        .msg { font-size: 12px; font-weight: 300; margin-top: 14px; text-align: center; display: none; line-height: 1.5; }
+        .msg.error   { color: var(--red); display: block; }
+        .msg.success { color: var(--green); display: block; }
+
+        .success-view { display: none; text-align: center; padding: 18px 0 6px; }
+        .success-view.visible { display: block; animation: cardIn 0.55s var(--spring) both; }
+        .success-mark {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 46px; font-weight: 300; color: var(--gold);
+            line-height: 1; margin-bottom: 18px;
+            animation: markGlow 3s ease infinite;
+        }
+        @keyframes markGlow { 0%,100%{opacity:0.85} 50%{opacity:1; text-shadow: 0 0 20px rgba(201,168,76,0.4);} }
+        .success-view h2 { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+        .success-view h2 em { font-style: italic; color: var(--gold-dark); font-weight: 400; }
+        .success-view p  { font-size: 13px; font-weight: 300; color: var(--ink-40); margin-bottom: 26px; line-height: 1.7; }
+        .success-view a {
+            display: inline-block; background: var(--navy); color: var(--cream);
+            padding: 14px 32px; text-decoration: none; border-radius: 2px;
+            font-size: 13px; font-weight: 500; transition: all 0.25s;
+        }
+        .success-view a:hover { background: var(--gold); color: var(--navy); }
+
+        @media (max-width: 480px) {
+            .card { padding: 36px 24px 30px; }
+            h1 { font-size: 27px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <a href="/" class="logo">fav<span>vi</span></a>
+
+        <div id="formView">
+            <h1>Choose new <em>passwords</em></h1>
+            <p class="sub">Set a new account password. You can also reset your manager and staff passwords at the same time.</p>
+
+            <div class="field">
+                <label>New Account Password</label>
+                <input type="password" id="newPassword" placeholder="At least 6 characters" />
+            </div>
+            <div class="field">
+                <label>Confirm Account Password</label>
+                <input type="password" id="confirmPassword" placeholder="Repeat password" />
+            </div>
+
+            <div class="optional-section">
+                <div class="optional-title">Manager & Staff Passwords</div>
+                <p class="optional-hint">Optional — leave blank to keep the current ones.</p>
+                <div class="field">
+                    <label>New Manager Password</label>
+                    <input type="password" id="managerPassword" placeholder="Leave blank to keep current" />
+                </div>
+                <div class="field">
+                    <label>New Staff Password</label>
+                    <input type="password" id="staffPassword" placeholder="Leave blank to keep current" />
+                </div>
+            </div>
+
+            <button class="submit-btn" id="submitBtn" onclick="submitReset()">Reset Passwords</button>
+            <p class="msg" id="msg"></p>
+        </div>
+
+        <div class="success-view" id="successView">
+            <div class="success-mark">✦</div>
+            <h2>All <em>set.</em></h2>
+            <p>Your passwords have been updated.<br>You can now log in with your new password.</p>
+            <a href="/login">Go to Login</a>
+        </div>
+    </div>
+
+    <script>
+        const token = new URLSearchParams(window.location.search).get('token') || '';
+        let submitting = false;
+
+        function showMsg(text, isError) {
+            const m = document.getElementById('msg');
+            m.textContent = text;
+            m.className = 'msg ' + (isError ? 'error' : 'success');
+        }
+
+        async function submitReset() {
+            if (submitting) return;
+            const pw      = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmPassword').value;
+            const mgrPw   = document.getElementById('managerPassword').value;
+            const stfPw   = document.getElementById('staffPassword').value;
+
+            if (!token)         { showMsg('This link is invalid — request a new reset email.', true); return; }
+            if (pw.length < 6)  { showMsg('Password must be at least 6 characters.', true); return; }
+            if (pw !== confirm) { showMsg('Passwords do not match.', true); return; }
+
+            submitting = true;
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true; btn.textContent = 'Resetting…';
+
+            try {
+                const r = await fetch('/reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        token,
+                        password: pw,
+                        manager_password: mgrPw,
+                        staff_password: stfPw
+                    })
+                });
+                const data = await r.json();
+                if (data.success) {
+                    document.getElementById('formView').style.display = 'none';
+                    document.getElementById('successView').classList.add('visible');
+                } else {
+                    showMsg(data.error || 'Something went wrong — please try again.', true);
+                    btn.disabled = false; btn.textContent = 'Reset Passwords';
+                    submitting = false;
+                }
+            } catch(e) {
+                showMsg('Connection error — please try again.', true);
+                btn.disabled = false; btn.textContent = 'Reset Passwords';
+                submitting = false;
+            }
+        }
+    </script>
+</body>
+</html>

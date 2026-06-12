@@ -2,6 +2,7 @@ import os
 import re
 import json
 import time
+import secrets
 import resend
 import sqlite3
 from datetime import datetime
@@ -71,6 +72,10 @@ def init_db():
                      id SERIAL PRIMARY KEY,
                      hotel_slug TEXT, staff_name TEXT, department TEXT,
                      subscription TEXT, created_at TEXT)''')
+        c.execute('''CREATE TABLE IF NOT EXISTS password_resets (
+                     id SERIAL PRIMARY KEY,
+                     email TEXT, slug TEXT, token TEXT UNIQUE,
+                     expires_at TEXT, used INTEGER DEFAULT 0)''')
     else:
         c.execute('''CREATE TABLE IF NOT EXISTS feedback
                     (id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -94,6 +99,10 @@ def init_db():
                     (id INTEGER PRIMARY KEY AUTOINCREMENT,
                      hotel_slug TEXT, staff_name TEXT, department TEXT,
                      subscription TEXT, created_at TEXT)''')
+        c.execute('''CREATE TABLE IF NOT EXISTS password_resets
+                    (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                     email TEXT, slug TEXT, token TEXT UNIQUE,
+                     expires_at TEXT, used INTEGER DEFAULT 0)''')
         # Safe migrations for older SQLite databases
         for sql in [
             "ALTER TABLE hotels   ADD COLUMN hotel_info TEXT",
@@ -834,6 +843,107 @@ def send_trial_warnings():
             print(f"Trial warning failed for {slug}: {e}")
 
     return jsonify({"sent": sent, "checked": len(hotels)})
+
+
+# ── PASSWORD RESET ────────────────────────────────────────────────────────────
+
+@app.route('/reset-password')
+def reset_password_page():
+    return send_from_directory('.', 'reset.html')
+
+
+@app.route('/request-password-reset', methods=['POST'])
+def request_password_reset():
+    email = (request.json or {}).get('email', '').strip().lower()
+    # Always respond identically — never reveal whether an email exists
+    generic = jsonify({"success": True})
+    if not email:
+        return generic
+
+    conn = get_conn(); c = conn.cursor()
+    c.execute(f'SELECT slug, name FROM hotels WHERE LOWER(email) = {ph()}', (email,))
+    row = c.fetchone(); conn.close()
+    if not row:
+        time.sleep(0.4)
+        return generic
+
+    slug, hotel_name = row[0], row[1]
+    token   = secrets.token_urlsafe(32)
+    expires = (datetime.now() + __import__('datetime').timedelta(hours=1)).strftime("%Y-%m-%d %H:%M:%S")
+
+    conn = get_conn(); c = conn.cursor()
+    c.execute(f"""INSERT INTO password_resets (email, slug, token, expires_at, used)
+                  VALUES ({ph()}, {ph()}, {ph()}, {ph()}, 0)""",
+              (email, slug, token, expires))
+    conn.commit(); conn.close()
+
+    reset_link = f"https://favvi.ai/reset-password?token={token}"
+    try:
+        resend.Emails.send({
+            "from": "Favvi <hello@favvi.ai>",
+            "to": email,
+            "subject": "Reset your Favvi passwords",
+            "html": f"""
+            <div style="font-family:Georgia,serif;max-width:540px;margin:0 auto;padding:40px 20px;">
+                <div style="color:#c9a84c;font-size:24px;margin-bottom:16px;">&#10022;</div>
+                <h1 style="font-size:26px;color:#1a1a2e;font-weight:600;margin-bottom:14px;">Reset your passwords</h1>
+                <p style="font-size:15px;color:#444;line-height:1.7;margin-bottom:24px;">
+                    We received a request to reset the passwords for <strong>{hotel_name}</strong>.
+                    The link below is valid for one hour. If you didn't request this, you can safely ignore this email.</p>
+                <a href="{reset_link}"
+                   style="display:inline-block;background:#1a1a2e;color:#f8f4ee;
+                          padding:13px 28px;text-decoration:none;font-size:14px;font-family:Arial,sans-serif;">
+                   Choose new passwords</a>
+                <p style="font-size:12px;color:#999;margin-top:36px;">Favvi — AI Concierge for Boutique Hotels<br>hello@favvi.ai</p>
+            </div>"""
+        })
+    except Exception as e:
+        print(f"Reset email failed: {e}")
+    return generic
+
+
+@app.route('/reset-password', methods=['POST'])
+def reset_password_submit():
+    data       = request.json or {}
+    token      = data.get('token', '')
+    new_pw     = data.get('password', '').strip()
+    staff_pw   = data.get('staff_password', '').strip()
+    manager_pw = data.get('manager_password', '').strip()
+
+    if not token or not new_pw:
+        return jsonify({"success": False, "error": "Missing token or password"})
+    if len(new_pw) < 6:
+        return jsonify({"success": False, "error": "Password must be at least 6 characters"})
+
+    conn = get_conn(); c = conn.cursor()
+    c.execute(f'SELECT email, slug, expires_at, used FROM password_resets WHERE token = {ph()}', (token,))
+    row = c.fetchone(); conn.close()
+
+    if not row:
+        time.sleep(0.4)
+        return jsonify({"success": False, "error": "Invalid or expired link"})
+    email, slug, expires_at, used = row
+
+    if used:
+        return jsonify({"success": False, "error": "This link has already been used"})
+    try:
+        if datetime.now() > datetime.strptime(str(expires_at)[:19], "%Y-%m-%d %H:%M:%S"):
+            return jsonify({"success": False, "error": "This link has expired — request a new one"})
+    except Exception:
+        return jsonify({"success": False, "error": "Invalid link"})
+
+    fields = [f'password = {ph()}']; values = [new_pw]
+    if staff_pw:
+        fields.append(f'staff_password = {ph()}');   values.append(staff_pw)
+    if manager_pw:
+        fields.append(f'manager_password = {ph()}'); values.append(manager_pw)
+    values.append(slug)
+
+    conn = get_conn(); c = conn.cursor()
+    c.execute(f"UPDATE hotels SET {', '.join(fields)} WHERE slug = {ph()}", values)
+    c.execute(f'UPDATE password_resets SET used = 1 WHERE token = {ph()}', (token,))
+    conn.commit(); conn.close()
+    return jsonify({"success": True, "slug": slug})
 
 
 # ── ADMIN PANEL ───────────────────────────────────────────────────────────────
