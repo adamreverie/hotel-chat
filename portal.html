@@ -221,6 +221,31 @@
         }
         .card:hover .card-arrow { color: var(--gold-dark); transform: translate(2px,-2px); }
 
+        .guide-bar {
+            display: flex; align-items: center; gap: 14px;
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-left: 3px solid var(--blue);
+            border-radius: 4px;
+            padding: 16px 20px;
+            margin-top: 16px;
+            text-decoration: none;
+            box-shadow: 0 1px 4px rgba(26,26,46,0.05);
+            transition: all 0.2s;
+        }
+        .guide-bar:hover { border-left-color: var(--gold); transform: translateX(2px); }
+        .guide-icon {
+            width: 38px; height: 38px; border-radius: 8px; flex-shrink: 0;
+            background: rgba(74,127,165,0.1);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+        }
+        .guide-text { flex: 1; min-width: 0; }
+        .guide-title { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 2px; }
+        .guide-desc { font-size: 12px; font-weight: 300; color: var(--ink-40); line-height: 1.4; }
+        .guide-arrow { font-size: 15px; color: var(--ink-25); flex-shrink: 0; }
+        .guide-bar:hover .guide-arrow { color: var(--gold-dark); }
+
         .card-footer {
             margin-top: 18px; padding-top: 14px;
             border-top: 1px solid var(--line);
@@ -353,12 +378,25 @@
                 <div class="card-footer">Manager access only</div>
             </a>
         </div>
+
+        <a class="guide-bar" id="notifGuideLink" href="/guide/notifications" target="_blank">
+            <div class="guide-icon">🔔</div>
+            <div class="guide-text">
+                <div class="guide-title">Set up phone notifications for your team</div>
+                <div class="guide-desc">A 2-minute guide to get staff alerts on every iPhone and Android.</div>
+            </div>
+            <div class="guide-arrow">→</div>
+        </a>
     </div>
 
     <script>
         const slug = window.location.pathname.split('/')[2];
 
+        function setText(id, text) { const el = document.getElementById(id); if (el) el.textContent = text; }
+        function setHref(id, href) { const el = document.getElementById(id); if (el) el.href = href; }
+
         async function loadHotel() {
+          try {
             const response = await fetch(`/get-hotel/${slug}`);
 
             if (response.status === 403) {
@@ -387,18 +425,23 @@
 
             const hotel = await response.json();
 
-            document.getElementById('hotelName').textContent = hotel.name;
-            document.getElementById('hotelSubtitle').textContent = hotel.name + ' — Favvi Portal';
+            setText('hotelName', hotel.name);
+            setText('hotelSubtitle', hotel.name + ' — Favvi Portal');
             document.title = hotel.name + ' — Favvi';
 
-            document.getElementById('staffLink').href      = `/portal/${slug}/staff`;
-            document.getElementById('staffChatLink').href  = `/portal/${slug}/staffchat`;
-            document.getElementById('dashboardLink').href  = `/portal/${slug}/dashboard`;
-            document.getElementById('linksLink').href      = `/portal/${slug}/links`;
-            document.getElementById('settingsLink').href   = `/portal/${slug}/settings`;
+            setHref('staffLink',      `/portal/${slug}/staff`);
+            setHref('staffChatLink',  `/portal/${slug}/staffchat`);
+            setHref('dashboardLink',  `/portal/${slug}/dashboard`);
+            setHref('linksLink',      `/portal/${slug}/links`);
+            setHref('settingsLink',   `/portal/${slug}/settings`);
 
-            initOnboarding(hotel);
+            try { initOnboarding(hotel); } catch(e) { console.error('onboarding error', e); }
+          } catch (err) {
+            console.error('Failed to load hotel:', err);
+            setText('hotelName', 'Could not load — please refresh');
+          }
         }
+        console.log('Favvi portal v2025-06-13 — onboarding + notifications guide');
         loadHotel();
 
         /* ── ONBOARDING CHECKLIST ── */
