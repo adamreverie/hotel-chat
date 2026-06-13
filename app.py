@@ -3,8 +3,6 @@ import re
 import json
 import time
 import secrets
-import urllib.request
-import urllib.error
 import resend
 import sqlite3
 from datetime import datetime
@@ -141,11 +139,8 @@ def verify_hotel_password(slug, password, role):
 
 
 def is_admin():
-    """Check admin credentials — never crashes on GET requests."""
-    body     = request.get_json(silent=True) or {}
-    supplied = (body.get('admin_password') or body.get('password')
-                or request.args.get('admin_password', '')
-                or request.args.get('password', ''))
+    """Check the admin password from the request body or query string."""
+    supplied = (request.json or {}).get('admin_password') or request.args.get('admin_password', '')
     return bool(ADMIN_PASSWORD and supplied == ADMIN_PASSWORD)
 
 
@@ -169,6 +164,12 @@ def signup_page(): return send_from_directory('.', 'signup.html')
 @app.route('/login')
 def login_page(): return send_from_directory('.', 'login.html')
 
+@app.route('/signup-success')
+def signup_success_page(): return send_from_directory('.', 'signup-success.html')
+
+@app.route('/guide/notifications')
+def notifications_guide(): return send_from_directory('.', 'notifications.html')
+
 @app.route('/terms')
 def terms(): return send_from_directory('.', 'terms.html')
 
@@ -188,8 +189,11 @@ def manifest():
 
 @app.route('/portal/<slug>')
 def portal(slug):
-    # Always serve the portal shell. The page itself checks whether the hotel
-    # exists and, if it was deleted, clears any saved login and redirects.
+    conn = get_conn(); c = conn.cursor()
+    c.execute(f'SELECT id FROM hotels WHERE slug = {ph()}', (slug,))
+    if not c.fetchone():
+        conn.close(); return "Hotel not found", 404
+    conn.close()
     return send_from_directory('.', 'portal.html')
 
 @app.route('/portal/<slug>/chat')
@@ -261,75 +265,6 @@ def hotel_login():
 
 # ── SIGNUP ────────────────────────────────────────────────────────────────────
 
-def send_welcome_email(hotel_name, slug, email):
-    """Premium welcome email — no passwords, professional design."""
-    try:
-        resend.Emails.send({
-            "from": "Favvi <hello@favvi.ai>",
-            "to": email,
-            "subject": f"Welcome to Favvi",
-            "html": f"""
-<div style="background:#f0efe9;padding:40px 20px;font-family:Georgia,'Times New Roman',serif;">
-  <div style="max-width:540px;margin:0 auto;background:#ffffff;border-top:3px solid #c9a84c;border-radius:4px;padding:44px 40px;">
-    <div style="font-size:40px;color:#c9a84c;line-height:1;margin-bottom:20px;">&#10022;</div>
-    <h1 style="font-size:32px;color:#1a1a2e;font-weight:600;margin:0 0 12px;letter-spacing:0.5px;">
-      Welcome to Favvi
-    </h1>
-    <p style="font-size:15px;color:#555;line-height:1.7;margin:0 0 28px;">
-      Your portal for <strong style="color:#1a1a2e;">{hotel_name}</strong> is ready, and your
-      14-day free trial has begun. Your AI concierge is waiting to meet its first guests.
-    </p>
-    <a href="https://favvi.ai/portal/{slug}"
-       style="display:inline-block;background:#1a1a2e;color:#f8f4ee;padding:15px 36px;
-              text-decoration:none;border-radius:2px;font-family:Arial,sans-serif;
-              font-size:13px;font-weight:bold;letter-spacing:0.5px;margin-bottom:8px;">
-      Open Your Portal
-    </a>
-    <p style="font-size:12px;color:#999;font-family:Arial,sans-serif;margin:8px 0 32px;">
-      Sign in with the email and password you chose at signup.
-    </p>
-    <div style="border-top:1px solid #ece9e3;padding-top:26px;">
-      <p style="font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;
-                color:#8a6e2a;font-family:Arial,sans-serif;margin:0 0 16px;">
-        Your first steps
-      </p>
-      <table style="width:100%;border-collapse:collapse;font-family:Arial,sans-serif;">
-        <tr>
-          <td style="padding:8px 12px 8px 0;vertical-align:top;color:#c9a84c;font-size:14px;font-weight:bold;">1.</td>
-          <td style="padding:8px 0;font-size:13px;color:#555;line-height:1.6;">
-            <strong style="color:#1a1a2e;">Tell the AI about your hotel</strong> — WiFi, breakfast
-            times, facilities. Five minutes in Settings and your concierge knows your hotel.
-          </td>
-        </tr>
-        <tr>
-          <td style="padding:8px 12px 8px 0;vertical-align:top;color:#c9a84c;font-size:14px;font-weight:bold;">2.</td>
-          <td style="padding:8px 0;font-size:13px;color:#555;line-height:1.6;">
-            <strong style="color:#1a1a2e;">Put Favvi on your team's phones</strong> — staff get
-            instant alerts when guests need something.
-            <a href="https://favvi.ai/guide/notifications" style="color:#8a6e2a;">Setup guide&nbsp;&rarr;</a>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding:8px 12px 8px 0;vertical-align:top;color:#c9a84c;font-size:14px;font-weight:bold;">3.</td>
-          <td style="padding:8px 0;font-size:13px;color:#555;line-height:1.6;">
-            <strong style="color:#1a1a2e;">Print your QR cards</strong> — branded and ready in your
-            portal. One on every desk and you're live.
-          </td>
-        </tr>
-      </table>
-    </div>
-    <p style="font-size:12px;color:#aaa;font-family:Arial,sans-serif;line-height:1.6;
-              margin:32px 0 0;border-top:1px solid #ece9e3;padding-top:20px;">
-      Questions? Just reply to this email — we read every one.<br>
-      Favvi &middot; AI Concierge for Boutique Hotels
-    </p>
-  </div>
-</div>"""
-        })
-    except Exception as e:
-        print(f"Welcome email failed: {e}")
-
-
 @app.route('/signup', methods=['POST'])
 def signup():
     data       = request.json or {}
@@ -349,88 +284,63 @@ def signup():
     if c.fetchone():
         conn.close()
         return jsonify({"success": False, "error": "A hotel with this name or email already exists"})
-    conn.close()
 
-    ls_api_key    = os.environ.get("LEMONSQUEEZY_API_KEY", "")
-    ls_store_id   = os.environ.get("LEMONSQUEEZY_STORE_ID", "")
-    ls_variant_id = os.environ.get("LEMONSQUEEZY_VARIANT_ID", "")
-
-    # ── Lemon Squeezy checkout (production path) ──
-    if ls_api_key and ls_store_id and ls_variant_id:
-        payload = {
-            "data": {
-                "type": "checkouts",
-                "attributes": {
-                    "checkout_data": {
-                        "email": email,
-                        "custom": {
-                            "hotel_name": hotel_name, "slug": slug, "email": email,
-                            "password": password, "staff_password": staff_pw,
-                            "manager_password": manager_pw
-                        }
-                    },
-                    "product_options": {
-                        "redirect_url": f"https://favvi.ai/signup-success?slug={slug}"
-                    }
-                },
-                "relationships": {
-                    "store":   {"data": {"type": "stores",   "id": str(ls_store_id)}},
-                    "variant": {"data": {"type": "variants", "id": str(ls_variant_id)}}
-                }
-            }
-        }
-        try:
-            req = urllib.request.Request(
-                "https://api.lemonsqueezy.com/v1/checkouts",
-                data=json.dumps(payload).encode(),
-                headers={
-                    "Accept": "application/vnd.api+json",
-                    "Content-Type": "application/vnd.api+json",
-                    "Authorization": f"Bearer {ls_api_key}"
-                },
-                method="POST"
-            )
-            with urllib.request.urlopen(req, timeout=15) as resp:
-                body = json.loads(resp.read().decode())
-            return jsonify({"success": True, "checkout_url": body["data"]["attributes"]["url"]})
-        except urllib.error.HTTPError as e:
-            print(f"Lemon Squeezy HTTPError: {e.read().decode()}")
-            return jsonify({"success": False, "error": "Could not start checkout — please try again"})
-        except Exception as e:
-            print(f"Lemon Squeezy checkout failed: {e}")
-            return jsonify({"success": False, "error": "Could not start checkout — please try again"})
-
-    # ── Fallback (no billing configured): create hotel directly ──
-    from datetime import timedelta
-    conn = get_conn(); c = conn.cursor()
-    if USE_POSTGRES:
-        c.execute(f"""INSERT INTO hotels
-                      (name, slug, email, password, system_prompt,
-                       staff_password, manager_password, date_created,
-                       trial_ends_at, subscription_status)
-                      VALUES ({ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()})""",
-                  (hotel_name, slug, email, password, '',
-                   staff_pw, manager_pw, datetime.now().strftime("%Y-%m-%d %H:%M"),
-                   datetime.now() + timedelta(days=14), 'on_trial'))
-    else:
-        c.execute(f"""INSERT INTO hotels
-                      (name, slug, email, password, system_prompt,
-                       staff_password, manager_password, date_created)
-                      VALUES ({ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()})""",
-                  (hotel_name, slug, email, password, '',
-                   staff_pw, manager_pw, datetime.now().strftime("%Y-%m-%d %H:%M")))
+    c.execute(f'''INSERT INTO hotels
+                  (name, slug, email, password, system_prompt,
+                   staff_password, manager_password, date_created)
+                  VALUES ({ph()}, {ph()}, {ph()}, {ph()}, {ph()}, {ph()}, {ph()}, {ph()})''',
+              (hotel_name, slug, email, password, '',
+               staff_pw, manager_pw, datetime.now().strftime("%Y-%m-%d %H:%M")))
     conn.commit(); conn.close()
 
+    # Notify us
     try:
         resend.Emails.send({
-            "from": "Favvi <hello@favvi.ai>", "to": "hello@favvi.ai",
-            "subject": f"New signup (direct) — {hotel_name}",
-            "html": f"<p><strong>Hotel:</strong> {hotel_name}</p><p><strong>Email:</strong> {email}</p><p><strong>Slug:</strong> {slug}</p>"
+            "from": "Favvi <hello@favvi.ai>",
+            "to": "hello@favvi.ai",
+            "subject": f"New signup — {hotel_name}",
+            "html": f"""<h2>New Hotel Signed Up</h2>
+                <p><strong>Hotel:</strong> {hotel_name}</p>
+                <p><strong>Email:</strong> {email}</p>
+                <p><strong>Slug:</strong> {slug}</p>
+                <p><strong>Time:</strong> {datetime.now().strftime("%Y-%m-%d %H:%M")}</p>"""
         })
     except Exception: pass
 
-    send_welcome_email(hotel_name, slug, email)
-    return jsonify({"success": True, "checkout_url": f"/signup-success?slug={slug}"})
+    # Welcome the hotel
+    try:
+        resend.Emails.send({
+            "from": "Favvi <hello@favvi.ai>",
+            "to": email,
+            "subject": f"Welcome to Favvi — {hotel_name} is live!",
+            "html": f"""
+            <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;">
+                <h2 style="color:#1a1a2e;">Welcome to Favvi</h2>
+                <p>Your hotel portal is ready. Here are your details:</p>
+                <div style="background:#f5f5f5;padding:20px;border-radius:8px;margin:20px 0;">
+                    <p><strong>Hotel:</strong> {hotel_name}</p>
+                    <p><strong>Portal:</strong> https://favvi.ai/portal/{slug}</p>
+                    <p><strong>Email:</strong> {email}</p>
+                    <p><strong>Password:</strong> {password}</p>
+                    <p><strong>Staff Password:</strong> {staff_pw}</p>
+                    <p><strong>Manager Password:</strong> {manager_pw}</p>
+                </div>
+                <h3>Getting Started</h3>
+                <ol>
+                    <li>Visit your portal and open <strong>Settings</strong></li>
+                    <li>Add your hotel info, facilities and room details</li>
+                    <li>Share the QR code from <strong>Links & QR</strong> in guest rooms</li>
+                    <li>Staff log in at <strong>favvi.ai/portal/{slug}/staff</strong></li>
+                </ol>
+                <a href="https://favvi.ai/portal/{slug}"
+                   style="display:inline-block;background:#1a1a2e;color:white;
+                          padding:12px 28px;text-decoration:none;border-radius:4px;margin-top:16px;">
+                    Open Your Portal</a>
+            </div>"""
+        })
+    except Exception: pass
+
+    return jsonify({"success": True, "slug": slug})
 
 
 # ── SETTINGS ──────────────────────────────────────────────────────────────────
@@ -1054,70 +964,38 @@ def admin_data():
     if not is_admin():
         return jsonify({"error": "Unauthorised"}), 403
     conn = get_conn(); c = conn.cursor()
-    # Try full schema first; fall back for older SQLite databases
-    try:
-        c.execute('''SELECT id, name, slug, email, date_created,
-                            trial_ends_at, subscription_status
-                     FROM hotels ORDER BY id DESC''')
-    except Exception:
-        c.execute('SELECT id, name, slug, email, date_created, NULL, NULL FROM hotels ORDER BY id DESC')
+    c.execute('''SELECT id, name, slug, email, date_created,
+                        trial_ends_at, subscription_status
+                 FROM hotels ORDER BY id DESC''')
     rows = c.fetchall(); conn.close()
-    hotels = []
-    for r in rows:
-        import datetime as _dt
-        trial_ends = r[5]
-        days_remaining = None
-        if trial_ends:
-            try:
-                if isinstance(trial_ends, str):
-                    trial_ends = _dt.datetime.strptime(trial_ends[:19], "%Y-%m-%d %H:%M:%S")
-                days_remaining = (trial_ends.date() - _dt.date.today()).days
-            except Exception:
-                pass
-        hotels.append({
-            "id": r[0], "name": r[1], "slug": r[2],
-            "email": r[3], "date_created": r[4],
-            "trial_ends_at": str(r[5]) if r[5] else None,
-            "subscription_status": r[6],
-            "days_remaining": days_remaining,
-        })
-    return jsonify({"hotels": hotels})
+    return jsonify([{
+        "id": r[0], "name": r[1], "slug": r[2],
+        "email": r[3], "date_created": r[4],
+        "trial_ends_at": str(r[5]) if r[5] else None,
+        "subscription_status": r[6],
+    } for r in rows])
 
 
 @app.route('/admin-extend-trial', methods=['POST'])
 def admin_extend_trial():
     if not is_admin():
         return jsonify({"error": "Unauthorised"}), 403
-    data = request.get_json(silent=True) or {}
+    data = request.json or {}
     slug = data.get('slug')
     days = int(data.get('days', 7))
+    conn = get_conn(); c = conn.cursor()
+    c.execute(f'SELECT trial_ends_at FROM hotels WHERE slug = {ph()}', (slug,))
+    row = c.fetchone(); conn.close()
+    if not row:
+        return jsonify({"success": False, "error": "Hotel not found"})
     from datetime import timedelta
-    conn = get_conn(); c = conn.cursor()
-    # trial_ends_at may not exist in older SQLite schemas
-    try:
-        c.execute(f'SELECT trial_ends_at FROM hotels WHERE slug = {ph()}', (slug,))
-        row = c.fetchone()
-    except Exception:
-        row = None
-    conn.close()
-    if row is None:
-        # Column missing or hotel not found — just set it from now
-        new_end = datetime.now() + timedelta(days=days)
+    current = row[0] if row[0] else datetime.now()
+    if hasattr(current, 'date'):
+        new_end = current + timedelta(days=days)
     else:
-        current = row[0] if row[0] else datetime.now()
-        if hasattr(current, 'date'):
-            new_end = current + timedelta(days=days)
-        else:
-            try:
-                current = datetime.strptime(str(current)[:19], "%Y-%m-%d %H:%M:%S")
-            except Exception:
-                current = datetime.now()
-            new_end = current + timedelta(days=days)
+        new_end = datetime.now() + timedelta(days=days)
     conn = get_conn(); c = conn.cursor()
-    try:
-        c.execute(f'UPDATE hotels SET trial_ends_at = {ph()} WHERE slug = {ph()}', (new_end, slug))
-    except Exception:
-        pass  # Column not present in this schema — silently skip
+    c.execute(f'UPDATE hotels SET trial_ends_at = {ph()} WHERE slug = {ph()}', (new_end, slug))
     conn.commit(); conn.close()
     return jsonify({"success": True, "new_trial_ends_at": str(new_end)})
 
@@ -1126,7 +1004,7 @@ def admin_extend_trial():
 def admin_delete_hotel():
     if not is_admin():
         return jsonify({"error": "Unauthorised"}), 403
-    slug = (request.get_json(silent=True) or {}).get('slug')
+    slug = (request.json or {}).get('slug')
     if not slug:
         return jsonify({"success": False, "error": "No slug"})
     conn = get_conn(); c = conn.cursor()
@@ -1172,31 +1050,17 @@ def lemon_webhook():
 
         conn = get_conn(); c = conn.cursor()
         c.execute(f'SELECT id FROM hotels WHERE slug = {ph()} OR email = {ph()}', (slug, email))
-        newly_created = False
         if not c.fetchone():
-            if USE_POSTGRES:
-                c.execute(f'''INSERT INTO hotels
-                              (name, slug, email, password, system_prompt,
-                               staff_password, manager_password, date_created,
-                               trial_ends_at, subscription_status)
-                              VALUES ({ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()})''',
-                          (hotel_name, slug, email, password, '',
-                           staff_pw, manager_pw, datetime.now().strftime("%Y-%m-%d %H:%M"),
-                           trial_end, 'on_trial'))
-            else:
-                c.execute(f'''INSERT INTO hotels
-                              (name, slug, email, password, system_prompt,
-                               staff_password, manager_password, date_created)
-                              VALUES ({ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()})''',
-                          (hotel_name, slug, email, password, '',
-                           staff_pw, manager_pw, datetime.now().strftime("%Y-%m-%d %H:%M")))
+            c.execute(f'''INSERT INTO hotels
+                          (name, slug, email, password, system_prompt,
+                           staff_password, manager_password, date_created,
+                           trial_ends_at, subscription_status)
+                          VALUES ({ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()})''',
+                      (hotel_name, slug, email, password, '',
+                       staff_pw, manager_pw, datetime.now().strftime("%Y-%m-%d %H:%M"),
+                       trial_end, 'on_trial'))
             conn.commit()
-            newly_created = True
         conn.close()
-
-        # Send the premium welcome email once, on first creation
-        if newly_created:
-            send_welcome_email(hotel_name, slug, email)
 
         try:
             resend.Emails.send({
