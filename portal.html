@@ -376,6 +376,15 @@
                 return;
             }
 
+            // Hotel no longer exists (e.g. deleted by admin) — clear any saved
+            // login so "stay signed in" can't loop us back here, then bounce to login.
+            if (response.status === 404) {
+                ['favvi_hotel_slug','favvi_hotel_email','favvi_hotel_password','favvi_hotel_pw']
+                    .forEach(k => localStorage.removeItem(k));
+                window.location.href = '/login';
+                return;
+            }
+
             const hotel = await response.json();
 
             document.getElementById('hotelName').textContent = hotel.name;
