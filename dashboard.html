@@ -188,31 +188,6 @@
             .scores-row { gap: 5px; }
             .score-chip { font-size: 10px; padding: 4px 8px; }
         }
-        .notif-bar {
-            display: flex; align-items: center; gap: 14px;
-            background: var(--white);
-            border: 1px solid var(--line);
-            border-left: 3px solid var(--blue);
-            border-radius: 4px;
-            padding: 14px 18px;
-            margin-bottom: 28px;
-            text-decoration: none;
-            box-shadow: 0 1px 4px rgba(26,26,46,0.05);
-            transition: all 0.2s;
-        }
-        .notif-bar:hover { border-left-color: var(--gold); transform: translateX(2px); }
-        .notif-icon { font-size: 20px; flex-shrink: 0; }
-        .notif-text { flex: 1; min-width: 0; }
-        .notif-title { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 2px; }
-        .notif-desc { font-size: 12px; font-weight: 300; color: var(--ink-40); line-height: 1.4; }
-        .notif-arrow { font-size: 15px; color: var(--ink-25); flex-shrink: 0; transition: color 0.2s; }
-        .notif-bar:hover .notif-arrow { color: var(--gold-dark); }
-        .notif-dismiss {
-            font-size: 16px; color: var(--ink-25); flex-shrink: 0;
-            cursor: pointer; padding: 0 4px; line-height: 1; transition: color 0.2s;
-        }
-        .notif-dismiss:hover { color: var(--ink-60); }
-
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation: none !important; transition: none !important; }
             .hero-card, .stat-card, .feedback-card { opacity: 1; transform: none; }
@@ -249,15 +224,6 @@
     </div>
 
     <div class="body" id="mainBody">
-        <a class="notif-bar" id="notifBar" href="/guide/notifications" target="_blank" style="display:none;">
-            <div class="notif-icon">🔔</div>
-            <div class="notif-text">
-                <div class="notif-title">Enable notifications on this device</div>
-                <div class="notif-desc">Get an instant alert whenever a guest needs something — a 2-minute setup.</div>
-            </div>
-            <div class="notif-arrow">→</div>
-            <span class="notif-dismiss" onclick="dismissNotifBar(event)" title="Dismiss">✕</span>
-        </a>
         <div class="page-title"><em>Guest</em> Feedback</div>
         <p class="page-sub" id="pageSubtitle">Loading…</p>
 
@@ -349,18 +315,8 @@
             document.getElementById('overlay').style.display = 'none';
             document.getElementById('mainHeader').style.display = 'flex';
             document.getElementById('mainBody').style.display = 'block';
-            if (!localStorage.getItem(`favvi_notifbar_dismissed_${slug}`)) {
-                document.getElementById('notifBar').style.display = 'flex';
-            }
             document.getElementById('pageSubtitle').textContent = config.name + ' — Guest satisfaction overview';
             loadData();
-        }
-
-        function dismissNotifBar(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            localStorage.setItem(`favvi_notifbar_dismissed_${slug}`, '1');
-            document.getElementById('notifBar').style.display = 'none';
         }
 
         function logout() {
