@@ -196,6 +196,14 @@
             letter-spacing: 0.2px; margin-bottom: 2px;
         }
         .notif-text { font-size: 12px; font-weight: 300; color: var(--ink-60); line-height: 1.45; }
+        .notif-guide {
+            display: inline-block; margin-top: 4px;
+            font-size: 11px; font-weight: 400; color: var(--staff-dark);
+            text-decoration: none; letter-spacing: 0.2px;
+            border-bottom: 1px solid rgba(46,95,128,0.3);
+            padding-bottom: 1px; transition: all 0.2s;
+        }
+        .notif-guide:hover { color: var(--staff); border-bottom-color: var(--staff); }
         .notif-btn {
             background: var(--staff); color: white; border: none; border-radius: 3px;
             padding: 10px 18px; font-family: 'DM Sans', sans-serif;
@@ -205,28 +213,10 @@
         .notif-btn:hover { background: var(--staff-dark); }
         .notif-btn.enabled { background: var(--green); }
         .notif-btn.denied  { background: var(--ink-25); cursor: default; }
-        .notif-close {
-            position: absolute; top: 8px; right: 10px;
-            width: 22px; height: 22px; border: none; background: transparent;
-            color: var(--ink-25); font-size: 16px; line-height: 1; cursor: pointer;
-            border-radius: 3px; transition: all 0.2s;
-            display: flex; align-items: center; justify-content: center;
+        @media (max-width: 520px) {
+            .notif-banner { flex-wrap: wrap; }
+            .notif-btn { width: 100%; }
         }
-        .notif-close:hover { color: var(--ink-60); background: rgba(26,26,46,0.05); }
-
-        /* permanent re-open control in the top bar */
-        .alerts-reopen {
-            display: none; align-items: center; gap: 6px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 12px; font-weight: 400; color: var(--ink-40);
-            letter-spacing: 0.3px;
-            background: transparent; border: 1px solid var(--line);
-            border-radius: 2px; padding: 6px 12px; cursor: pointer;
-            transition: all 0.2s; white-space: nowrap;
-        }
-        .alerts-reopen:hover { border-color: var(--staff); color: var(--staff-dark); }
-        .alerts-reopen svg { width: 13px; height: 13px; stroke: currentColor; }
-
 
         /* ─── BODY ─── */
         .body {
@@ -506,13 +496,6 @@
         <a class="back-to-portal" id="portalBackLink" href="#">← Portal</a>
     </div>
     <div class="topbar-right">
-        <button class="alerts-reopen" id="alertsReopen" onclick="reopenNotifBanner()">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
-                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-            </svg>
-            Alerts
-        </button>
         <div class="live-badge"><div class="live-dot"></div>Live</div>
         <button class="logout-btn" onclick="logout()">Logout</button>
     </div>
@@ -529,9 +512,9 @@
     <div class="notif-copy">
         <div class="notif-title">Stay on top of every request</div>
         <div class="notif-text">Get an alert on this device the moment a guest needs something.</div>
+        <a class="notif-guide" href="/guide/notifications" target="_blank">View the 2-minute setup guide →</a>
     </div>
     <button class="notif-btn" id="notifBtn" onclick="requestNotifPermission()">Enable Alerts</button>
-    <button class="notif-close" onclick="dismissNotifBanner()" aria-label="Dismiss" title="Dismiss">✕</button>
 </div>
 
 <!-- ─── TOAST ─── -->
@@ -741,19 +724,14 @@
             const c = await r.json();
             document.getElementById('hotelNameLogin').textContent = c.name || '';
             document.getElementById('backLink').href = slug ? `/portal/${slug}` : '/';
-                var _pbl = document.getElementById('portalBackLink'); if (_pbl) _pbl.href = slug ? `/portal/${slug}` : '/';
+            var _pbl = document.getElementById('portalBackLink'); if (_pbl) _pbl.href = slug ? `/portal/${slug}` : '/';
         } catch(e) {}
     }
 
     function boot() {
         document.getElementById('overlay').style.display     = 'none';
         document.getElementById('mainHeader').style.display  = 'flex';
-        if (localStorage.getItem(`favvi_notifbanner_dismissed_${slug}`)) {
-            document.getElementById('notifBanner').style.display = 'none';
-            document.getElementById('alertsReopen').style.display = 'inline-flex';
-        } else {
-            document.getElementById('notifBanner').style.display = 'flex';
-        }
+        document.getElementById('notifBanner').style.display = 'flex';
         document.getElementById('mainBody').style.display    = 'block';
         setGreeting();
         document.querySelectorAll('.fchip').forEach(b => b.classList.toggle('active', b.dataset.f === staffDept));
@@ -815,17 +793,6 @@
     }
 
     /* ─── NOTIFICATIONS (logic unchanged) ─── */
-    function dismissNotifBanner() {
-        localStorage.setItem(`favvi_notifbanner_dismissed_${slug}`, '1');
-        document.getElementById('notifBanner').style.display = 'none';
-        document.getElementById('alertsReopen').style.display = 'inline-flex';
-    }
-    function reopenNotifBanner() {
-        localStorage.removeItem(`favvi_notifbanner_dismissed_${slug}`);
-        document.getElementById('alertsReopen').style.display = 'none';
-        document.getElementById('notifBanner').style.display = 'flex';
-        checkNotifStatus();
-    }
     function checkNotifStatus() {
         const btn = document.getElementById('notifBtn');
         if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
