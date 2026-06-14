@@ -56,6 +56,13 @@
             color: var(--ink); letter-spacing: 3px; text-decoration: none;
         }
         .logo span { color: var(--gold); }
+        .back-to-portal {
+            font-size: 12px; font-weight: 400; color: var(--ink-40);
+            text-decoration: none; letter-spacing: 0.5px;
+            padding: 5px 11px; border: 1px solid var(--line); border-radius: 2px;
+            transition: all 0.2s; white-space: nowrap;
+        }
+        .back-to-portal:hover { border-color: var(--gold); color: var(--gold-dark); }
         .divider-v { width: 1px; height: 18px; background: var(--line); }
         .topbar-title { font-size: 12px; font-weight: 400; color: var(--ink-40); letter-spacing: 1px; text-transform: uppercase; }
 
@@ -204,6 +211,7 @@
     <div class="topbar">
         <div class="topbar-left">
             <a class="logo" id="backLink" href="#">fav<span>vi</span></a>
+            <a class="back-to-portal" id="portalBackLink" href="#">← Portal</a>
             <div class="divider-v"></div>
             <span class="topbar-title">Links & QR Codes</span>
         </div>
@@ -283,6 +291,7 @@
                 const hotel = await r.json();
                 hotelName = hotel.name || '';
                 document.getElementById('backLink').href = `/portal/${slug}`;
+                var _pbl = document.getElementById('portalBackLink'); if (_pbl) _pbl.href = `/portal/${slug}`;
                 document.getElementById('pageSub').textContent = hotelName + ' — Links & QR Codes';
 
                 const chatUrl     = `${base}/portal/${slug}/chat`;

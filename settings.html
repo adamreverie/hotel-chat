@@ -42,6 +42,13 @@
             color: var(--ink); letter-spacing: 3px; text-decoration: none;
         }
         .logo span { color: var(--gold); }
+        .back-to-portal {
+            font-size: 12px; font-weight: 400; color: var(--ink-40);
+            text-decoration: none; letter-spacing: 0.5px;
+            padding: 5px 11px; border: 1px solid var(--line); border-radius: 2px;
+            transition: all 0.2s; white-space: nowrap;
+        }
+        .back-to-portal:hover { border-color: var(--gold); color: var(--gold-dark); }
         .divider-v { width: 1px; height: 20px; background: var(--line); }
         .topbar-title { font-size: 12px; font-weight: 400; color: var(--ink-40); letter-spacing: 1px; text-transform: uppercase; }
         .role-pill {
@@ -197,6 +204,7 @@
     <div class="topbar" id="mainHeader" style="display:none;">
         <div class="topbar-left">
             <a class="logo" id="backLink" href="#">fav<span>vi</span></a>
+            <a class="back-to-portal" id="portalBackLink" href="#">← Portal</a>
             <div class="divider-v"></div>
             <span class="topbar-title">Settings</span>
         </div>
@@ -399,6 +407,7 @@
             document.getElementById('mainHeader').style.display = 'flex';
             document.getElementById('mainBody').style.display = 'block';
             document.getElementById('backLink').href = slug ? `/portal/${slug}` : '/';
+                var _pbl = document.getElementById('portalBackLink'); if (_pbl) _pbl.href = slug ? `/portal/${slug}` : '/';
             loadCurrentValues();
         }
 

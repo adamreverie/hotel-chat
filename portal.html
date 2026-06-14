@@ -81,6 +81,15 @@
         }
         .welcome em { font-style: italic; color: var(--gold-dark); font-weight: 400; }
         .subtitle { font-size: 12px; font-weight: 300; color: var(--ink-40); letter-spacing: 0.5px; text-align: right; }
+        .welcome-right { display: flex; flex-direction: column; align-items: flex-end; gap: 7px; }
+        .show-onboard {
+            display: none;
+            font-size: 11px; font-weight: 400; color: var(--ink-40);
+            letter-spacing: 0.5px; cursor: pointer;
+            border-bottom: 1px solid var(--gold);
+            padding-bottom: 1px; transition: color 0.2s;
+        }
+        .show-onboard:hover { color: var(--gold-dark); }
 
         /* ── ONBOARDING CHECKLIST ── */
         .onboard {
@@ -260,6 +269,7 @@
             .welcome { font-size: 32px; }
             .welcome-row { flex-direction: column; align-items: flex-start; gap: 8px; margin-bottom: 28px; padding-bottom: 20px; }
             .subtitle { text-align: left; }
+            .welcome-right { align-items: flex-start; }
             .grid { grid-template-columns: 1fr; gap: 12px; }
             .card { padding: 24px 20px 22px; }
             .card h3 { font-size: 24px; }
@@ -338,7 +348,10 @@
 
         <div class="welcome-row">
             <div class="welcome">Welcome <em>back.</em></div>
-            <div class="subtitle" id="hotelSubtitle">Loading…</div>
+            <div class="welcome-right">
+                <div class="subtitle" id="hotelSubtitle">Loading…</div>
+                <span class="show-onboard" id="showOnboard" onclick="showOnboard()">Show setup guide ↑</span>
+            </div>
         </div>
 
         <div class="grid">
@@ -379,14 +392,6 @@
             </a>
         </div>
 
-        <a class="guide-bar" id="notifGuideLink" href="/guide/notifications" target="_blank">
-            <div class="guide-icon">🔔</div>
-            <div class="guide-text">
-                <div class="guide-title">Set up phone notifications for your team</div>
-                <div class="guide-desc">A 2-minute guide to get staff alerts on every iPhone and Android.</div>
-            </div>
-            <div class="guide-arrow">→</div>
-        </a>
     </div>
 
     <script>
@@ -463,16 +468,21 @@
             }
         }
 
-        function initOnboarding(hotel) {
-            if (localStorage.getItem(obKey('hidden'))) return;
-
-            const steps = [
+        function buildSteps(hotel) {
+            return [
                 { id: 'step-info',      href: `/portal/${slug}/settings`,  done: !!(hotel.hotel_info && hotel.hotel_info.trim()),           track: null },
                 { id: 'step-knowledge', href: `/portal/${slug}/settings`,  done: !!(hotel.staff_knowledge && hotel.staff_knowledge.trim()), track: null },
                 { id: 'step-chat',      href: `/portal/${slug}/chat`,      done: !!localStorage.getItem(obKey('chat')),                     track: 'chat' },
                 { id: 'step-links',     href: `/portal/${slug}/links`,     done: !!localStorage.getItem(obKey('links')),                    track: 'links' },
                 { id: 'step-staff',     href: `/portal/${slug}/staff`,     done: !!localStorage.getItem(obKey('staff')),                    track: 'staff' },
             ];
+        }
+
+        function initOnboarding(hotel) {
+            window._obHotel = hotel;
+            if (localStorage.getItem(obKey('hidden'))) { maybeShowOnboardTrigger(hotel); return; }
+
+            const steps = buildSteps(hotel);
 
             const doneCount = steps.filter(s => s.done).length;
 
@@ -527,11 +537,40 @@
             document.getElementById('onboardBar').style.width = (done / 5 * 100) + '%';
         }
 
+        // Show the "Show setup guide" link only when the checklist was manually
+        // hidden BEFORE setup was finished. Once all 5 steps are done (celebrated),
+        // it stays gone forever.
+        function maybeShowOnboardTrigger(hotel) {
+            if (localStorage.getItem(obKey('celebrated'))) return;
+            const steps = buildSteps(hotel);
+            const doneCount = steps.filter(s => s.done).length;
+            if (doneCount >= 5) return;  // finished in the meantime — never nag
+            const link = document.getElementById('showOnboard');
+            if (link) link.style.display = 'inline-block';
+        }
+
+        function showOnboard() {
+            localStorage.removeItem(obKey('hidden'));
+            const link = document.getElementById('showOnboard');
+            if (link) link.style.display = 'none';
+            const card = document.getElementById('onboard');
+            // Card may have been removed from the DOM when hidden — rebuild by re-running.
+            if (!document.body.contains(card)) { location.reload(); return; }
+            const hotel = window._obHotel || {};
+            const steps = buildSteps(hotel);
+            const doneCount = steps.filter(s => s.done).length;
+            renderOnboard(steps, doneCount);
+            card.style.display = 'block';
+            card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
         function hideOnboard() {
             localStorage.setItem(obKey('hidden'), '1');
             const card = document.getElementById('onboard');
             card.classList.add('collapsing');
-            setTimeout(() => card.remove(), 520);
+            setTimeout(() => { card.style.display = 'none'; card.classList.remove('collapsing'); }, 520);
+            // Reveal the quiet "Show setup guide" link so it can be brought back.
+            maybeShowOnboardTrigger(window._obHotel || {});
         }
     </script>
 </body>
