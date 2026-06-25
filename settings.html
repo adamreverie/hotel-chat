@@ -42,13 +42,6 @@
             color: var(--ink); letter-spacing: 3px; text-decoration: none;
         }
         .logo span { color: var(--gold); }
-        .back-to-portal {
-            font-size: 12px; font-weight: 400; color: var(--ink-40);
-            text-decoration: none; letter-spacing: 0.5px;
-            padding: 5px 11px; border: 1px solid var(--line); border-radius: 2px;
-            transition: all 0.2s; white-space: nowrap;
-        }
-        .back-to-portal:hover { border-color: var(--gold); color: var(--gold-dark); }
         .divider-v { width: 1px; height: 20px; background: var(--line); }
         .topbar-title { font-size: 12px; font-weight: 400; color: var(--ink-40); letter-spacing: 1px; text-transform: uppercase; }
         .role-pill {
@@ -163,6 +156,43 @@
         .save-status.success { color: #3d6e3d; opacity: 1; }
         .save-status.error   { color: #c0392b; opacity: 1; }
         .save-status.fading  { opacity: 0; }
+        .sub-copy { font-size: 13px; font-weight: 300; color: var(--ink-60); line-height: 1.7; margin-bottom: 18px; max-width: 560px; }
+        .cancel-link {
+            background: transparent; border: 1px solid var(--linen);
+            color: var(--ink-40); font-family: 'DM Sans', sans-serif;
+            font-size: 12px; font-weight: 400; letter-spacing: 0.3px;
+            padding: 9px 16px; border-radius: 3px; cursor: pointer; transition: all 0.2s;
+        }
+        .cancel-link:hover { border-color: #c0392b; color: #c0392b; }
+        .cancel-box {
+            border: 1px solid rgba(192,57,43,0.25); border-radius: 5px;
+            background: rgba(192,57,43,0.025); padding: 20px; max-width: 560px;
+        }
+        .cancel-box-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+        .cancel-box-copy { font-size: 12px; font-weight: 300; color: var(--ink-60); margin-bottom: 12px; }
+        .cancel-box textarea {
+            width: 100%; box-sizing: border-box; padding: 11px 13px;
+            border: 1px solid var(--linen); border-radius: 4px;
+            font-family: 'DM Sans', sans-serif; font-size: 13px; resize: vertical;
+            margin-bottom: 14px; background: var(--white);
+        }
+        .cancel-box textarea:focus { outline: none; border-color: var(--purple); }
+        .cancel-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+        .cancel-keep {
+            background: var(--purple-dark); color: white; border: none;
+            font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500;
+            padding: 11px 18px; border-radius: 3px; cursor: pointer; transition: opacity 0.2s;
+        }
+        .cancel-keep:hover { opacity: 0.9; }
+        .cancel-confirm {
+            background: transparent; color: #c0392b; border: 1px solid rgba(192,57,43,0.4);
+            font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 400;
+            padding: 11px 18px; border-radius: 3px; cursor: pointer; transition: all 0.2s;
+        }
+        .cancel-confirm:hover { background: #c0392b; color: white; }
+        .cancel-status { font-size: 12px; font-weight: 400; margin-top: 12px; }
+        .cancel-status.ok  { color: #3d6e3d; }
+        .cancel-status.err { color: #c0392b; }
 
         @media (max-width: 600px) {
             .topbar { padding: 0 16px; height: 58px; }
@@ -204,7 +234,6 @@
     <div class="topbar" id="mainHeader" style="display:none;">
         <div class="topbar-left">
             <a class="logo" id="backLink" href="#">fav<span>vi</span></a>
-            <a class="back-to-portal" id="portalBackLink" href="#">← Portal</a>
             <div class="divider-v"></div>
             <span class="topbar-title">Settings</span>
         </div>
@@ -364,6 +393,34 @@
             </div>
         </div>
 
+        <div class="section">
+            <div class="section-header">
+                <div class="section-eyebrow">Billing</div>
+                <div class="section-title">Subscription</div>
+                <div class="section-desc">Manage your Favvi plan</div>
+            </div>
+            <div class="section-body">
+                <p class="sub-copy">Your subscription renews automatically each month. If you'd like to cancel, let us know below — a member of our team will confirm it, and you'll keep access until the end of your current billing period.</p>
+
+                <div id="cancelStart">
+                    <button class="cancel-link" onclick="openCancel()">Request cancellation</button>
+                </div>
+
+                <div id="cancelConfirm" style="display:none;">
+                    <div class="cancel-box">
+                        <div class="cancel-box-title">Sorry to see you go.</div>
+                        <p class="cancel-box-copy">Mind sharing why? It helps us improve (optional).</p>
+                        <textarea id="cancelReason" rows="3" placeholder="Your feedback (optional)"></textarea>
+                        <div class="cancel-actions">
+                            <button class="cancel-keep" onclick="closeCancel()">Never mind, keep my plan</button>
+                            <button class="cancel-confirm" id="cancelConfirmBtn" onclick="submitCancel()">Confirm cancellation request</button>
+                        </div>
+                        <p class="cancel-status" id="cancelStatus"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -407,7 +464,6 @@
             document.getElementById('mainHeader').style.display = 'flex';
             document.getElementById('mainBody').style.display = 'block';
             document.getElementById('backLink').href = slug ? `/portal/${slug}` : '/';
-                var _pbl = document.getElementById('portalBackLink'); if (_pbl) _pbl.href = slug ? `/portal/${slug}` : '/';
             loadCurrentValues();
         }
 
@@ -502,6 +558,49 @@
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                     <circle cx="12" cy="12" r="3"/>
                    </svg>`;
+        }
+
+        /* ── Cancellation flow ── */
+        function openCancel() {
+            document.getElementById('cancelStart').style.display = 'none';
+            document.getElementById('cancelConfirm').style.display = 'block';
+        }
+        function closeCancel() {
+            document.getElementById('cancelConfirm').style.display = 'none';
+            document.getElementById('cancelStart').style.display = 'block';
+            document.getElementById('cancelStatus').textContent = '';
+            document.getElementById('cancelReason').value = '';
+        }
+        async function submitCancel() {
+            const btn    = document.getElementById('cancelConfirmBtn');
+            const status = document.getElementById('cancelStatus');
+            const reason = document.getElementById('cancelReason').value.trim();
+            status.className = 'cancel-status';
+            btn.disabled = true;
+            btn.textContent = 'Sending…';
+            try {
+                const r = await fetch('/request-cancellation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ slug, reason })
+                });
+                const data = await r.json();
+                if (data.success) {
+                    document.getElementById('cancelConfirm').innerHTML =
+                        '<div class="cancel-box"><div class="cancel-box-title">Request received.</div>' +
+                        '<p class="cancel-box-copy">We\'ve emailed you a confirmation. Your team will keep full access until the end of your current billing period. If you change your mind, just reply to that email.</p></div>';
+                } else {
+                    status.textContent = 'Something went wrong. Please email hello@favvi.ai and we\'ll sort it out.';
+                    status.classList.add('err');
+                    btn.disabled = false;
+                    btn.textContent = 'Confirm cancellation request';
+                }
+            } catch (e) {
+                status.textContent = 'Network error. Please email hello@favvi.ai instead.';
+                status.classList.add('err');
+                btn.disabled = false;
+                btn.textContent = 'Confirm cancellation request';
+            }
         }
     </script>
 </body>

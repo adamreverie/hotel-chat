@@ -877,7 +877,59 @@ def contact():
         return jsonify({"success": False, "error": str(e)})
 
 
-# ── TRIAL EXPIRY WARNINGS ─────────────────────────────────────────────────────
+@app.route('/request-cancellation', methods=['POST'])
+def request_cancellation():
+    """Pragmatic cancel flow: notify us so we action it manually.
+    (Swap to a self-serve Lemon Squeezy / Stripe link later — the IDs are stored.)"""
+    import html as _html
+    data   = request.json or {}
+    slug   = data.get('slug', '').strip()
+    reason = data.get('reason', '').strip()
+    if not slug:
+        return jsonify({"success": False, "error": "Missing hotel"})
+
+    conn = get_conn(); c = conn.cursor()
+    c.execute(f'SELECT name, email, lemon_subscription_id FROM hotels WHERE slug = {ph()}', (slug,))
+    row = c.fetchone()
+    conn.close()
+    if not row:
+        return jsonify({"success": False, "error": "Hotel not found"})
+
+    name   = row[0] or slug
+    email  = row[1] or "(no email on file)"
+    sub_id = (row[2] if len(row) > 2 else "") or "(not stored)"
+
+    try:
+        resend.Emails.send({
+            "from": "Favvi <hello@favvi.ai>",
+            "to": "hello@favvi.ai",
+            "reply_to": email if "@" in email else "hello@favvi.ai",
+            "subject": f"Cancellation request — {name}",
+            "html": (
+                f"<p><strong>Hotel:</strong> {_html.escape(name)}</p>"
+                f"<p><strong>Slug:</strong> {_html.escape(slug)}</p>"
+                f"<p><strong>Email:</strong> {_html.escape(email)}</p>"
+                f"<p><strong>Lemon subscription ID:</strong> {_html.escape(str(sub_id))}</p>"
+                f"<p><strong>Reason:</strong><br>{_html.escape(reason) if reason else '—'}</p>"
+            )
+        })
+        # Confirmation to the hotel, if we have a real address.
+        if "@" in email:
+            resend.Emails.send({
+                "from": "Favvi <hello@favvi.ai>",
+                "to": email,
+                "subject": "We've received your cancellation request",
+                "html": (
+                    f"<p>Hi,</p>"
+                    f"<p>We've received your request to cancel Favvi for <strong>{_html.escape(name)}</strong>. "
+                    f"A member of our team will confirm the cancellation shortly — there's nothing further you need to do.</p>"
+                    f"<p>If this was a mistake, just reply to this email and we'll keep things running.</p>"
+                    f"<p>— The Favvi team</p>"
+                )
+            })
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
 
 @app.route('/send-trial-warnings', methods=['GET', 'POST'])
 def send_trial_warnings():
@@ -1170,6 +1222,11 @@ def lemon_webhook():
         from datetime import timedelta
         trial_end = datetime.now() + timedelta(days=14)
 
+        # Lemon Squeezy IDs — stored now so self-serve cancel/manage links are
+        # trivial to switch on later (especially once on live mode / Stripe).
+        lemon_sub_id  = str(data.get("data", {}).get("id", "") or "")
+        lemon_cust_id = str(attrs.get("customer_id", "") or "")
+
         conn = get_conn(); c = conn.cursor()
         c.execute(f'SELECT id FROM hotels WHERE slug = {ph()} OR email = {ph()}', (slug, email))
         newly_created = False
@@ -1178,11 +1235,12 @@ def lemon_webhook():
                 c.execute(f'''INSERT INTO hotels
                               (name, slug, email, password, system_prompt,
                                staff_password, manager_password, date_created,
-                               trial_ends_at, subscription_status)
-                              VALUES ({ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()})''',
+                               trial_ends_at, subscription_status,
+                               lemon_customer_id, lemon_subscription_id)
+                              VALUES ({ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()},{ph()})''',
                           (hotel_name, slug, email, password, '',
                            staff_pw, manager_pw, datetime.now().strftime("%Y-%m-%d %H:%M"),
-                           trial_end, 'on_trial'))
+                           trial_end, 'on_trial', lemon_cust_id, lemon_sub_id))
             else:
                 c.execute(f'''INSERT INTO hotels
                               (name, slug, email, password, system_prompt,
@@ -1192,6 +1250,13 @@ def lemon_webhook():
                            staff_pw, manager_pw, datetime.now().strftime("%Y-%m-%d %H:%M")))
             conn.commit()
             newly_created = True
+        else:
+            # Existing hotel re-subscribing — update their Lemon IDs if we have them.
+            if USE_POSTGRES and (lemon_sub_id or lemon_cust_id):
+                c.execute(f'''UPDATE hotels SET lemon_customer_id = {ph()},
+                              lemon_subscription_id = {ph()} WHERE slug = {ph()}''',
+                          (lemon_cust_id, lemon_sub_id, slug))
+                conn.commit()
         conn.close()
         if newly_created and email:
             send_welcome_email(hotel_name, slug, email)
