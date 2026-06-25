@@ -156,6 +156,32 @@
         .save-status.success { color: #3d6e3d; opacity: 1; }
         .save-status.error   { color: #c0392b; opacity: 1; }
         .save-status.fading  { opacity: 0; }
+        .menu-current {
+            display: flex; align-items: center; gap: 10px;
+            padding: 11px 14px; border: 1px solid var(--linen);
+            border-radius: 5px; background: var(--white); margin-bottom: 12px;
+        }
+        .menu-file-icon { width: 18px; height: 18px; color: var(--purple-dark); flex-shrink: 0; }
+        .menu-filename { font-size: 13px; font-weight: 400; color: var(--ink); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .menu-view {
+            font-size: 12px; font-weight: 500; color: var(--purple-dark);
+            text-decoration: none; border-bottom: 1px solid rgba(110,80,160,0.3); padding-bottom: 1px;
+        }
+        .menu-view:hover { border-bottom-color: var(--purple-dark); }
+        .menu-remove {
+            background: transparent; border: none; font-family: 'DM Sans', sans-serif;
+            font-size: 12px; color: var(--ink-40); cursor: pointer; transition: color 0.2s;
+        }
+        .menu-remove:hover { color: #c0392b; }
+        .menu-upload-wrap { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .menu-upload-btn {
+            background: transparent; border: 1px solid var(--linen);
+            font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 400;
+            color: var(--ink-60); padding: 9px 16px; border-radius: 3px; cursor: pointer; transition: all 0.2s;
+        }
+        .menu-upload-btn:hover { border-color: var(--purple); color: var(--purple-dark); }
+        .menu-chosen { font-size: 12px; font-weight: 300; color: var(--ink-40); }
+        .menu-hint { font-size: 11px; font-weight: 300; color: var(--ink-40); margin-top: 8px; }
         .sub-copy { font-size: 13px; font-weight: 300; color: var(--ink-60); line-height: 1.7; margin-bottom: 18px; max-width: 560px; }
         .cancel-link {
             background: transparent; border: 1px solid var(--linen);
@@ -301,6 +327,49 @@
             <div class="section-footer">
                 <span class="save-status" id="status-offers"></span>
                 <button class="save-btn" onclick="saveSection('offers')">Save Changes</button>
+            </div>
+        </div>
+
+        <!-- MENU & DOCUMENTS -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-eyebrow">Guest AI</div>
+                <div class="section-title">Menu &amp; Documents</div>
+                <div class="section-desc">Upload a menu PDF and add notes — the concierge reads both, and guests can view the file</div>
+            </div>
+            <div class="section-body">
+                <div class="form-row single">
+                    <div class="form-field">
+                        <label>Menu PDF</label>
+                        <div id="menuCurrent" class="menu-current" style="display:none;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="menu-file-icon">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                            </svg>
+                            <span id="menuFilename" class="menu-filename"></span>
+                            <a id="menuViewLink" class="menu-view" href="#" target="_blank">View</a>
+                            <button type="button" class="menu-remove" onclick="removeMenu()">Remove</button>
+                        </div>
+                        <div class="menu-upload-wrap">
+                            <input type="file" id="menuFile" accept="application/pdf" style="display:none;" onchange="onMenuFileChosen()" />
+                            <button type="button" class="menu-upload-btn" onclick="document.getElementById('menuFile').click()">Choose PDF</button>
+                            <span id="menuChosenName" class="menu-chosen"></span>
+                            <button type="button" class="save-btn" id="menuUploadBtn" onclick="uploadMenu()" style="display:none;">Upload</button>
+                        </div>
+                        <p class="menu-hint">PDF up to 5 MB. The concierge will read its contents to answer guest questions.</p>
+                    </div>
+                </div>
+                <div class="form-row single">
+                    <div class="form-field">
+                        <label>Additional Notes for Guests</label>
+                        <textarea id="menuNotes" style="min-height:90px;"
+                            placeholder="Anything you'd like guests to know — room service hours, how to order, dietary options, special instructions..."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="section-footer">
+                <span class="save-status" id="status-menu"></span>
+                <button class="save-btn" onclick="saveSection('menu')">Save Notes</button>
             </div>
         </div>
 
@@ -479,6 +548,8 @@
                 document.getElementById('hotelInfo').value       = cfg.hotel_info || '';
                 document.getElementById('currentOffers').value   = cfg.current_offers || '';
                 document.getElementById('staffKnowledge').value  = cfg.staff_knowledge || '';
+                document.getElementById('menuNotes').value       = cfg.menu_notes || '';
+                renderMenuState(cfg.menu_filename || '');
             } catch(e) {}
         }
 
@@ -495,6 +566,8 @@
                     payload.current_offers = document.getElementById('currentOffers').value.trim();
                 } else if (section === 'knowledge') {
                     payload.staff_knowledge = document.getElementById('staffKnowledge').value.trim();
+                } else if (section === 'menu') {
+                    payload.menu_notes = document.getElementById('menuNotes').value.trim();
                 } else if (section === 'passwords') {
                     const newStaff  = document.getElementById('newStaffPw').value;
                     const confStaff = document.getElementById('confirmStaffPw').value;
@@ -542,6 +615,81 @@
             el.className = 'save-status ' + (success ? 'success' : 'error');
             setTimeout(() => el.classList.add('fading'), 2400);
             setTimeout(() => { el.className = 'save-status'; el.textContent = ''; }, 2800);
+        }
+
+        /* ── Menu PDF handling ── */
+        function renderMenuState(filename) {
+            const current = document.getElementById('menuCurrent');
+            if (filename) {
+                document.getElementById('menuFilename').textContent = filename;
+                document.getElementById('menuViewLink').href = `/menu/${slug}`;
+                current.style.display = 'flex';
+            } else {
+                current.style.display = 'none';
+            }
+        }
+        function onMenuFileChosen() {
+            const f = document.getElementById('menuFile').files[0];
+            const nameEl = document.getElementById('menuChosenName');
+            const uploadBtn = document.getElementById('menuUploadBtn');
+            if (f) {
+                nameEl.textContent = f.name;
+                uploadBtn.style.display = 'inline-block';
+            } else {
+                nameEl.textContent = '';
+                uploadBtn.style.display = 'none';
+            }
+        }
+        async function uploadMenu() {
+            const statusEl = document.getElementById('status-menu');
+            const f = document.getElementById('menuFile').files[0];
+            const uploadBtn = document.getElementById('menuUploadBtn');
+            if (!f) { showStatus(statusEl, 'Choose a PDF first', false); return; }
+            if (!f.name.toLowerCase().endsWith('.pdf')) { showStatus(statusEl, 'PDF files only', false); return; }
+            if (f.size > 5 * 1024 * 1024) { showStatus(statusEl, 'File too large (max 5 MB)', false); return; }
+
+            uploadBtn.disabled = true;
+            uploadBtn.textContent = 'Uploading…';
+            try {
+                const fd = new FormData();
+                fd.append('file', f);
+                fd.append('auth_password', authPw);
+                const r = await fetch(`/upload-menu/${slug}`, { method: 'POST', body: fd });
+                const data = await r.json();
+                if (data.success) {
+                    renderMenuState(data.filename);
+                    document.getElementById('menuFile').value = '';
+                    document.getElementById('menuChosenName').textContent = '';
+                    uploadBtn.style.display = 'none';
+                    if (data.text_extracted) {
+                        showStatus(statusEl, data.truncated ? 'Uploaded (long menu — trimmed for AI)' : 'Menu uploaded', true);
+                    } else {
+                        showStatus(statusEl, 'Uploaded — but no text could be read (it may be a scanned image)', false);
+                    }
+                } else {
+                    showStatus(statusEl, data.error || 'Upload failed', false);
+                }
+            } catch(e) {
+                showStatus(statusEl, 'Network error', false);
+            }
+            uploadBtn.disabled = false;
+            uploadBtn.textContent = 'Upload';
+        }
+        async function removeMenu() {
+            const statusEl = document.getElementById('status-menu');
+            try {
+                const r = await fetch(`/delete-menu/${slug}`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ slug, auth_password: authPw })
+                });
+                const data = await r.json();
+                if (data.success) {
+                    renderMenuState('');
+                    showStatus(statusEl, 'Menu removed', true);
+                } else {
+                    showStatus(statusEl, data.error || 'Could not remove', false);
+                }
+            } catch(e) { showStatus(statusEl, 'Network error', false); }
         }
 
         function togglePw(inputId, btn) {

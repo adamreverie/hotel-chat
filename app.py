@@ -2,13 +2,14 @@ import os
 import re
 import json
 import time
+import base64
 import secrets
 import urllib.request
 import urllib.error
 import resend
 import sqlite3
 from datetime import datetime
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, Response
 import anthropic
 from pywebpush import webpush, WebPushException
 
@@ -21,6 +22,7 @@ except ImportError:
 # ── APP & CLIENTS ─────────────────────────────────────────────────────────────
 
 app    = Flask(__name__)
+app.config['MAX_CONTENT_LENGTH'] = 6 * 1024 * 1024  # 6 MB cap on uploads
 client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 resend.api_key = os.environ.get("RESEND_API_KEY")
 
@@ -69,7 +71,9 @@ def init_db():
                      hotel_info TEXT, current_offers TEXT, manager_email TEXT,
                      staff_knowledge TEXT,
                      trial_ends_at TIMESTAMP, subscription_status TEXT,
-                     lemon_customer_id TEXT, lemon_subscription_id TEXT)''')
+                     lemon_customer_id TEXT, lemon_subscription_id TEXT,
+                     menu_content TEXT, menu_filename TEXT, menu_pdf TEXT,
+                     menu_notes TEXT)''')
         c.execute('''CREATE TABLE IF NOT EXISTS push_subscriptions (
                      id SERIAL PRIMARY KEY,
                      hotel_slug TEXT, staff_name TEXT, department TEXT,
@@ -78,6 +82,15 @@ def init_db():
                      id SERIAL PRIMARY KEY,
                      email TEXT, slug TEXT, token TEXT UNIQUE,
                      expires_at TEXT, used INTEGER DEFAULT 0)''')
+        # Safe migrations for existing Postgres databases (no-op if column exists)
+        for sql in [
+            "ALTER TABLE hotels ADD COLUMN IF NOT EXISTS menu_content TEXT",
+            "ALTER TABLE hotels ADD COLUMN IF NOT EXISTS menu_filename TEXT",
+            "ALTER TABLE hotels ADD COLUMN IF NOT EXISTS menu_pdf TEXT",
+            "ALTER TABLE hotels ADD COLUMN IF NOT EXISTS menu_notes TEXT",
+        ]:
+            try: c.execute(sql)
+            except Exception: pass
     else:
         c.execute('''CREATE TABLE IF NOT EXISTS feedback
                     (id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -96,7 +109,9 @@ def init_db():
                      system_prompt TEXT, staff_password TEXT, manager_password TEXT,
                      date_created TEXT,
                      hotel_info TEXT, current_offers TEXT, manager_email TEXT,
-                     staff_knowledge TEXT)''')
+                     staff_knowledge TEXT,
+                     menu_content TEXT, menu_filename TEXT, menu_pdf TEXT,
+                     menu_notes TEXT)''')
         c.execute('''CREATE TABLE IF NOT EXISTS push_subscriptions
                     (id INTEGER PRIMARY KEY AUTOINCREMENT,
                      hotel_slug TEXT, staff_name TEXT, department TEXT,
@@ -111,6 +126,10 @@ def init_db():
             "ALTER TABLE hotels   ADD COLUMN current_offers TEXT",
             "ALTER TABLE hotels   ADD COLUMN manager_email TEXT",
             "ALTER TABLE hotels   ADD COLUMN staff_knowledge TEXT",
+            "ALTER TABLE hotels   ADD COLUMN menu_content TEXT",
+            "ALTER TABLE hotels   ADD COLUMN menu_filename TEXT",
+            "ALTER TABLE hotels   ADD COLUMN menu_pdf TEXT",
+            "ALTER TABLE hotels   ADD COLUMN menu_notes TEXT",
             "ALTER TABLE requests ADD COLUMN hotel_slug TEXT",
             "ALTER TABLE feedback ADD COLUMN hotel_slug TEXT",
         ]:
@@ -237,6 +256,19 @@ def get_hotel(slug):
         if sub_status == 'on_trial' and trial_ends and datetime.now() > trial_ends:
             return jsonify({"error": "Trial expired"}), 403
 
+    # Menu fields fetched explicitly by name (robust to column ordering)
+    menu_filename = ""
+    menu_notes    = ""
+    try:
+        conn2 = get_conn(); c2 = conn2.cursor()
+        c2.execute(f'SELECT menu_filename, menu_notes FROM hotels WHERE slug = {ph()}', (hotel[2],))
+        mrow = c2.fetchone(); conn2.close()
+        if mrow:
+            menu_filename = mrow[0] or ""
+            menu_notes    = mrow[1] or ""
+    except Exception:
+        pass
+
     return jsonify({
         "id":           hotel[0],
         "name":         hotel[1],
@@ -247,6 +279,8 @@ def get_hotel(slug):
         "current_offers":  hotel[10] if len(hotel) > 10 and hotel[10] else "",
         "manager_email":   hotel[11] if len(hotel) > 11 and hotel[11] else hotel[3],
         "staff_knowledge": hotel[12] if len(hotel) > 12 and hotel[12] else "",
+        "menu_filename":   menu_filename,
+        "menu_notes":      menu_notes,
     })
 
 
@@ -435,7 +469,7 @@ def update_hotel_settings():
         return jsonify({"success": False, "error": "Not authorised"}), 403
 
     allowed = ['name', 'manager_email', 'hotel_info', 'current_offers',
-               'staff_password', 'manager_password', 'staff_knowledge']
+               'staff_password', 'manager_password', 'staff_knowledge', 'menu_notes']
     fields, values = [], []
     for field in allowed:
         if field in data:
@@ -455,29 +489,152 @@ def update_hotel_settings():
         return jsonify({"success": False, "error": str(e)})
 
 
+MENU_TEXT_LIMIT = 12000  # characters of extracted PDF text kept for the AI
+
+
+@app.route('/upload-menu/<slug>', methods=['POST'])
+def upload_menu(slug):
+    """Manager uploads a PDF menu. We extract its text (for the AI to read) and
+    store the raw bytes (so guests can view the file). Auth via manager password."""
+    auth = request.form.get('auth_password', '')
+    if not verify_hotel_password(slug, auth, 'manager'):
+        return jsonify({"success": False, "error": "Not authorised"}), 403
+
+    if 'file' not in request.files:
+        return jsonify({"success": False, "error": "No file provided"})
+    f = request.files['file']
+    if not f or not f.filename:
+        return jsonify({"success": False, "error": "No file selected"})
+
+    filename = f.filename
+    if not filename.lower().endswith('.pdf'):
+        return jsonify({"success": False, "error": "Please upload a PDF file"})
+
+    raw = f.read()
+    if len(raw) > 5 * 1024 * 1024:
+        return jsonify({"success": False, "error": "File too large (max 5 MB)"})
+
+    # Extract text for the AI
+    extracted = ""
+    truncated = False
+    try:
+        import io
+        from pypdf import PdfReader
+        reader = PdfReader(io.BytesIO(raw))
+        parts = []
+        for page in reader.pages:
+            parts.append(page.extract_text() or "")
+        extracted = "\n".join(parts).strip()
+        if len(extracted) > MENU_TEXT_LIMIT:
+            extracted = extracted[:MENU_TEXT_LIMIT]
+            truncated = True
+    except Exception as e:
+        # Even if extraction fails, we can still store the file for viewing.
+        extracted = ""
+
+    pdf_b64 = base64.b64encode(raw).decode('ascii')
+
+    try:
+        conn = get_conn(); c = conn.cursor()
+        c.execute(f'''UPDATE hotels SET menu_content = {ph()}, menu_filename = {ph()},
+                      menu_pdf = {ph()} WHERE slug = {ph()}''',
+                  (extracted, filename, pdf_b64, slug))
+        conn.commit(); conn.close()
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
+    return jsonify({
+        "success": True,
+        "filename": filename,
+        "extracted_chars": len(extracted),
+        "text_extracted": bool(extracted),
+        "truncated": truncated
+    })
+
+
+@app.route('/delete-menu/<slug>', methods=['POST'])
+def delete_menu(slug):
+    data = request.json or {}
+    if not verify_hotel_password(slug, data.get('auth_password'), 'manager'):
+        return jsonify({"success": False, "error": "Not authorised"}), 403
+    try:
+        conn = get_conn(); c = conn.cursor()
+        c.execute(f'''UPDATE hotels SET menu_content = NULL, menu_filename = NULL,
+                      menu_pdf = NULL WHERE slug = {ph()}''', (slug,))
+        conn.commit(); conn.close()
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
+
+@app.route('/menu/<slug>')
+def view_menu(slug):
+    """Serve the stored PDF so guests (and managers) can view it in the browser."""
+    conn = get_conn(); c = conn.cursor()
+    c.execute(f'SELECT menu_filename, menu_pdf FROM hotels WHERE slug = {ph()}', (slug,))
+    row = c.fetchone(); conn.close()
+    if not row or not row[1]:
+        return "No menu available", 404
+    filename = row[0] or "menu.pdf"
+    try:
+        pdf_bytes = base64.b64decode(row[1])
+    except Exception:
+        return "Could not load menu", 500
+    return Response(pdf_bytes, mimetype='application/pdf',
+                    headers={'Content-Disposition': f'inline; filename="{filename}"'})
+
+
+@app.route('/menu-info/<slug>')
+def menu_info(slug):
+    """Lightweight check used by the guest chat to know if a viewable menu exists."""
+    conn = get_conn(); c = conn.cursor()
+    c.execute(f'SELECT menu_filename FROM hotels WHERE slug = {ph()}', (slug,))
+    row = c.fetchone(); conn.close()
+    has_menu = bool(row and row[0])
+    return jsonify({"has_menu": has_menu, "filename": (row[0] if has_menu else None)})
+
+
 # ── GUEST CHAT ────────────────────────────────────────────────────────────────
 
 def get_system_prompt(slug=None):
     name           = "this hotel"
     hotel_info     = "No hotel information has been configured yet. Ask the manager to set this up in Settings."
     current_offers = ""
+    menu_content   = ""
+    menu_filename  = ""
+    menu_notes     = ""
 
     if slug:
         conn = get_conn(); c = conn.cursor()
-        c.execute(f'SELECT name, hotel_info, current_offers FROM hotels WHERE slug = {ph()}', (slug,))
+        c.execute(f'SELECT name, hotel_info, current_offers, menu_content, menu_filename, menu_notes FROM hotels WHERE slug = {ph()}', (slug,))
         row = c.fetchone(); conn.close()
         if row:
             name           = row[0] or "this hotel"
             hotel_info     = row[1] or hotel_info
             current_offers = row[2] or ""
+            menu_content   = row[3] if len(row) > 3 and row[3] else ""
+            menu_filename  = row[4] if len(row) > 4 and row[4] else ""
+            menu_notes     = row[5] if len(row) > 5 and row[5] else ""
 
     offers_block = f"\nCURRENT OFFERS:\n{current_offers}\n" if current_offers else ""
+
+    menu_block = ""
+    if menu_notes:
+        menu_block += f"\nADDITIONAL NOTES FROM THE HOTEL (for guests):\n{menu_notes}\n"
+    if menu_content:
+        menu_block += (
+            f"\nMENU & SERVICES DOCUMENT:\n"
+            f"The hotel has provided the following menu/services information. "
+            f"Use it to answer guest questions about food, drinks, dining, and services. "
+            f"If a guest wants to see the full document, tell them they can view it in the chat — "
+            f"a link is shown to them automatically.\n\n{menu_content}\n"
+        )
 
     return f"""You are the AI guest concierge for {name}.
 
 HOTEL INFORMATION:
 {hotel_info}
-{offers_block}
+{offers_block}{menu_block}
 When a guest makes a REAL REQUEST (towels, room service, maintenance, housekeeping, spa booking, transport):
 1. Ask for their room number if you don't have it
 2. Confirm their request warmly

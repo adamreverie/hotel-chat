@@ -4,3 +4,4 @@ python-dotenv
 resend
 psycopg2-binary
 pywebpush
+pypdf
