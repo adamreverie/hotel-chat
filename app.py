@@ -253,8 +253,16 @@ def get_hotel(slug):
     if USE_POSTGRES and len(hotel) > 14 and hotel[14]:
         sub_status = hotel[14]  # subscription_status column
         trial_ends = hotel[13]  # trial_ends_at column
-        if sub_status == 'on_trial' and trial_ends and datetime.now() > trial_ends:
-            return jsonify({"error": "Trial expired"}), 403
+        if sub_status == 'on_trial' and trial_ends:
+            try:
+                now = datetime.now()
+                # Strip tzinfo so naive/aware datetimes can be compared safely
+                if getattr(trial_ends, 'tzinfo', None) is not None:
+                    trial_ends = trial_ends.replace(tzinfo=None)
+                if now > trial_ends:
+                    return jsonify({"error": "Trial expired"}), 403
+            except Exception as e:
+                print(f"Trial check skipped for {slug}: {e}")
 
     # Menu fields fetched explicitly by name (robust to column ordering)
     menu_filename = ""
