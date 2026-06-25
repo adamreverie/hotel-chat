@@ -182,6 +182,11 @@
         .menu-upload-btn:hover { border-color: var(--purple); color: var(--purple-dark); }
         .menu-chosen { font-size: 12px; font-weight: 300; color: var(--ink-40); }
         .menu-hint { font-size: 11px; font-weight: 300; color: var(--ink-40); margin-top: 8px; }
+        .char-counter {
+            font-size: 11px; font-weight: 300; color: var(--ink-40);
+            margin-top: 6px; text-align: right; transition: color 0.2s;
+        }
+        .char-counter.warn { color: #b8860b; font-weight: 400; }
         .sub-copy { font-size: 13px; font-weight: 300; color: var(--ink-60); line-height: 1.7; margin-bottom: 18px; max-width: 560px; }
         .cancel-link {
             background: transparent; border: 1px solid var(--linen);
@@ -298,7 +303,8 @@
                 <div class="form-row single">
                     <div class="form-field">
                         <label>Hotel Info</label>
-                        <textarea id="hotelInfo" placeholder="Rooms, facilities, dining hours, contacts, WiFi password..."></textarea>
+                        <textarea id="hotelInfo" oninput="updateInfoCounter()" placeholder="Rooms, facilities, dining hours, contacts, WiFi password..."></textarea>
+                        <p class="char-counter" id="infoCounter"></p>
                     </div>
                 </div>
                 <div class="form-row single">
@@ -525,6 +531,7 @@
                 document.getElementById('hotelLocation').value   = cfg.location || '';
                 document.getElementById('managerEmail').value    = cfg.manager_email || cfg.email || '';
                 document.getElementById('hotelInfo').value       = cfg.hotel_info || '';
+                updateInfoCounter();
                 document.getElementById('currentOffers').value   = cfg.current_offers || '';
                 document.getElementById('staffKnowledge').value  = cfg.staff_knowledge || '';
                 renderMenuState(cfg.menu_filename || '');
@@ -591,6 +598,25 @@
             el.className = 'save-status ' + (success ? 'success' : 'error');
             setTimeout(() => el.classList.add('fading'), 2400);
             setTimeout(() => { el.className = 'save-status'; el.textContent = ''; }, 2800);
+        }
+
+        /* ── Hotel Info length guardrail (soft warning only) ── */
+        const INFO_SOFT_LIMIT = 8000;  // ~3-4 pages; past this, prompt size starts to matter
+        function updateInfoCounter() {
+            const ta = document.getElementById('hotelInfo');
+            const counter = document.getElementById('infoCounter');
+            if (!ta || !counter) return;
+            const len = ta.value.length;
+            if (len > INFO_SOFT_LIMIT) {
+                counter.textContent = `${len.toLocaleString()} characters — this is quite long and may slow guest responses. Consider keeping it to the essentials.`;
+                counter.classList.add('warn');
+            } else if (len > INFO_SOFT_LIMIT * 0.75) {
+                counter.textContent = `${len.toLocaleString()} characters`;
+                counter.classList.remove('warn');
+            } else {
+                counter.textContent = '';
+                counter.classList.remove('warn');
+            }
         }
 
         /* ── Menu PDF handling ── */
