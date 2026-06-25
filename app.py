@@ -234,20 +234,8 @@ def get_hotel(slug):
     if USE_POSTGRES and len(hotel) > 14 and hotel[14]:
         sub_status = hotel[14]  # subscription_status column
         trial_ends = hotel[13]  # trial_ends_at column
-        if sub_status == 'on_trial' and trial_ends:
-            try:
-                now = datetime.now()
-                # Strip tzinfo so naive/aware datetimes can be compared safely.
-                # Postgres can return a tz-aware datetime while datetime.now() is
-                # naive — comparing them raises TypeError and 500s the whole
-                # request, which blanks the portal (no name, no checklist).
-                if getattr(trial_ends, 'tzinfo', None) is not None:
-                    trial_ends = trial_ends.replace(tzinfo=None)
-                if now > trial_ends:
-                    return jsonify({"error": "Trial expired"}), 403
-            except Exception as e:
-                # Never let a date comparison take down the portal.
-                print(f"Trial check skipped for {slug}: {e}")
+        if sub_status == 'on_trial' and trial_ends and datetime.now() > trial_ends:
+            return jsonify({"error": "Trial expired"}), 403
 
     return jsonify({
         "id":           hotel[0],
@@ -858,19 +846,31 @@ def push_unsubscribe():
 
 @app.route('/contact', methods=['POST'])
 def contact():
+    import html as _html
     data    = request.json or {}
     name    = data.get('name', '').strip()
+    hotel   = data.get('hotel', '').strip()
     email   = data.get('email', '').strip()
     message = data.get('message', '').strip()
     if not name or not email or not message:
         return jsonify({"success": False, "error": "All fields required"})
+    # Escape user input so it renders safely in the email
+    s_name    = _html.escape(name)
+    s_hotel   = _html.escape(hotel) if hotel else "—"
+    s_email   = _html.escape(email)
+    s_message = _html.escape(message).replace("\n", "<br>")
     try:
         resend.Emails.send({
             "from": "Favvi Contact <hello@favvi.ai>",
             "to": "hello@favvi.ai",
             "reply_to": email,
-            "subject": f"Contact form — {name}",
-            "html": f"<p><strong>Name:</strong> {name}</p><p><strong>Email:</strong> {email}</p><p><strong>Message:</strong><br>{message}</p>"
+            "subject": f"Contact form — {name}" + (f" ({hotel})" if hotel else ""),
+            "html": (
+                f"<p><strong>Name:</strong> {s_name}</p>"
+                f"<p><strong>Hotel / property:</strong> {s_hotel}</p>"
+                f"<p><strong>Email:</strong> {s_email}</p>"
+                f"<p><strong>Message:</strong><br>{s_message}</p>"
+            )
         })
         return jsonify({"success": True})
     except Exception as e:
