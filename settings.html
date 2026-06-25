@@ -301,6 +301,28 @@
                         <textarea id="hotelInfo" placeholder="Rooms, facilities, dining hours, contacts, WiFi password..."></textarea>
                     </div>
                 </div>
+                <div class="form-row single">
+                    <div class="form-field">
+                        <label>Menu / Document PDF</label>
+                        <div id="menuCurrent" class="menu-current" style="display:none;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="menu-file-icon">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                            </svg>
+                            <span id="menuFilename" class="menu-filename"></span>
+                            <a id="menuViewLink" class="menu-view" href="#" target="_blank">View</a>
+                            <button type="button" class="menu-remove" onclick="removeMenu()">Remove</button>
+                        </div>
+                        <div class="menu-upload-wrap">
+                            <input type="file" id="menuFile" accept="application/pdf" style="display:none;" onchange="onMenuFileChosen()" />
+                            <button type="button" class="menu-upload-btn" onclick="document.getElementById('menuFile').click()">Choose PDF</button>
+                            <span id="menuChosenName" class="menu-chosen"></span>
+                            <button type="button" class="save-btn" id="menuUploadBtn" onclick="uploadMenu()" style="display:none;">Upload</button>
+                            <span class="save-status" id="status-menu" style="margin-left:4px;"></span>
+                        </div>
+                        <p class="menu-hint">Upload a menu or info sheet (PDF, up to 5 MB). The concierge reads its contents to answer guests, and guests can view the file in chat.</p>
+                    </div>
+                </div>
             </div>
             <div class="section-footer">
                 <span class="save-status" id="status-info"></span>
@@ -327,49 +349,6 @@
             <div class="section-footer">
                 <span class="save-status" id="status-offers"></span>
                 <button class="save-btn" onclick="saveSection('offers')">Save Changes</button>
-            </div>
-        </div>
-
-        <!-- MENU & DOCUMENTS -->
-        <div class="section">
-            <div class="section-header">
-                <div class="section-eyebrow">Guest AI</div>
-                <div class="section-title">Menu &amp; Documents</div>
-                <div class="section-desc">Upload a menu PDF and add notes — the concierge reads both, and guests can view the file</div>
-            </div>
-            <div class="section-body">
-                <div class="form-row single">
-                    <div class="form-field">
-                        <label>Menu PDF</label>
-                        <div id="menuCurrent" class="menu-current" style="display:none;">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="menu-file-icon">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                <polyline points="14 2 14 8 20 8"/>
-                            </svg>
-                            <span id="menuFilename" class="menu-filename"></span>
-                            <a id="menuViewLink" class="menu-view" href="#" target="_blank">View</a>
-                            <button type="button" class="menu-remove" onclick="removeMenu()">Remove</button>
-                        </div>
-                        <div class="menu-upload-wrap">
-                            <input type="file" id="menuFile" accept="application/pdf" style="display:none;" onchange="onMenuFileChosen()" />
-                            <button type="button" class="menu-upload-btn" onclick="document.getElementById('menuFile').click()">Choose PDF</button>
-                            <span id="menuChosenName" class="menu-chosen"></span>
-                            <button type="button" class="save-btn" id="menuUploadBtn" onclick="uploadMenu()" style="display:none;">Upload</button>
-                        </div>
-                        <p class="menu-hint">PDF up to 5 MB. The concierge will read its contents to answer guest questions.</p>
-                    </div>
-                </div>
-                <div class="form-row single">
-                    <div class="form-field">
-                        <label>Additional Notes for Guests</label>
-                        <textarea id="menuNotes" style="min-height:90px;"
-                            placeholder="Anything you'd like guests to know — room service hours, how to order, dietary options, special instructions..."></textarea>
-                    </div>
-                </div>
-            </div>
-            <div class="section-footer">
-                <span class="save-status" id="status-menu"></span>
-                <button class="save-btn" onclick="saveSection('menu')">Save Notes</button>
             </div>
         </div>
 
@@ -548,7 +527,6 @@
                 document.getElementById('hotelInfo').value       = cfg.hotel_info || '';
                 document.getElementById('currentOffers').value   = cfg.current_offers || '';
                 document.getElementById('staffKnowledge').value  = cfg.staff_knowledge || '';
-                document.getElementById('menuNotes').value       = cfg.menu_notes || '';
                 renderMenuState(cfg.menu_filename || '');
             } catch(e) {}
         }
@@ -566,8 +544,6 @@
                     payload.current_offers = document.getElementById('currentOffers').value.trim();
                 } else if (section === 'knowledge') {
                     payload.staff_knowledge = document.getElementById('staffKnowledge').value.trim();
-                } else if (section === 'menu') {
-                    payload.menu_notes = document.getElementById('menuNotes').value.trim();
                 } else if (section === 'passwords') {
                     const newStaff  = document.getElementById('newStaffPw').value;
                     const confStaff = document.getElementById('confirmStaffPw').value;
