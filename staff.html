@@ -134,6 +134,10 @@
             transition: border-color 0.2s, box-shadow 0.2s;
         }
         .lfield input::placeholder { color: var(--ink-25); }
+        .dept-hint {
+            font-size: 11px; font-weight: 300; color: var(--ink-40);
+            line-height: 1.5; margin-top: 8px; margin-bottom: 0;
+        }
         .lfield input:focus { border-color: var(--staff); box-shadow: 0 0 0 3px rgba(74,127,165,0.12); }
 
         .dept-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; }
@@ -465,7 +469,7 @@
             <label>Staff Code</label>
             <input type="password" id="staffPassword" placeholder="Your team's code"
                    onkeypress="if(event.key==='Enter') checkPassword()" />
-            <p class="dept-hint">Ask your manager for this. You'll only enter it once on this device.</p>
+            <p class="dept-hint">Your manager will have shared this with your team. You'll only need to enter it once here.</p>
         </div>
 
         <div class="stay-row">
@@ -735,7 +739,7 @@
         const d = localStorage.getItem('favvi_staff_dept');
         const s = localStorage.getItem('favvi_staff_slug');
         const p = localStorage.getItem('favvi_staff_pw_hash');
-        if (!n || !p || s !== slug) return;
+        if (!n || !d || !p || s !== slug) return;
         try {
             const pw = atob(p);
             const r = await fetch('/verify-password', {
@@ -743,13 +747,12 @@
                 body: JSON.stringify({ slug, password: pw, role: 'staff' })
             });
             if ((await r.json()).valid !== true) return;
-            staffName = n; staffDept = d || 'all'; activeFilter = staffDept; staffPw = pw;
+            staffName = n; staffDept = d; activeFilter = d; staffPw = pw;
             boot();
         } catch(e) {}
     }
 
     loadHotelName(); checkSavedSession();
-
 
     async function checkPassword() {
         const name = document.getElementById('staffName').value.trim();
@@ -767,7 +770,6 @@
         } catch(e) {}
         if (!valid) { err.textContent = 'That code doesn\'t match. Check with your manager.'; err.style.display = 'block'; return; }
         staffName = name; staffPw = pw; err.style.display = 'none';
-        // Default to seeing everything; they pick their department inside the dashboard.
         staffDept = localStorage.getItem('favvi_staff_dept') || 'all';
         if (document.getElementById('staySignedIn').checked) {
             localStorage.setItem('favvi_staff_name', name);
@@ -840,13 +842,9 @@
         activeFilter = f;
         document.querySelectorAll('.fchip').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        // The chosen filter is also the department they get notified about.
         staffDept = f;
         localStorage.setItem('favvi_staff_dept', f);
-        // If alerts are already on, re-subscribe so notifications match the new department.
-        if ('Notification' in window && Notification.permission === 'granted') {
-            subscribeForPush();
-        }
+        if ('Notification' in window && Notification.permission === 'granted') { subscribeForPush(); }
         reconcile();
     }
 

@@ -94,6 +94,13 @@
         .login-btn:hover { background: var(--purple); color: white; }
         .login-error { color: #c0392b; font-size: 12px; margin-top: 10px; display: none; }
         .login-hint { font-size: 11px; font-weight: 300; color: var(--ink-25); margin-top: 18px; line-height: 1.5; }
+        .forgot-row { margin-top: 14px; }
+        .forgot-row a {
+            font-size: 12px; font-weight: 400; color: var(--purple-dark);
+            text-decoration: none; border-bottom: 1px solid rgba(110,80,160,0.25); padding-bottom: 1px;
+            transition: all 0.2s;
+        }
+        .forgot-row a:hover { border-bottom-color: var(--purple-dark); }
 
         /* ── BODY ── */
         .body { max-width: 720px; margin: 0 auto; padding: 40px 24px 64px; }
@@ -182,6 +189,17 @@
         .menu-upload-btn:hover { border-color: var(--purple); color: var(--purple-dark); }
         .menu-chosen { font-size: 12px; font-weight: 300; color: var(--ink-40); }
         .menu-hint { font-size: 11px; font-weight: 300; color: var(--ink-40); margin-top: 8px; }
+        .code-prompt {
+            background: rgba(201,168,76,0.10);
+            border: 1px solid rgba(201,168,76,0.35);
+            border-radius: 5px; padding: 13px 16px; margin-bottom: 18px;
+            font-size: 13px; font-weight: 300; color: var(--ink); line-height: 1.6;
+        }
+        .code-prompt strong { font-weight: 600; }
+        .code-prompt code {
+            background: rgba(26,26,46,0.06); padding: 1px 7px; border-radius: 3px;
+            font-family: monospace; font-size: 12px;
+        }
         .char-counter {
             font-size: 11px; font-weight: 300; color: var(--ink-40);
             margin-top: 6px; text-align: right; transition: color 0.2s;
@@ -244,7 +262,23 @@
 </head>
 <body>
 
-    <!-- Settings open directly — protected by the portal login -->
+    <!-- LOGIN -->
+    <div class="overlay" id="overlay">
+        <div class="login-card">
+            <div class="login-logo">fav<span>vi</span></div>
+            <h2>Settings</h2>
+            <p>Enter your manager password to continue</p>
+            <div class="field">
+                <label>Manager Password</label>
+                <input type="password" id="passwordInput" placeholder="Enter password"
+                       onkeypress="if(event.key==='Enter') attemptLogin()" />
+            </div>
+            <button class="login-btn" onclick="attemptLogin()">Access Settings</button>
+            <p class="login-error" id="loginError">Incorrect password. Try again.</p>
+            <p class="login-hint">Settings are protected by your manager password.</p>
+            <p class="forgot-row"><a href="#" id="forgotLink" onclick="startReset(event)">Forgot your password?</a></p>
+        </div>
+    </div>
 
     <!-- TOP BAR -->
     <div class="topbar" id="mainHeader" style="display:none;">
@@ -343,45 +377,52 @@
             </div>
         </div>
 
-        <!-- Staff Knowledge Base removed for launch (staff AI assistant parked) -->
+        <!-- Staff Knowledge Base removed for launch -->
 
-        <!-- 4. PASSWORDS -->
+        <!-- STAFF CODE -->
         <div class="section">
             <div class="section-header">
-                <div class="section-eyebrow">Access</div>
-                <div class="section-title">Passwords</div>
-                <div class="section-desc">Update your login password and staff code</div>
+                <div class="section-eyebrow">Staff Access</div>
+                <div class="section-title">Staff Code</div>
+                <div class="section-desc">The code your team enters once to open the staff dashboard on their phones</div>
             </div>
             <div class="section-body">
+                <div class="code-prompt" id="codePrompt" style="display:none;">
+                    <strong>Set your staff code.</strong> Your code is still the default <code>0000</code>. Choose something only your team knows, then share it with them.
+                </div>
                 <div class="form-row">
                     <div class="form-field">
                         <label>New Staff Code</label>
                         <div class="pw-wrap">
-                            <input type="password" id="newStaffPw" placeholder="Enter new password" />
-                            <button class="pw-eye" onclick="togglePw('newStaffPw', this)" aria-label="Show password">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                                    <circle cx="12" cy="12" r="3"/>
-                                </svg>
-                            </button>
+                            <input type="text" id="newStaffPw" placeholder="e.g. a memorable number or word" />
                         </div>
                     </div>
                     <div class="form-field">
                         <label>Confirm Staff Code</label>
                         <div class="pw-wrap">
-                            <input type="password" id="confirmStaffPw" placeholder="Repeat password" />
-                            <button class="pw-eye" onclick="togglePw('confirmStaffPw', this)" aria-label="Show password">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                                    <circle cx="12" cy="12" r="3"/>
-                                </svg>
-                            </button>
+                            <input type="text" id="confirmStaffPw" placeholder="Repeat code" />
                         </div>
                     </div>
                 </div>
+                <p class="menu-hint">Share this with your team — they enter it once and it's remembered on their device.</p>
+            </div>
+            <div class="section-footer">
+                <span class="save-status" id="status-staffcode"></span>
+                <button class="save-btn" onclick="saveStaffCode()">Save Staff Code</button>
+            </div>
+        </div>
+
+        <!-- MANAGER PASSWORD -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-eyebrow">Access</div>
+                <div class="section-title">Manager Password</div>
+                <div class="section-desc">The password that protects this Settings page</div>
+            </div>
+            <div class="section-body">
                 <div class="form-row">
                     <div class="form-field">
-                        <label>New Login Password</label>
+                        <label>New Manager Password</label>
                         <div class="pw-wrap">
                             <input type="password" id="newManagerPw" placeholder="Enter new password" />
                             <button class="pw-eye" onclick="togglePw('newManagerPw', this)" aria-label="Show password">
@@ -393,7 +434,7 @@
                         </div>
                     </div>
                     <div class="form-field">
-                        <label>Confirm Login Password</label>
+                        <label>Confirm Manager Password</label>
                         <div class="pw-wrap">
                             <input type="password" id="confirmManagerPw" placeholder="Repeat password" />
                             <button class="pw-eye" onclick="togglePw('confirmManagerPw', this)" aria-label="Show password">
@@ -408,7 +449,7 @@
             </div>
             <div class="section-footer">
                 <span class="save-status" id="status-passwords"></span>
-                <button class="save-btn" onclick="saveSection('passwords')">Save Passwords</button>
+                <button class="save-btn" onclick="saveSection('passwords')">Save Password</button>
             </div>
         </div>
 
@@ -458,14 +499,53 @@
         loadConfig();
 
         let authPw = '';
+        async function attemptLogin() {
+            const pw = document.getElementById('passwordInput').value;
+            const errEl = document.getElementById('loginError');
+            let valid = false;
+            try {
+                const r = await fetch('/verify-password', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ slug, password: pw, role: 'manager' })
+                });
+                valid = (await r.json()).valid === true;
+            } catch(e) {}
+            if (!valid) {
+                errEl.style.display = 'block';
+                return;
+            }
+            authPw = pw;
+            errEl.style.display = 'none';
+            enterSettings();
+        }
+
+        async function startReset(e) {
+            if (e) e.preventDefault();
+            const errEl = document.getElementById('loginError');
+            const email = prompt("Enter the email you signed up with. We'll send a link to reset your password.");
+            if (email === null) return;                 // cancelled
+            const trimmed = email.trim();
+            if (!trimmed) return;
+            try {
+                await fetch('/request-password-reset', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: trimmed })
+                });
+            } catch(err) {}
+            // Always show the same confirmation (we never reveal whether an email exists)
+            errEl.style.color = 'var(--purple-dark)';
+            errEl.textContent = "If that email is registered, a reset link is on its way. Check your inbox.";
+            errEl.style.display = 'block';
+        }
+
         function enterSettings() {
-            const mh = document.getElementById('mainHeader'); if (mh) mh.style.display = 'flex';
-            const mb = document.getElementById('mainBody');   if (mb) mb.style.display = 'block';
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('mainHeader').style.display = 'flex';
+            document.getElementById('mainBody').style.display = 'block';
             document.getElementById('backLink').href = slug ? `/portal/${slug}` : '/';
             loadCurrentValues();
+            checkStaffCodePrompt();
         }
-        // Settings open directly — no password gate (protected by the portal login)
-        enterSettings();
 
         async function loadCurrentValues() {
             try {
@@ -483,6 +563,40 @@
             } catch(e) {}
         }
 
+        async function saveStaffCode() {
+            const statusEl = document.getElementById('status-staffcode');
+            const code = document.getElementById('newStaffPw').value.trim();
+            const conf = document.getElementById('confirmStaffPw').value.trim();
+            if (!code) { showStatus(statusEl, 'Enter a new code first', false); return; }
+            if (code !== conf) { showStatus(statusEl, 'Codes do not match', false); return; }
+            if (code.length < 4) { showStatus(statusEl, 'Minimum 4 characters', false); return; }
+            if (code === '0000') { showStatus(statusEl, 'Please choose something other than 0000', false); return; }
+            try {
+                const r = await fetch('/update-hotel-settings', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ slug, auth_password: authPw, staff_password: code })
+                });
+                const data = await r.json();
+                if (data.success) {
+                    document.getElementById('newStaffPw').value = '';
+                    document.getElementById('confirmStaffPw').value = '';
+                    document.getElementById('codePrompt').style.display = 'none';
+                    showStatus(statusEl, 'Staff code saved', true);
+                } else {
+                    showStatus(statusEl, data.error || 'Save failed', false);
+                }
+            } catch(e) { showStatus(statusEl, 'Network error', false); }
+        }
+
+        async function checkStaffCodePrompt() {
+            if (!slug) return;
+            try {
+                const r = await fetch(`/staff-code-status/${slug}`);
+                const d = await r.json();
+                if (d.is_default) document.getElementById('codePrompt').style.display = 'block';
+            } catch(e) {}
+        }
+
         async function saveSection(section) {
             const statusEl = document.getElementById('status-' + section);
             try {
@@ -495,23 +609,12 @@
                 } else if (section === 'offers') {
                     payload.current_offers = document.getElementById('currentOffers').value.trim();
                 } else if (section === 'passwords') {
-                    const newStaff  = document.getElementById('newStaffPw').value;
-                    const confStaff = document.getElementById('confirmStaffPw').value;
-                    if (newStaff || confStaff) {
-                        if (newStaff !== confStaff) { showStatus(statusEl, 'Staff passwords do not match', false); return; }
-                        if (newStaff.length < 4)    { showStatus(statusEl, 'Minimum 4 characters', false); return; }
-                        payload.staff_password = newStaff;
-                    }
                     const newMgr  = document.getElementById('newManagerPw').value;
                     const confMgr = document.getElementById('confirmManagerPw').value;
-                    if (newMgr || confMgr) {
-                        if (newMgr !== confMgr) { showStatus(statusEl, 'Manager passwords do not match', false); return; }
-                        if (newMgr.length < 4)  { showStatus(statusEl, 'Minimum 4 characters', false); return; }
-                        payload.manager_password = newMgr;
-                    }
-                    if (!payload.staff_password && !payload.manager_password) {
-                        showStatus(statusEl, 'Enter a new password first', false); return;
-                    }
+                    if (!newMgr && !confMgr) { showStatus(statusEl, 'Enter a new password first', false); return; }
+                    if (newMgr !== confMgr) { showStatus(statusEl, 'Passwords do not match', false); return; }
+                    if (newMgr.length < 4)  { showStatus(statusEl, 'Minimum 4 characters', false); return; }
+                    payload.manager_password = newMgr;
                 }
 
                 payload.auth_password = authPw;
@@ -524,7 +627,7 @@
                 if (data.success) {
                     if (payload.manager_password) authPw = payload.manager_password;
                     if (section === 'passwords') {
-                        ['newStaffPw','confirmStaffPw','newManagerPw','confirmManagerPw'].forEach(id => {
+                        ['newManagerPw','confirmManagerPw'].forEach(id => {
                             const el = document.getElementById(id); if (el) el.value = '';
                         });
                         await loadConfig();
