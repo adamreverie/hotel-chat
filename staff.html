@@ -462,21 +462,10 @@
         </div>
 
         <div class="lfield">
-            <label>Your Department</label>
-            <div class="dept-grid">
-                <div class="dept-opt d-all selected" data-dept="all"          onclick="selectDept(this)">All Departments</div>
-                <div class="dept-opt d-hk"           data-dept="housekeeping" onclick="selectDept(this)">Housekeeping</div>
-                <div class="dept-opt d-rs"           data-dept="roomservice"  onclick="selectDept(this)">Room Service</div>
-                <div class="dept-opt d-mt"           data-dept="maintenance"  onclick="selectDept(this)">Maintenance</div>
-                <div class="dept-opt d-cn"           data-dept="concierge"    onclick="selectDept(this)">Concierge</div>
-                <div class="dept-opt d-hl"           data-dept="health"       onclick="selectDept(this)">Health & Spa</div>
-            </div>
-        </div>
-
-        <div class="lfield">
-            <label>Staff Password</label>
-            <input type="password" id="staffPassword" placeholder="Enter password"
+            <label>Staff Code</label>
+            <input type="password" id="staffPassword" placeholder="Your team's code"
                    onkeypress="if(event.key==='Enter') checkPassword()" />
+            <p class="dept-hint">Ask your manager for this. You'll only enter it once on this device.</p>
         </div>
 
         <div class="stay-row">
@@ -485,7 +474,7 @@
         </div>
 
         <button class="login-btn" onclick="checkPassword()">Enter Dashboard</button>
-        <p class="login-error" id="loginError">Incorrect password. Try again.</p>
+        <p class="login-error" id="loginError"></p>
     </div>
 </div>
 
@@ -746,7 +735,7 @@
         const d = localStorage.getItem('favvi_staff_dept');
         const s = localStorage.getItem('favvi_staff_slug');
         const p = localStorage.getItem('favvi_staff_pw_hash');
-        if (!n || !d || !p || s !== slug) return;
+        if (!n || !p || s !== slug) return;
         try {
             const pw = atob(p);
             const r = await fetch('/verify-password', {
@@ -754,24 +743,20 @@
                 body: JSON.stringify({ slug, password: pw, role: 'staff' })
             });
             if ((await r.json()).valid !== true) return;
-            staffName = n; staffDept = d; activeFilter = d; staffPw = pw;
+            staffName = n; staffDept = d || 'all'; activeFilter = staffDept; staffPw = pw;
             boot();
         } catch(e) {}
     }
 
     loadHotelName(); checkSavedSession();
 
-    function selectDept(el) {
-        document.querySelectorAll('.dept-opt').forEach(d => d.classList.remove('selected'));
-        el.classList.add('selected');
-        staffDept = el.dataset.dept;
-    }
 
     async function checkPassword() {
         const name = document.getElementById('staffName').value.trim();
         const pw   = document.getElementById('staffPassword').value;
         const err  = document.getElementById('loginError');
         if (!name) { err.textContent = 'Please enter your name.'; err.style.display = 'block'; return; }
+        if (!pw)   { err.textContent = 'Please enter your staff code.'; err.style.display = 'block'; return; }
         let valid = false;
         try {
             const r = await fetch('/verify-password', {
@@ -780,8 +765,10 @@
             });
             valid = (await r.json()).valid === true;
         } catch(e) {}
-        if (!valid) { err.textContent = 'Incorrect password. Try again.'; err.style.display = 'block'; return; }
+        if (!valid) { err.textContent = 'That code doesn\'t match. Check with your manager.'; err.style.display = 'block'; return; }
         staffName = name; staffPw = pw; err.style.display = 'none';
+        // Default to seeing everything; they pick their department inside the dashboard.
+        staffDept = localStorage.getItem('favvi_staff_dept') || 'all';
         if (document.getElementById('staySignedIn').checked) {
             localStorage.setItem('favvi_staff_name', name);
             localStorage.setItem('favvi_staff_dept', staffDept);
@@ -853,6 +840,13 @@
         activeFilter = f;
         document.querySelectorAll('.fchip').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
+        // The chosen filter is also the department they get notified about.
+        staffDept = f;
+        localStorage.setItem('favvi_staff_dept', f);
+        // If alerts are already on, re-subscribe so notifications match the new department.
+        if ('Notification' in window && Notification.permission === 'granted') {
+            subscribeForPush();
+        }
         reconcile();
     }
 
