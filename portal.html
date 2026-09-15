@@ -175,7 +175,7 @@
         }
 
         /* ── GRID ── */
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
 
         .card {
             background: var(--white);
@@ -262,6 +262,9 @@
         }
 
         /* ── MOBILE ── */
+        @media (max-width: 900px) and (min-width: 641px) {
+            .grid { grid-template-columns: repeat(2, 1fr); }
+        }
         @media (max-width: 640px) {
             .topbar { padding: 0 16px; height: 58px; }
             .hotel-name { display: none; }
@@ -270,8 +273,7 @@
             .welcome-row { flex-direction: column; align-items: flex-start; gap: 8px; margin-bottom: 28px; padding-bottom: 20px; }
             .subtitle { text-align: left; }
             .welcome-right { align-items: flex-start; }
-            .grid { grid-template-columns: 1fr; gap: 12px; }
-            .card { padding: 24px 20px 22px; }
+            .grid { grid-template-columns: 1fr; gap: 12px; }            .card { padding: 24px 20px 22px; }
             .card h3 { font-size: 24px; }
             .setup-banner { flex-direction: column; align-items: stretch; text-align: left; }
             .setup-banner-btn { text-align: center; }
@@ -293,7 +295,7 @@
                 <div class="onboard-title">Let's set up <em>your hotel.</em></div>
                 <div class="onboard-count" id="onboardCount">0 of 5</div>
             </div>
-            <p class="onboard-sub">Five quick steps and your AI concierge is ready for guests.</p>
+            <p class="onboard-sub">Four quick steps and your AI concierge is ready for guests.</p>
             <div class="onboard-bar"><div class="onboard-bar-fill" id="onboardBar"></div></div>
 
             <a class="onboard-step" id="step-info" href="#">
@@ -301,15 +303,6 @@
                 <div class="step-text">
                     <div class="step-title">Tell the AI about your hotel</div>
                     <div class="step-desc">WiFi password, breakfast times, facilities — this is what the concierge tells your guests. The more detail, the smarter it gets.</div>
-                </div>
-                <span class="step-arrow">→</span>
-            </a>
-
-            <a class="onboard-step" id="step-knowledge" href="#">
-                <div class="step-circle">✓</div>
-                <div class="step-text">
-                    <div class="step-title">Add your staff knowledge base</div>
-                    <div class="step-desc">Procedures, policies, how to handle situations — your staff's private AI assistant learns from this.</div>
                 </div>
                 <span class="step-arrow">→</span>
             </a>
@@ -361,20 +354,6 @@
                 <h3>Staff Dashboard</h3>
                 <p>Guest requests colour-coded by department. Claim and complete tasks in real time.</p>
                 <div class="card-footer">Updates every 10 seconds</div>
-            </a>
-            <a class="card c-gold" id="staffChatLink" href="#">
-                <div class="card-label"><span class="status-dot"></span>AI Assistant</div>
-                <div class="card-arrow">↗</div>
-                <h3>Staff Assistant</h3>
-                <p>Ask anything about hotel procedures, policies, and handling guest situations.</p>
-                <div class="card-footer">Powered by Claude AI</div>
-            </a>
-            <a class="card c-green" id="dashboardLink" href="#">
-                <div class="card-label"><span class="status-dot"></span>Analytics</div>
-                <div class="card-arrow">↗</div>
-                <h3>Manager Analytics</h3>
-                <p>Average ratings, recent guest feedback, and satisfaction trends over time.</p>
-                <div class="card-footer">From post-checkout feedback</div>
             </a>
             <a class="card c-teal" id="linksLink" href="#">
                 <div class="card-label"><span class="status-dot"></span>QR Codes</div>
@@ -435,8 +414,6 @@
             document.title = hotel.name + ' — Favvi';
 
             setHref('staffLink',      `/portal/${slug}/staff`);
-            setHref('staffChatLink',  `/portal/${slug}/staffchat`);
-            setHref('dashboardLink',  `/portal/${slug}/dashboard`);
             setHref('linksLink',      `/portal/${slug}/links`);
             setHref('settingsLink',   `/portal/${slug}/settings`);
 
@@ -471,7 +448,6 @@
         function buildSteps(hotel) {
             return [
                 { id: 'step-info',      href: `/portal/${slug}/settings`,  done: !!(hotel.hotel_info && hotel.hotel_info.trim()),           track: null },
-                { id: 'step-knowledge', href: `/portal/${slug}/settings`,  done: !!(hotel.staff_knowledge && hotel.staff_knowledge.trim()), track: null },
                 { id: 'step-chat',      href: `/portal/${slug}/chat`,      done: !!localStorage.getItem(obKey('chat')),                     track: 'chat' },
                 { id: 'step-links',     href: `/portal/${slug}/links`,     done: !!localStorage.getItem(obKey('links')),                    track: 'links' },
                 { id: 'step-staff',     href: `/portal/${slug}/staff`,     done: !!localStorage.getItem(obKey('staff')),                    track: 'staff' },
