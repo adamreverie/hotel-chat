@@ -244,22 +244,7 @@
 </head>
 <body>
 
-    <!-- LOGIN -->
-    <div class="overlay" id="overlay">
-        <div class="login-card">
-            <div class="login-logo">fav<span>vi</span></div>
-            <h2>Settings</h2>
-            <p>Enter your manager password to continue</p>
-            <div class="field">
-                <label>Manager Password</label>
-                <input type="password" id="passwordInput" placeholder="Enter password"
-                       onkeypress="if(event.key==='Enter') attemptLogin()" />
-            </div>
-            <button class="login-btn" onclick="attemptLogin()">Access Settings</button>
-            <p class="login-error" id="loginError">Incorrect password. Try again.</p>
-            <p class="login-hint">Settings are manager-only. Staff access the dashboard and assistant from the portal.</p>
-        </div>
-    </div>
+    <!-- Settings open directly — protected by the portal login -->
 
     <!-- TOP BAR -->
     <div class="topbar" id="mainHeader" style="display:none;">
@@ -358,39 +343,19 @@
             </div>
         </div>
 
-        <!-- 3. STAFF KNOWLEDGE BASE -->
-        <div class="section">
-            <div class="section-header">
-                <div class="section-eyebrow">Staff AI</div>
-                <div class="section-title">Staff Knowledge Base</div>
-                <div class="section-desc">Procedures, policies and scripts the staff AI will use to answer questions</div>
-            </div>
-            <div class="section-body">
-                <div class="form-row single">
-                    <div class="form-field">
-                        <label>Knowledge Base</label>
-                        <textarea id="staffKnowledge" style="min-height:200px;"
-                            placeholder="Your hotel's procedures, policies and scripts..."></textarea>
-                    </div>
-                </div>
-            </div>
-            <div class="section-footer">
-                <span class="save-status" id="status-knowledge"></span>
-                <button class="save-btn" onclick="saveSection('knowledge')">Save Knowledge Base</button>
-            </div>
-        </div>
+        <!-- Staff Knowledge Base removed for launch (staff AI assistant parked) -->
 
         <!-- 4. PASSWORDS -->
         <div class="section">
             <div class="section-header">
                 <div class="section-eyebrow">Access</div>
                 <div class="section-title">Passwords</div>
-                <div class="section-desc">Update staff and manager passwords</div>
+                <div class="section-desc">Update your login password and staff code</div>
             </div>
             <div class="section-body">
                 <div class="form-row">
                     <div class="form-field">
-                        <label>New Staff Password</label>
+                        <label>New Staff Code</label>
                         <div class="pw-wrap">
                             <input type="password" id="newStaffPw" placeholder="Enter new password" />
                             <button class="pw-eye" onclick="togglePw('newStaffPw', this)" aria-label="Show password">
@@ -402,7 +367,7 @@
                         </div>
                     </div>
                     <div class="form-field">
-                        <label>Confirm Staff Password</label>
+                        <label>Confirm Staff Code</label>
                         <div class="pw-wrap">
                             <input type="password" id="confirmStaffPw" placeholder="Repeat password" />
                             <button class="pw-eye" onclick="togglePw('confirmStaffPw', this)" aria-label="Show password">
@@ -416,7 +381,7 @@
                 </div>
                 <div class="form-row">
                     <div class="form-field">
-                        <label>New Manager Password</label>
+                        <label>New Login Password</label>
                         <div class="pw-wrap">
                             <input type="password" id="newManagerPw" placeholder="Enter new password" />
                             <button class="pw-eye" onclick="togglePw('newManagerPw', this)" aria-label="Show password">
@@ -428,7 +393,7 @@
                         </div>
                     </div>
                     <div class="form-field">
-                        <label>Confirm Manager Password</label>
+                        <label>Confirm Login Password</label>
                         <div class="pw-wrap">
                             <input type="password" id="confirmManagerPw" placeholder="Repeat password" />
                             <button class="pw-eye" onclick="togglePw('confirmManagerPw', this)" aria-label="Show password">
@@ -493,33 +458,14 @@
         loadConfig();
 
         let authPw = '';
-        async function attemptLogin() {
-            const pw = document.getElementById('passwordInput').value;
-            const errEl = document.getElementById('loginError');
-            let valid = false;
-            try {
-                const r = await fetch('/verify-password', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ slug, password: pw, role: 'manager' })
-                });
-                valid = (await r.json()).valid === true;
-            } catch(e) {}
-            if (!valid) {
-                errEl.style.display = 'block';
-                return;
-            }
-            authPw = pw;
-            errEl.style.display = 'none';
-            enterSettings();
-        }
-
         function enterSettings() {
-            document.getElementById('overlay').style.display = 'none';
-            document.getElementById('mainHeader').style.display = 'flex';
-            document.getElementById('mainBody').style.display = 'block';
+            const mh = document.getElementById('mainHeader'); if (mh) mh.style.display = 'flex';
+            const mb = document.getElementById('mainBody');   if (mb) mb.style.display = 'block';
             document.getElementById('backLink').href = slug ? `/portal/${slug}` : '/';
             loadCurrentValues();
         }
+        // Settings open directly — no password gate (protected by the portal login)
+        enterSettings();
 
         async function loadCurrentValues() {
             try {
@@ -533,7 +479,6 @@
                 document.getElementById('hotelInfo').value       = cfg.hotel_info || '';
                 updateInfoCounter();
                 document.getElementById('currentOffers').value   = cfg.current_offers || '';
-                document.getElementById('staffKnowledge').value  = cfg.staff_knowledge || '';
                 renderMenuState(cfg.menu_filename || '');
             } catch(e) {}
         }
@@ -549,8 +494,6 @@
                     if (!payload.name) { showStatus(statusEl, 'Hotel name is required', false); return; }
                 } else if (section === 'offers') {
                     payload.current_offers = document.getElementById('currentOffers').value.trim();
-                } else if (section === 'knowledge') {
-                    payload.staff_knowledge = document.getElementById('staffKnowledge').value.trim();
                 } else if (section === 'passwords') {
                     const newStaff  = document.getElementById('newStaffPw').value;
                     const confStaff = document.getElementById('confirmStaffPw').value;

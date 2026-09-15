@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <link rel="icon" href="/favicon.ico">
-    <title>Links & QR Codes — Favvi</title>
+    <title>QR Code — Favvi</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -88,13 +88,11 @@
             opacity: 0; transform: translateY(12px);
             animation: cardIn 0.55s var(--spring) forwards;
         }
-        .link-card.feedback { border-top-color: var(--green); animation-delay: 0.12s; }
         @keyframes cardIn { to { opacity: 1; transform: translateY(0); } }
 
         .link-card-header { padding: 22px 26px 16px; border-bottom: 1px solid var(--linen); }
         .link-eyebrow { font-size: 9px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
         .chat .link-eyebrow { color: var(--gold-dark); }
-        .feedback .link-eyebrow { color: var(--green-dark); }
         .link-title { font-family: 'Cormorant Garamond', serif; font-size: 25px; font-weight: 600; }
         .link-desc { font-size: 12px; font-weight: 300; color: var(--ink-40); margin-top: 3px; line-height: 1.5; }
 
@@ -213,20 +211,20 @@
             <a class="logo" id="backLink" href="#">fav<span>vi</span></a>
             <a class="back-to-portal" id="portalBackLink" href="#">← Portal</a>
             <div class="divider-v"></div>
-            <span class="topbar-title">Links & QR Codes</span>
+            <span class="topbar-title">QR Code</span>
         </div>
     </div>
 
     <div class="body">
-        <div class="page-title"><em>Links &</em> QR Codes</div>
+        <div class="page-title"><em>Your</em> QR Code</div>
         <p class="page-sub" id="pageSub">Loading…</p>
 
-        <!-- GUEST CHAT -->
+        <!-- CHATBOT QR -->
         <div class="link-card chat">
             <div class="link-card-header">
                 <div class="link-eyebrow">Guest Facing</div>
-                <div class="link-title">Guest Chat Concierge</div>
-                <div class="link-desc">Place this QR code in every guest room — on the desk, TV unit or welcome card</div>
+                <div class="link-title">AI Chatbot QR Code</div>
+                <div class="link-desc">This is your AI chatbot. Print this QR code and place it in every guest room — on the desk, TV unit or welcome card. Guests scan it to chat with your AI concierge instantly, in any language, at any hour.</div>
             </div>
             <div class="link-card-body">
                 <div class="url-section">
@@ -239,44 +237,12 @@
                 </div>
                 <div class="qr-section">
                     <div class="qr-box" id="chatQr"></div>
-                    <button class="download-btn" onclick="downloadCard('chatQr', 'favvi-guest-chat', 'Scan to chat with us')">Download Print Card</button>
+                    <button class="download-btn" onclick="downloadCard('chatQr', 'favvi-chatbot-qr', 'Scan to chat with us')">Download Print Card</button>
                     <div class="qr-label">Branded card, ready to print</div>
                 </div>
             </div>
         </div>
 
-        <!-- FEEDBACK -->
-        <div class="link-card feedback">
-            <div class="link-card-header">
-                <div class="link-eyebrow">Post-Checkout</div>
-                <div class="link-title">Guest Feedback Form</div>
-                <div class="link-desc">Send this link to guests after checkout via WhatsApp, email or SMS</div>
-            </div>
-            <div class="link-card-body">
-                <div class="url-section">
-                    <div class="url-label">Link</div>
-                    <div class="url-box">
-                        <div class="url-text" id="feedbackUrl">Loading…</div>
-                        <button class="copy-btn" onclick="copyLink('feedbackUrl', this)">Copy</button>
-                    </div>
-                    <p class="link-hint" style="margin-bottom:16px;">Send this after checkout — by WhatsApp, email or SMS.</p>
-
-                    <div class="personalise">
-                        <div class="url-label">Personalise for a guest <span style="text-transform:none;letter-spacing:0;font-weight:300;color:var(--ink-25);">(optional)</span></div>
-                        <div class="personalise-row">
-                            <input type="text" id="pGuestName" placeholder="Guest name" />
-                            <input type="text" id="pRoom" placeholder="Room" />
-                            <button class="copy-btn personalise-btn" onclick="copyPersonalised(this)">Copy Link</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="qr-section">
-                    <div class="qr-box" id="feedbackQr"></div>
-                    <button class="download-btn" onclick="downloadCard('feedbackQr', 'favvi-feedback', 'Scan to share your feedback')">Download Print Card</button>
-                    <div class="qr-label">Optional — for shared spaces</div>
-                </div>
-            </div>
-        </div>
 
     </div>
 
@@ -292,16 +258,11 @@
                 hotelName = hotel.name || '';
                 document.getElementById('backLink').href = `/portal/${slug}`;
                 var _pbl = document.getElementById('portalBackLink'); if (_pbl) _pbl.href = `/portal/${slug}`;
-                document.getElementById('pageSub').textContent = hotelName + ' — Links & QR Codes';
+                document.getElementById('pageSub').textContent = hotelName + ' — QR Code';
 
-                const chatUrl     = `${base}/portal/${slug}/chat`;
-                const feedbackUrl = `${base}/portal/${slug}/feedback`;
-
-                document.getElementById('chatUrl').textContent     = chatUrl;
-                document.getElementById('feedbackUrl').textContent = feedbackUrl;
-
-                generateQR('chatQr',     chatUrl);
-                generateQR('feedbackQr', feedbackUrl);
+                const chatUrl = `${base}/portal/${slug}/chat`;
+                document.getElementById('chatUrl').textContent = chatUrl;
+                generateQR('chatQr', chatUrl);
             } catch(e) { console.error(e); }
         }
 
@@ -328,27 +289,6 @@
                 fallbackCopy(text, done);
             }
         }
-        function copyPersonalised(btn) {
-            const name = document.getElementById('pGuestName').value.trim();
-            const room = document.getElementById('pRoom').value.trim();
-            let url = `${base}/portal/${slug}/feedback`;
-            const params = new URLSearchParams();
-            if (name) params.set('name', name);
-            if (room) params.set('room', room);
-            const qs = params.toString();
-            if (qs) url += '?' + qs;
-            const done = () => {
-                btn.textContent = 'Copied ✦';
-                btn.classList.add('copied');
-                setTimeout(() => { btn.textContent = 'Copy Link'; btn.classList.remove('copied'); }, 2000);
-            };
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(url).then(done).catch(() => fallbackCopy(url, done));
-            } else {
-                fallbackCopy(url, done);
-            }
-        }
-
         function fallbackCopy(text, done) {
             const ta = document.createElement('textarea');
             ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';

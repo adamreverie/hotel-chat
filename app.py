@@ -9,7 +9,7 @@ import urllib.error
 import resend
 import sqlite3
 from datetime import datetime
-from flask import Flask, request, jsonify, send_from_directory, Response
+from flask import Flask, request, jsonify, send_from_directory, Response, redirect
 import anthropic
 from pywebpush import webpush, WebPushException
 
@@ -224,13 +224,13 @@ def portal_chat(slug):       return send_from_directory('.', 'index.html')
 def portal_staff(slug):      return send_from_directory('.', 'staff.html')
 
 @app.route('/portal/<slug>/staffchat')
-def portal_staffchat(slug):  return send_from_directory('.', 'staffchat.html')
+def portal_staffchat(slug):  return redirect(f'/portal/{slug}')
 
 @app.route('/portal/<slug>/feedback')
-def portal_feedback(slug):   return send_from_directory('.', 'feedback.html')
+def portal_feedback(slug):   return redirect(f'/portal/{slug}')
 
 @app.route('/portal/<slug>/dashboard')
-def portal_dashboard(slug):  return send_from_directory('.', 'dashboard.html')
+def portal_dashboard(slug):  return redirect(f'/portal/{slug}')
 
 @app.route('/portal/<slug>/settings')
 def portal_settings(slug):   return send_from_directory('.', 'settings.html')
@@ -472,10 +472,7 @@ def update_hotel_settings():
     if not slug:
         return jsonify({"success": False, "error": "No slug provided"})
 
-    # Require current manager password
-    if not verify_hotel_password(slug, data.get('auth_password'), 'manager'):
-        return jsonify({"success": False, "error": "Not authorised"}), 403
-
+    # Settings are open to anyone with the portal link (no separate password)
     allowed = ['name', 'manager_email', 'hotel_info', 'current_offers',
                'staff_password', 'manager_password', 'staff_knowledge', 'menu_notes']
     fields, values = [], []
@@ -502,12 +499,8 @@ MENU_TEXT_LIMIT = 12000  # characters of extracted PDF text kept for the AI
 
 @app.route('/upload-menu/<slug>', methods=['POST'])
 def upload_menu(slug):
-    """Manager uploads a PDF menu. We extract its text (for the AI to read) and
-    store the raw bytes (so guests can view the file). Auth via manager password."""
-    auth = request.form.get('auth_password', '')
-    if not verify_hotel_password(slug, auth, 'manager'):
-        return jsonify({"success": False, "error": "Not authorised"}), 403
-
+    """Uploads a PDF menu. We extract its text (for the AI to read) and
+    store the raw bytes (so guests can view the file)."""
     if 'file' not in request.files:
         return jsonify({"success": False, "error": "No file provided"})
     f = request.files['file']
@@ -562,9 +555,6 @@ def upload_menu(slug):
 
 @app.route('/delete-menu/<slug>', methods=['POST'])
 def delete_menu(slug):
-    data = request.json or {}
-    if not verify_hotel_password(slug, data.get('auth_password'), 'manager'):
-        return jsonify({"success": False, "error": "Not authorised"}), 403
     try:
         conn = get_conn(); c = conn.cursor()
         c.execute(f'''UPDATE hotels SET menu_content = NULL, menu_filename = NULL,

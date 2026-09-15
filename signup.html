@@ -237,26 +237,18 @@
             </div>
 
             <div class="field">
-                <label>Portal Password</label>
+                <label>Your Password</label>
                 <input type="password" id="password" placeholder="Choose a password" />
-                <div class="field-hint">This is your portal login password</div>
+                <div class="field-hint">You'll use this to log in and manage everything</div>
             </div>
 
             <div class="divider"></div>
             <div class="section-label">Staff Access</div>
 
-            <div class="field-row">
-                <div class="field">
-                    <label>Staff Password</label>
-                    <input type="password" id="staffPassword" placeholder="For your team" />
-                </div>
-                <div class="field">
-                    <label>Manager Password</label>
-                    <input type="password" id="managerPassword" placeholder="For settings & analytics" />
-                </div>
-            </div>
-            <div class="field-hint" style="margin-top: -6px; margin-bottom: 18px;">
-                Staff use one password for the dashboard; managers use another for settings and analytics
+            <div class="field">
+                <label>Staff Code</label>
+                <input type="password" id="staffPassword" placeholder="A simple code for your team" />
+                <div class="field-hint">Your team enters this once to open the staff dashboard on their phones. Keep it easy to share.</div>
             </div>
 
             <label class="terms-row">
@@ -290,7 +282,6 @@
             const email           = document.getElementById('email').value.trim();
             const password        = document.getElementById('password').value.trim();
             const staffPassword   = document.getElementById('staffPassword').value.trim();
-            const managerPassword = document.getElementById('managerPassword').value.trim();
             const errEl           = document.getElementById('errorMsg');
             const btn             = document.getElementById('signupBtn');
 
@@ -323,7 +314,7 @@
                         email:            email,
                         password:         password,
                         staff_password:   staffPassword || 'staff2024',
-                        manager_password: managerPassword || 'manager2024'
+                        manager_password: password
                     })
                 });
                 const data = await r.json();
