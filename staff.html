@@ -770,6 +770,7 @@
         } catch(e) {}
         if (!valid) { err.textContent = 'That code doesn\'t match. Check with your manager.'; err.style.display = 'block'; return; }
         staffName = name; staffPw = pw; err.style.display = 'none';
+        // Default to seeing everything; they pick their department inside the dashboard.
         staffDept = localStorage.getItem('favvi_staff_dept') || 'all';
         if (document.getElementById('staySignedIn').checked) {
             localStorage.setItem('favvi_staff_name', name);
@@ -842,6 +843,7 @@
         activeFilter = f;
         document.querySelectorAll('.fchip').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
+        // The chosen filter is also the department they get notified about.
         staffDept = f;
         localStorage.setItem('favvi_staff_dept', f);
         if ('Notification' in window && Notification.permission === 'granted') { subscribeForPush(); }
@@ -863,12 +865,13 @@
     function timeAgo(s) {
         if (!s) return '';
         try {
-            // Parse "YYYY-MM-DD HH:MM" as local time (no Z suffix — server stores local)
+            // New format: "2026-06-11T14:32:00Z" (UTC) — parsed correctly by Date and
+            // shown in the viewer's local time. Old format: "2026-06-11 14:32" (legacy,
+            // pre-timezone-fix) — parsed as local so it doesn't break entirely.
             let ts;
-            if (s.includes('T')) {
+            if (s.includes('Z') || s.includes('T')) {
                 ts = new Date(s).getTime();
             } else {
-                // "2026-06-11 14:32" — split and parse as local
                 const [datePart, timePart] = s.split(' ');
                 const [yr, mo, dy] = datePart.split('-').map(Number);
                 const [hr, mn] = (timePart || '00:00').split(':').map(Number);
@@ -876,7 +879,6 @@
             }
             const m = Math.floor((Date.now() - ts) / 60000);
             if (isNaN(m)) return s.substring(0, 16);
-            if (m < 0)  return 'Just now';
             if (m < 1)  return 'Just now';
             if (m < 60) return `${m}m ago`;
             const h = Math.floor(m / 60);
