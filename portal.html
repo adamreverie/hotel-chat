@@ -294,7 +294,7 @@
         <div class="onboard" id="onboard">
             <div class="onboard-head">
                 <div class="onboard-title">Let's set up <em>your hotel.</em></div>
-                <div class="onboard-count" id="onboardCount">0 of 5</div>
+                <div class="onboard-count" id="onboardCount">0 of 4</div>
             </div>
             <p class="onboard-sub">Four quick steps and your AI concierge is ready for guests.</p>
             <div class="onboard-bar"><div class="onboard-bar-fill" id="onboardBar"></div></div>
@@ -464,7 +464,7 @@
             const doneCount = steps.filter(s => s.done).length;
 
             // All five complete: celebrate once, then never show again
-            if (doneCount === 5) {
+            if (doneCount === steps.length && steps.length > 0) {
                 if (!localStorage.getItem(obKey('celebrated'))) {
                     localStorage.setItem(obKey('celebrated'), '1');
                     localStorage.setItem(obKey('hidden'), '1');
@@ -502,16 +502,21 @@
                     });
                 }
             });
-            document.getElementById('onboardCount').textContent = `${doneCount} of 5`;
+            const total = steps.length;
+            document.getElementById('onboardCount').textContent = `${doneCount} of ${total}`;
             requestAnimationFrame(() => {
-                document.getElementById('onboardBar').style.width = (doneCount / 5 * 100) + '%';
+                document.getElementById('onboardBar').style.width = (doneCount / total * 100) + '%';
             });
         }
 
         function updateOnboardProgress() {
-            const done = document.querySelectorAll('.onboard-step.done').length;
-            document.getElementById('onboardCount').textContent = `${done} of 5`;
-            document.getElementById('onboardBar').style.width = (done / 5 * 100) + '%';
+            const total = document.querySelectorAll('.onboard-step').length;
+            const done  = document.querySelectorAll('.onboard-step.done').length;
+            document.getElementById('onboardCount').textContent = `${done} of ${total}`;
+            document.getElementById('onboardBar').style.width = (total ? (done / total * 100) : 0) + '%';
+            if (done === total && total > 0) {
+                localStorage.setItem(obKey('celebrated'), '1');
+            }
         }
 
         // Show the "Show setup guide" link only when the checklist was manually
@@ -521,7 +526,7 @@
             if (localStorage.getItem(obKey('celebrated'))) return;
             const steps = buildSteps(hotel);
             const doneCount = steps.filter(s => s.done).length;
-            if (doneCount >= 5) return;  // finished in the meantime — never nag
+            if (doneCount >= steps.length) return;  // finished in the meantime — never nag
             const link = document.getElementById('showOnboard');
             if (link) link.style.display = 'inline-block';
         }
