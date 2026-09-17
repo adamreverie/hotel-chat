@@ -237,18 +237,15 @@
             </div>
 
             <div class="field">
-                <label>Your Password</label>
+                <label>Portal Password</label>
                 <input type="password" id="password" placeholder="Choose a password" />
-                <div class="field-hint">You'll use this to log in and manage everything</div>
+                <div class="field-hint">Your main login to the portal</div>
             </div>
 
-            <div class="divider"></div>
-            <div class="section-label">Staff Access</div>
-
             <div class="field">
-                <label>Staff Code</label>
-                <input type="password" id="staffPassword" placeholder="A simple code for your team" />
-                <div class="field-hint">Your team enters this once to open the staff dashboard on their phones. Keep it easy to share.</div>
+                <label>Manager Password</label>
+                <input type="password" id="managerPassword" placeholder="Choose a password" />
+                <div class="field-hint">Protects your Settings — where you'll manage your hotel and set your staff code</div>
             </div>
 
             <label class="terms-row">
@@ -281,12 +278,12 @@
             const hotelName       = document.getElementById('hotelName').value.trim();
             const email           = document.getElementById('email').value.trim();
             const password        = document.getElementById('password').value.trim();
-            const staffPassword   = document.getElementById('staffPassword').value.trim();
+            const managerPassword = document.getElementById('managerPassword').value.trim();
             const errEl           = document.getElementById('errorMsg');
             const btn             = document.getElementById('signupBtn');
 
-            if (!hotelName || !email || !password) {
-                errEl.textContent = 'Please fill in hotel name, email and password.';
+            if (!hotelName || !email || !password || !managerPassword) {
+                errEl.textContent = 'Please fill in all fields, including both passwords.';
                 errEl.style.display = 'block';
                 return;
             }
@@ -313,8 +310,7 @@
                         name:             hotelName,
                         email:            email,
                         password:         password,
-                        staff_password:   staffPassword || 'staff2024',
-                        manager_password: password
+                        manager_password: managerPassword || 'manager2024'
                     })
                 });
                 const data = await r.json();

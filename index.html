@@ -124,6 +124,48 @@
         .online-dot { width: 5px; height: 5px; background: #4CAF50; border-radius: 50%; animation: pulse 2s ease infinite; }
         @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.45;transform:scale(0.8)} }
 
+        /* ─── CHECK-IN OVERLAY ─── */
+        .checkin-overlay {
+            position: absolute; inset: 0; z-index: 50;
+            background: rgba(248,244,238,0.97);
+            backdrop-filter: blur(8px);
+            display: none; align-items: center; justify-content: center;
+            padding: 24px;
+        }
+        .checkin-overlay.visible { display: flex; animation: welcomeIn 0.4s var(--smooth) both; }
+        .checkin-card {
+            width: 100%; max-width: 360px; text-align: center;
+            background: #fff; border: 1px solid var(--line);
+            border-radius: 12px; padding: 34px 28px 26px;
+            box-shadow: 0 12px 40px rgba(26,26,46,0.10);
+        }
+        .checkin-mark { font-size: 26px; color: var(--accent); margin-bottom: 12px; }
+        .checkin-title { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 600; color: var(--ink); margin-bottom: 6px; line-height: 1.15; }
+        .checkin-title em { font-style: italic; color: var(--accent-dark); font-weight: 400; }
+        .checkin-sub { font-size: 13px; font-weight: 300; color: rgba(26,26,46,0.55); line-height: 1.5; margin-bottom: 22px; }
+        .checkin-field { text-align: left; margin-bottom: 14px; }
+        .checkin-field label { display: block; font-size: 10px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(26,26,46,0.45); margin-bottom: 6px; }
+        .checkin-field input {
+            width: 100%; box-sizing: border-box; padding: 13px 15px;
+            border: 1px solid var(--line); border-radius: 8px;
+            font-family: inherit; font-size: 15px; color: var(--ink);
+            background: var(--cream); transition: all 0.2s;
+        }
+        .checkin-field input:focus { outline: none; border-color: var(--accent); background: #fff; box-shadow: 0 0 0 3px rgba(201,168,76,0.12); }
+        .checkin-btn {
+            width: 100%; margin-top: 8px; padding: 14px;
+            background: var(--navy); color: #fff; border: none; border-radius: 8px;
+            font-family: inherit; font-size: 14px; font-weight: 500; letter-spacing: 0.3px;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .checkin-btn:hover { background: #000; }
+        .checkin-skip {
+            width: 100%; margin-top: 12px; padding: 6px; background: none; border: none;
+            font-family: inherit; font-size: 12px; font-weight: 300; color: rgba(26,26,46,0.45);
+            cursor: pointer; transition: color 0.2s;
+        }
+        .checkin-skip:hover { color: var(--accent-dark); }
+
         /* ─── MESSAGES ─── */
         .messages {
             flex: 1;
@@ -367,6 +409,27 @@
             </div>
         </div>
 
+        <!-- GUEST CHECK-IN OVERLAY -->
+        <div class="checkin-overlay" id="checkinOverlay">
+            <div class="checkin-card">
+                <div class="checkin-mark">✦</div>
+                <div class="checkin-title">Welcome to <em class="hotel-name">…</em></div>
+                <p class="checkin-sub">Tell us who we're helping, so we can look after you properly.</p>
+                <div class="checkin-field">
+                    <label>Room Number</label>
+                    <input type="text" id="ciRoom" placeholder="Your room number" autocomplete="off"
+                           inputmode="numeric" onkeypress="if(event.key==='Enter') startChat()" />
+                </div>
+                <div class="checkin-field">
+                    <label>Last Name</label>
+                    <input type="text" id="ciName" placeholder="Your last name" autocomplete="family-name"
+                           onkeypress="if(event.key==='Enter') startChat()" />
+                </div>
+                <button class="checkin-btn" onclick="startChat()">Start Chatting</button>
+                <button class="checkin-skip" onclick="skipCheckin()">Skip — I just have a quick question</button>
+            </div>
+        </div>
+
         <div class="typing-wrap">
             <div class="typing-bubble" id="typingBubble">
                 <div class="typing-dot"></div>
@@ -432,18 +495,69 @@
         } catch(e) {}
     }
 
+    const guestKey = (k) => `favvi_guest_${slug}_${k}`;
+    // Safe storage — some browsers/incognito modes throw on localStorage access.
+    function lsGet(k) { try { return localStorage.getItem(k); } catch(e) { return null; } }
+    function lsSet(k, v) { try { localStorage.setItem(k, v); } catch(e) {} }
+
     window.onload = async function() {
         let config = { name: '' };
         try { config = await loadConfig(); } catch(e) {}
+        window._hotelName = config.name || 'the hotel';
         checkMenu();
         const h = new Date().getHours();
         const word = h < 5 ? 'Good evening' : h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
         document.getElementById('welcomeSub').textContent =
             `${word} — your concierge is here. Any question, any request, any hour.`;
-        // Seed history so the AI knows it has greeted the guest
-        const welcomeMsg = `Welcome to ${config.name}. I'm your personal concierge — here to help with anything you need, any time of day. How can I make your stay more comfortable?`;
-        conversationHistory = [{ role: 'assistant', content: welcomeMsg }];
+
+        // Remembered guest? Seed silently. Otherwise show the check-in screen.
+        const savedRoom = lsGet(guestKey('room'));
+        const savedName = lsGet(guestKey('name'));
+        if (savedRoom || lsGet(guestKey('skipped'))) {
+            seedGreeting(config.name, savedRoom, savedName);
+        } else {
+            document.getElementById('checkinOverlay').classList.add('visible');
+            setTimeout(() => { const el = document.getElementById('ciRoom'); if (el) el.focus(); }, 300);
+        }
     };
+
+    function seedGreeting(hotelName, room, name) {
+        // Build the AI's opening context. If we know the guest, tell the AI so it
+        // greets them by name and attaches their room to any request automatically.
+        let welcomeMsg;
+        if (room || name) {
+            const who = name ? ` for ${name}` : '';
+            const rm  = room ? ` (Room ${room})` : '';
+            welcomeMsg = `Welcome to ${hotelName}. I'm your personal concierge${who}${rm}. How can I help you today?`;
+            // Seed a hidden context turn so the AI knows the room/name for requests.
+            conversationHistory = [
+                { role: 'user', content: `[Guest details — room: ${room || 'not given'}, last name: ${name || 'not given'}. Greet them warmly by name if provided, and use this room number for any requests without asking again.]` },
+                { role: 'assistant', content: welcomeMsg }
+            ];
+            const sub = document.getElementById('welcomeSub');
+            if (sub && name) sub.textContent = `Welcome${name ? ', ' + name : ''} — your concierge is here for anything you need.`;
+        } else {
+            welcomeMsg = `Welcome to ${hotelName}. I'm your personal concierge — here to help with anything you need, any time of day. How can I make your stay more comfortable?`;
+            conversationHistory = [{ role: 'assistant', content: welcomeMsg }];
+        }
+    }
+
+    function startChat() {
+        const room = document.getElementById('ciRoom').value.trim();
+        const name = document.getElementById('ciName').value.trim();
+        if (room) lsSet(guestKey('room'), room);
+        if (name) lsSet(guestKey('name'), name);
+        document.getElementById('checkinOverlay').classList.remove('visible');
+        seedGreeting(window._hotelName, room, name);
+        setTimeout(() => { const el = document.getElementById('userInput'); if (el) el.focus(); }, 100);
+    }
+
+    function skipCheckin() {
+        lsSet(guestKey('skipped'), '1');
+        document.getElementById('checkinOverlay').classList.remove('visible');
+        seedGreeting(window._hotelName, '', '');
+        setTimeout(() => { const el = document.getElementById('userInput'); if (el) el.focus(); }, 100);
+    }
 
     function handleKey(e) { if (e.key === 'Enter') sendMessage(); }
 
