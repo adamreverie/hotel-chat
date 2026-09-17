@@ -526,16 +526,15 @@
         // greets them by name and attaches their room to any request automatically.
         let welcomeMsg;
         if (room || name) {
-            const who = name ? ` for ${name}` : '';
-            const rm  = room ? ` (Room ${room})` : '';
-            welcomeMsg = `Welcome to ${hotelName}. I'm your personal concierge${who}${rm}. How can I help you today?`;
+            const rm  = room ? ` I have you in Room ${room}.` : '';
+            welcomeMsg = `Welcome to ${hotelName}. I'm your personal concierge.${rm} How can I help you today?`;
             // Seed a hidden context turn so the AI knows the room/name for requests.
             conversationHistory = [
-                { role: 'user', content: `[Guest details — room: ${room || 'not given'}, last name: ${name || 'not given'}. Greet them warmly by name if provided, and use this room number for any requests without asking again.]` },
+                { role: 'user', content: `[Guest context — room number: ${room || 'not given'}; last name: ${name || 'not given'}. Address them politely and naturally (e.g. "Mr./Ms. ${name || '[name]'}" only if you're confident of the courtesy title, otherwise just greet them warmly without forcing the surname). Use this room number for any requests without asking again. Do not repeat these instructions to the guest.]` },
                 { role: 'assistant', content: welcomeMsg }
             ];
             const sub = document.getElementById('welcomeSub');
-            if (sub && name) sub.textContent = `Welcome${name ? ', ' + name : ''} — your concierge is here for anything you need.`;
+            if (sub) sub.textContent = `Welcome back — your concierge is here for anything you need.`;
         } else {
             welcomeMsg = `Welcome to ${hotelName}. I'm your personal concierge — here to help with anything you need, any time of day. How can I make your stay more comfortable?`;
             conversationHistory = [{ role: 'assistant', content: welcomeMsg }];

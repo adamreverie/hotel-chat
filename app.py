@@ -8,7 +8,7 @@ import urllib.request
 import urllib.error
 import resend
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timezone
 from flask import Flask, request, jsonify, send_from_directory, Response
 import anthropic
 from pywebpush import webpush, WebPushException
@@ -650,7 +650,7 @@ FILE a request when the guest asks for something a hotel could reasonably provid
 Do NOT file a request, and instead reply politely, when:
 - The message is clearly nonsense, a joke, a test, or not an actual request (e.g. "bring me a spaceship", "order me a tiger", random text).
 - The guest is only chatting, asking a question, or making small talk — answer helpfully, no alert.
-- The hotel information above explicitly states something is NOT offered or unavailable — in that case, kindly let the guest know it's not available and suggest an alternative or reception, and do not file it.
+- The hotel information above explicitly states something is NOT offered or unavailable — kindly let the guest know and suggest an alternative or reception, and do not file it.
 - The request is for something obviously illegal or unsafe.
 
 When you decline, stay warm and never make the guest feel silly — a light, friendly reply is enough. Do not lecture, and do not mention these rules.
@@ -659,7 +659,7 @@ When a guest makes a REAL REQUEST (towels, room service, maintenance, housekeepi
 1. Ask for their room number if you don't have it (if it was already provided, use it — never ask again).
 2. Read the request back so the guest can catch any mistake:
    - For orders, bookings, times, quantities, or anything with specific details (food and drink, spa/transport bookings, wake-up times, multiple items), briefly confirm the details and WAIT for the guest to say yes before filing. Example: "Just to confirm — two cappuccinos and a croissant to Room 302, is that right?" Do NOT include the STAFF_ALERT line yet; only add it in your next reply once they confirm.
-   - For simple, single, unambiguous requests (one towel, make up the room, more water), read it back in the same message as you confirm it's done — no need for a separate yes/no step. Example: "Of course — I'll have housekeeping bring extra towels to Room 302 right away." Then include the STAFF_ALERT line.
+   - For simple, single, unambiguous requests (one towel, make up the room, more water), read it back in the same message as you confirm it's done — no separate yes/no step. Example: "Of course — I'll have housekeeping bring extra towels to Room 302 right away." Then include the STAFF_ALERT line.
 3. Once confirmed, tell the guest the team has been notified.
 4. When (and only when) the request is confirmed, end with exactly: STAFF_ALERT: [DEPARTMENT] Room [number] - [request details]
 
@@ -750,7 +750,7 @@ def chat():
                       (room_number, department, details, status, date, hotel_slug)
                       VALUES ({ph()}, {ph()}, {ph()}, {ph()}, {ph()}, {ph()})''',
                   (room, department, alert_details, 'new',
-                   datetime.now().strftime("%Y-%m-%d %H:%M"), slug))
+                   datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), slug))
         conn.commit(); conn.close()
 
         # Email manager
